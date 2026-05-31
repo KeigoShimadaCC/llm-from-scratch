@@ -6,17 +6,17 @@ Living coordination file for phase-based agent work.
 
 | Field | Value |
 | --- | --- |
-| Phase | PHASE-05A |
-| Goal | Small practical model |
-| Branch | phase/phase-05a-small-practical-model |
-| Worktree | /Users/keigoshimada/Documents/llm-from-scratch-phase-05a-small-practical-model-wt |
-| Status | validation passed; PR pending |
+| Phase | PHASE-06A |
+| Goal | Instruction tuning |
+| Branch | main |
+| Worktree | /Users/keigoshimada/Documents/llm-from-scratch |
+| Status | queued |
 
 ## Task Queue
 
 ### Open
 
-_(none)_
+- [ ] Start PHASE-06A from `phase-plans/PHASE-06A-INSTRUCTION-TUNING.md`.
 
 ### In Progress
 
@@ -24,6 +24,7 @@ _(none)_
 
 ### Done
 
+- [x] Merged PHASE-05A via PR #5 at merge commit `535ebf9b982cec4e6cb6aa8bc86a663408983316`.
 - [x] Implemented PHASE-05A configs, dry-run/profile tooling, scaling report, and 30M+ local training evidence.
 - [x] Validated PHASE-05A locally with 30M dry-run/resume validation and scaling report generation.
 - [x] Merged PHASE-04A via PR #4 at merge commit `988fa5abfb1aa344cfe526de5a5bb0629c2b6b36`.
@@ -220,8 +221,26 @@ _(none)_
 - 2026-06-01: `uv run ruff check .` passed.
 - 2026-06-01: `git diff --check` passed.
 - 2026-06-01: `uv run python -m eval.compare_runs --manifest docs/phase05a_scaling_manifest.json --output docs/phase05a_scaling_report.md` passed and confirmed a trained 30M+ run in the scaling manifest.
+- 2026-06-01: PHASE-05A PR #5 passed GitHub CI and merged to `main` at `535ebf9b982cec4e6cb6aa8bc86a663408983316`.
 
 ## Phase Archive
+
+### PHASE-05A - Small Practical Model
+
+Status: complete
+Completed: 2026-06-01
+Evidence:
+- PR: #5
+- Merge commit: `535ebf9b982cec4e6cb6aa8bc86a663408983316`
+- 30M config: `configs/kgpt_30m.yaml`
+- Stretch configs: `configs/kgpt_50m.yaml`, `configs/kgpt_100m.yaml`
+- Tokenizer decision: `docs/phase05a_tokenizer_decision.md`
+- Data mixture manifest: `docs/phase05a_data_mixture_manifest.json`
+- Mac profile: `docs/phase05a_mac_profile.md`
+- Scaling manifest/report: `docs/phase05a_scaling_manifest.json`, `docs/phase05a_scaling_report.md`
+- Ignored 30M run: `experiments/runs/phase05a_kgpt30m_smoke/`
+- Validation commands: `uv run pytest`, `uv run ruff check .`, `git diff --check`, `uv run python -m train.pretrain --config configs/kgpt_30m.yaml --dry-run --validate-resume`, `uv run python -m eval.compare_runs --manifest docs/phase05a_scaling_manifest.json --output docs/phase05a_scaling_report.md`
+- Extra local evidence: `uv run python -m train.pretrain --config configs/kgpt_30m.yaml --max-steps 40 --run-name phase05a_kgpt30m_smoke`, `uv run python -m train.pretrain --config configs/kgpt_50m.yaml --dry-run`, `uv run python -m train.pretrain --config configs/kgpt_100m.yaml --dry-run`
 
 ### PHASE-04A - Tiny Pretraining Run
 

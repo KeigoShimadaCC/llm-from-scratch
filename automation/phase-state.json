@@ -1,5 +1,5 @@
 {
-  "currentPhase": "PHASE-05A",
+  "currentPhase": "PHASE-06A",
   "lastUpdated": "2026-06-01",
   "phases": {
     "PHASE-00B": {
@@ -36,7 +36,10 @@
       "status": "complete"
     },
     "PHASE-05A": {
-      "status": "queued"
+      "branch": "phase/phase-05a-small-practical-model",
+      "mergeCommit": "535ebf9b982cec4e6cb6aa8bc86a663408983316",
+      "pr": 5,
+      "status": "complete"
     },
     "PHASE-06A": {
       "status": "queued"
