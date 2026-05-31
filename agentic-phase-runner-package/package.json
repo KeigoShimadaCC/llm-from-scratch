@@ -1,0 +1,35 @@
+{
+  "name": "agentic-phase-runner-package",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "bin": {
+    "agentic": "dist/src/cli/index.js",
+    "create-agentic-runner": "dist/src/cli/create-agentic-runner.js"
+  },
+  "scripts": {
+    "agentic": "node dist/src/cli/index.js",
+    "build": "tsc -p tsconfig.json",
+    "create-runner": "node dist/src/cli/create-agentic-runner.js",
+    "test": "vitest run",
+    "typecheck": "tsc -p tsconfig.json --noEmit",
+    "check": "pnpm run typecheck && pnpm run test"
+  },
+  "files": [
+    "dist",
+    "templates",
+    "schemas",
+    "QUICKSTART.md",
+    "FOLDER_OVERVIEW.md",
+    "README.md",
+    "PACKAGE_MANIFEST.md",
+    "MIGRATION_NOTES.md",
+    "LICENSE_NOTES.md"
+  ],
+  "dependencies": {},
+  "devDependencies": {
+    "@types/node": "^22.15.29",
+    "typescript": "^5.8.3",
+    "vitest": "^3.2.1"
+  }
+}

@@ -1,0 +1,57 @@
+{
+  "agents": {
+    "cursorSubtask": {
+      "commandTemplate": "agent --print --trust --workspace '{{WORKSPACE}}' \"$(cat '{{PROMPT_PATH}}')\"",
+      "inactivityTimeoutMs": 180000,
+      "maxRetries": 0,
+      "provider": "manual",
+      "timeoutMs": 900000
+    },
+    "executor": {
+      "commandTemplate": "codex exec \"$(cat '{{PROMPT_PATH}}')\"",
+      "inactivityTimeoutMs": 300000,
+      "maxRetries": 0,
+      "provider": "shell",
+      "timeoutMs": 1800000
+    },
+    "planner": {
+      "commandTemplate": "codex exec \"$(cat '{{PROMPT_PATH}}')\"",
+      "inactivityTimeoutMs": 300000,
+      "maxRetries": 0,
+      "provider": "shell",
+      "timeoutMs": 1800000
+    },
+    "rechecker": {
+      "commandTemplate": "codex exec \"$(cat '{{PROMPT_PATH}}')\"",
+      "inactivityTimeoutMs": 300000,
+      "maxRetries": 0,
+      "provider": "shell",
+      "timeoutMs": 900000
+    }
+  },
+  "commandExecutor": {
+    "defaultTimeoutMs": 3600000,
+    "inactivityTimeoutMs": 300000,
+    "maxRetries": 0
+  },
+  "dependencyBootstrapCommands": [],
+  "git": {
+    "baseBranch": "main",
+    "baseRef": "origin/main"
+  },
+  "preflightCommands": [
+    "git status --short --branch"
+  ],
+  "restrictedAgentDelegate": {
+    "commandIds": [],
+    "enabled": false,
+    "evidenceDirName": "restricted-agent-tasks",
+    "maxAttempts": 1,
+    "patchBudget": {
+      "maxBytes": 2000,
+      "maxFiles": 1
+    },
+    "providerMode": "fake"
+  },
+  "schemaVersion": 1
+}

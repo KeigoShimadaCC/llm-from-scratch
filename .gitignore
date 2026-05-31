@@ -1,0 +1,24 @@
+.DS_Store
+.pnpm-store/
+
+# Local agentic runner output
+runs/
+.agentic/boom-runs/
+.agentic/plan-runs/
+.agentic/reports/
+
+# Python project output
+.venv/
+__pycache__/
+.pytest_cache/
+.ruff_cache/
+.mypy_cache/
+*.pyc
+
+# Local data and model artifacts
+data/raw/
+data/processed/
+data/tokenized/
+experiments/runs/
+*.pt
+*.safetensors

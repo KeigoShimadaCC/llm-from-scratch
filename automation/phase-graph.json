@@ -1,0 +1,206 @@
+{
+  "schemaVersion": 1,
+  "defaultStartPhase": "PHASE-00B",
+  "defaultParallelism": 1,
+  "globalValidationCommands": [
+    "uv run pytest",
+    "uv run ruff check .",
+    "git diff --check"
+  ],
+  "phases": [
+    {
+      "id": "PHASE-00B",
+      "plan": "phase-plans/PHASE-00B-REPO-LAB-FOUNDATION.md",
+      "dependsOn": [],
+      "allowedPaths": [
+        ".gitignore",
+        "README.md",
+        "NORTH_STAR.md",
+        "pyproject.toml",
+        "uv.lock",
+        "configs/**",
+        "data/README.md",
+        "docs/**",
+        "kgpt/**",
+        "tokenizer/**",
+        "train/**",
+        "eval/**",
+        "inference/**",
+        "experiments/README.md",
+        "tests/**",
+        "PROGRESS.md"
+      ],
+      "parallelGroup": "foundation",
+      "automerge": false
+    },
+    {
+      "id": "PHASE-01A",
+      "plan": "phase-plans/PHASE-01A-MICROGPT-CHARACTER-LM.md",
+      "dependsOn": [
+        "PHASE-00B"
+      ],
+      "allowedPaths": [
+        "configs/**",
+        "data/README.md",
+        "docs/**",
+        "kgpt/**",
+        "train/**",
+        "eval/**",
+        "inference/**",
+        "tests/**",
+        "PROGRESS.md"
+      ],
+      "parallelGroup": "core",
+      "automerge": false
+    },
+    {
+      "id": "PHASE-02A",
+      "plan": "phase-plans/PHASE-02A-TOKENIZER-DATA-PIPELINE.md",
+      "dependsOn": [
+        "PHASE-01A"
+      ],
+      "allowedPaths": [
+        "configs/**",
+        "data/README.md",
+        "docs/**",
+        "kgpt/**",
+        "tokenizer/**",
+        "train/**",
+        "tests/**",
+        "PROGRESS.md"
+      ],
+      "parallelGroup": "core",
+      "automerge": false
+    },
+    {
+      "id": "PHASE-03A",
+      "plan": "phase-plans/PHASE-03A-CORE-TRANSFORMER.md",
+      "dependsOn": [
+        "PHASE-02A"
+      ],
+      "allowedPaths": [
+        "configs/**",
+        "docs/**",
+        "kgpt/**",
+        "train/**",
+        "eval/**",
+        "inference/**",
+        "tests/**",
+        "PROGRESS.md"
+      ],
+      "parallelGroup": "core",
+      "automerge": false
+    },
+    {
+      "id": "PHASE-04A",
+      "plan": "phase-plans/PHASE-04A-TINY-PRETRAINING.md",
+      "dependsOn": [
+        "PHASE-03A"
+      ],
+      "allowedPaths": [
+        "configs/**",
+        "docs/**",
+        "kgpt/**",
+        "train/**",
+        "eval/**",
+        "inference/**",
+        "tests/**",
+        "PROGRESS.md"
+      ],
+      "parallelGroup": "training",
+      "automerge": false
+    },
+    {
+      "id": "PHASE-05A",
+      "plan": "phase-plans/PHASE-05A-SMALL-PRACTICAL-MODEL.md",
+      "dependsOn": [
+        "PHASE-04A"
+      ],
+      "allowedPaths": [
+        "configs/**",
+        "docs/**",
+        "kgpt/**",
+        "train/**",
+        "eval/**",
+        "inference/**",
+        "tests/**",
+        "PROGRESS.md"
+      ],
+      "parallelGroup": "training",
+      "automerge": false
+    },
+    {
+      "id": "PHASE-06A",
+      "plan": "phase-plans/PHASE-06A-INSTRUCTION-TUNING.md",
+      "dependsOn": [
+        "PHASE-05A"
+      ],
+      "allowedPaths": [
+        "configs/**",
+        "docs/**",
+        "kgpt/**",
+        "train/**",
+        "eval/**",
+        "inference/**",
+        "tests/**",
+        "PROGRESS.md"
+      ],
+      "parallelGroup": "instruction",
+      "automerge": false
+    },
+    {
+      "id": "PHASE-07A",
+      "plan": "phase-plans/PHASE-07A-EVALUATION-FAILURE-ANALYSIS.md",
+      "dependsOn": [
+        "PHASE-06A"
+      ],
+      "allowedPaths": [
+        "configs/**",
+        "docs/**",
+        "kgpt/**",
+        "train/**",
+        "eval/**",
+        "inference/**",
+        "tests/**",
+        "PROGRESS.md"
+      ],
+      "parallelGroup": "evaluation",
+      "automerge": false
+    },
+    {
+      "id": "PHASE-08A",
+      "plan": "phase-plans/PHASE-08A-MAC-NATIVE-INFERENCE.md",
+      "dependsOn": [
+        "PHASE-07A"
+      ],
+      "allowedPaths": [
+        "configs/**",
+        "docs/**",
+        "kgpt/**",
+        "eval/**",
+        "inference/**",
+        "tests/**",
+        "PROGRESS.md"
+      ],
+      "parallelGroup": "inference",
+      "automerge": false
+    },
+    {
+      "id": "PHASE-09A",
+      "plan": "phase-plans/PHASE-09A-FINAL-WRITEUP-PORTFOLIO.md",
+      "dependsOn": [
+        "PHASE-08A"
+      ],
+      "allowedPaths": [
+        "README.md",
+        "NORTH_STAR.md",
+        "docs/**",
+        "eval/**",
+        "inference/**",
+        "PROGRESS.md"
+      ],
+      "parallelGroup": "docs",
+      "automerge": false
+    }
+  ]
+}

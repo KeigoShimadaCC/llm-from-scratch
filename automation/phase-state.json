@@ -1,0 +1,38 @@
+{
+  "schemaVersion": 1,
+  "lastUpdated": "2026-05-31",
+  "sourceNote": "Configured from docs/NORTH_STAR_LLM_FROM_SCRATCH_MAC.md.",
+  "currentPhase": "PHASE-00B",
+  "phases": {
+    "PHASE-00B": {
+      "status": "queued"
+    },
+    "PHASE-01A": {
+      "status": "queued"
+    },
+    "PHASE-02A": {
+      "status": "queued"
+    },
+    "PHASE-03A": {
+      "status": "queued"
+    },
+    "PHASE-04A": {
+      "status": "queued"
+    },
+    "PHASE-05A": {
+      "status": "queued"
+    },
+    "PHASE-06A": {
+      "status": "queued"
+    },
+    "PHASE-07A": {
+      "status": "queued"
+    },
+    "PHASE-08A": {
+      "status": "queued"
+    },
+    "PHASE-09A": {
+      "status": "queued"
+    }
+  }
+}
