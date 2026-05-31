@@ -6,17 +6,17 @@ Living coordination file for phase-based agent work.
 
 | Field | Value |
 | --- | --- |
-| Phase | PHASE-03A |
-| Goal | Core Transformer implementation |
-| Branch | phase/phase-03a-core-transformer |
-| Worktree | /Users/keigoshimada/Documents/llm-from-scratch-phase-03a-core-transformer-wt |
-| Status | validation passed; PR pending |
+| Phase | PHASE-04A |
+| Goal | Tiny pretraining run |
+| Branch | main |
+| Worktree | /Users/keigoshimada/Documents/llm-from-scratch |
+| Status | queued |
 
 ## Task Queue
 
 ### Open
 
-_(none)_
+- [ ] Start PHASE-04A from `phase-plans/PHASE-04A-TINY-PRETRAINING.md`.
 
 ### In Progress
 
@@ -24,6 +24,7 @@ _(none)_
 
 ### Done
 
+- [x] Merged PHASE-03A via PR #3 at merge commit `d672096c7ebdbee1e09bf85431380e5105a4b9bc`.
 - [x] Implemented PHASE-03A from accepted plan `runs/phase-runner/PHASE-03A/2026-05-31T17:12:39Z/accepted-plan/accepted-plan.json`.
 - [x] Validated PHASE-03A Transformer architecture, smoke training, and generation commands locally.
 - [x] Validated PHASE-02A implementation from the accepted plan at `runs/phase-runner/PHASE-02A/2026-05-31T16:41:04Z/accepted-plan/accepted-plan.json`.
@@ -169,8 +170,26 @@ _(none)_
 - 2026-06-01: `git diff --check` passed.
 - 2026-06-01: `uv run python -m train.transformer_smoke --config configs/transformer_micro.yaml --max-steps 20` passed and generated ignored evidence under `experiments/runs/phase03a_transformer_micro/`; train loss went from 22.25092887878418 to 1.0929747819900513 with 29,728 parameters.
 - 2026-06-01: `uv run python -m inference.generate --config configs/transformer_micro.yaml --prompt hello --max-new-tokens 16 --seed 123` passed from the Transformer smoke checkpoint and generated 16 new tokens.
+- 2026-06-01: PHASE-03A PR #3 passed GitHub CI and merged to `main` at `d672096c7ebdbee1e09bf85431380e5105a4b9bc`.
 
 ## Phase Archive
+
+### PHASE-03A - Core Decoder-Only Transformer
+
+Status: complete
+Completed: 2026-06-01
+Evidence:
+- Accepted automation plan: `runs/phase-runner/PHASE-03A/2026-05-31T17:12:39Z/accepted-plan/accepted-plan.json`
+- PR: #3
+- Merge commit: `d672096c7ebdbee1e09bf85431380e5105a4b9bc`
+- Transformer config: `configs/transformer_micro.yaml`
+- Architecture note: `docs/phase03a_transformer_architecture.md`
+- Transformer implementation: `kgpt/transformer.py`
+- Smoke trainer: `train/transformer_smoke.py`
+- Generation CLI: `inference/generate.py`
+- Ignored micro Transformer run: `experiments/runs/phase03a_transformer_micro/`
+- Validation commands: `uv run pytest`, `uv run ruff check .`, `git diff --check`, `uv run python -m train.transformer_smoke --config configs/transformer_micro.yaml --max-steps 20`, `uv run python -m inference.generate --config configs/transformer_micro.yaml --prompt hello --max-new-tokens 16 --seed 123`
+- Automation phase state was manually advanced after the nested executor stalled during the original live run.
 
 ### PHASE-02A - Tokenizer And Dataset Pipeline
 

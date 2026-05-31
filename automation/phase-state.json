@@ -1,5 +1,5 @@
 {
-  "currentPhase": "PHASE-03A",
+  "currentPhase": "PHASE-04A",
   "lastUpdated": "2026-06-01",
   "phases": {
     "PHASE-00B": {
@@ -22,7 +22,11 @@
       "status": "complete"
     },
     "PHASE-03A": {
-      "status": "queued"
+      "branch": "phase/phase-03a-core-transformer",
+      "evidenceDir": "runs/phase-runner/PHASE-03A/2026-05-31T17:12:39Z",
+      "mergeCommit": "d672096c7ebdbee1e09bf85431380e5105a4b9bc",
+      "pr": 3,
+      "status": "complete"
     },
     "PHASE-04A": {
       "status": "queued"
