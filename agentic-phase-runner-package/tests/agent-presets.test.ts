@@ -46,12 +46,16 @@ describe('agent presets', () => {
       ) as {
         preflightCommands?: string[];
         git?: { baseBranch?: string };
-        agents: { planner: { provider: string; commandTemplate: string } };
+        agents: { planner: { provider: string; commandTemplate: string; inactivityTimeoutMs?: number } };
       };
       expect(config.preflightCommands).toEqual(['git status --short --branch']);
       expect(config.git?.baseBranch).toBe('main');
       expect(config.agents.planner.provider).toBe('shell');
       expect(config.agents.planner.commandTemplate).toContain('codex exec');
+      expect(config.agents.planner.commandTemplate).toContain("--add-dir '{{EVIDENCE_DIR}}'");
+      expect(config.agents.planner.commandTemplate).toContain("--output-last-message '{{OUTPUT_PATH}}'");
+      expect(config.agents.planner.commandTemplate).toContain("- < '{{PROMPT_PATH}}'");
+      expect(config.agents.planner.inactivityTimeoutMs).toBe(1200000);
     });
   });
 

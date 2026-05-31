@@ -372,23 +372,26 @@ const defaultAutopilotConfig = (): Record<string, unknown> => ({
   agents: {
     planner: {
       provider: 'manual',
-      commandTemplate: "codex exec \"$(cat '{{PROMPT_PATH}}')\"",
-      timeoutMs: 1800000,
-      inactivityTimeoutMs: 300000,
+      commandTemplate:
+        "codex exec --sandbox workspace-write --add-dir '{{EVIDENCE_DIR}}' --add-dir /private/tmp --json --output-last-message '{{OUTPUT_PATH}}' - < '{{PROMPT_PATH}}'",
+      timeoutMs: 3600000,
+      inactivityTimeoutMs: 1200000,
       maxRetries: 0,
     },
     executor: {
       provider: 'manual',
-      commandTemplate: "codex exec \"$(cat '{{PROMPT_PATH}}')\"",
-      timeoutMs: 1800000,
-      inactivityTimeoutMs: 300000,
+      commandTemplate:
+        "codex exec --sandbox workspace-write --add-dir '{{EVIDENCE_DIR}}' --add-dir /private/tmp --json --output-last-message '{{OUTPUT_PATH}}' - < '{{PROMPT_PATH}}'",
+      timeoutMs: 3600000,
+      inactivityTimeoutMs: 1200000,
       maxRetries: 0,
     },
     rechecker: {
       provider: 'manual',
-      commandTemplate: "codex exec \"$(cat '{{PROMPT_PATH}}')\"",
-      timeoutMs: 900000,
-      inactivityTimeoutMs: 300000,
+      commandTemplate:
+        "codex exec --sandbox workspace-write --add-dir '{{EVIDENCE_DIR}}' --add-dir /private/tmp --json --output-last-message '{{OUTPUT_PATH}}' - < '{{PROMPT_PATH}}'",
+      timeoutMs: 1800000,
+      inactivityTimeoutMs: 1200000,
       maxRetries: 0,
     },
     cursorSubtask: {
@@ -402,7 +405,7 @@ const defaultAutopilotConfig = (): Record<string, unknown> => ({
   dependencyBootstrapCommands: [],
   commandExecutor: {
     defaultTimeoutMs: 3600000,
-    inactivityTimeoutMs: 300000,
+    inactivityTimeoutMs: 1200000,
     maxRetries: 0,
   },
   restrictedAgentDelegate: {

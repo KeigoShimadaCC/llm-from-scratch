@@ -41,8 +41,9 @@ const defaultShellFields = {
   maxRetries: 0,
 };
 
-const defaultManualCommand = "codex exec \"$(cat '{{PROMPT_PATH}}')\"";
-const codexTemplate = "codex exec \"$(cat '{{PROMPT_PATH}}')\"";
+const codexTemplate =
+  "codex exec --sandbox workspace-write --add-dir '{{EVIDENCE_DIR}}' --add-dir /private/tmp --json --output-last-message '{{OUTPUT_PATH}}' - < '{{PROMPT_PATH}}'";
+const defaultManualCommand = codexTemplate;
 const cursorTemplate = "agent --print --trust --workspace '{{WORKSPACE}}' \"$(cat '{{PROMPT_PATH}}')\"";
 const claudeTemplate = "claude --print \"$(cat '{{PROMPT_PATH}}')\"";
 
@@ -126,6 +127,12 @@ const shellAgent = (commandTemplate: string, fallback?: AgentTemplateConfig): Ag
   commandTemplate,
 });
 
+const codexShellAgent = (fallback?: AgentTemplateConfig): AgentTemplateConfig => ({
+  ...shellAgent(codexTemplate, fallback),
+  timeoutMs: Math.max(fallback?.timeoutMs ?? 0, 3600000),
+  inactivityTimeoutMs: Math.max(fallback?.inactivityTimeoutMs ?? 0, 1200000),
+});
+
 const fakeAgentCommand = async (role: 'planner' | 'executor' | 'rechecker'): Promise<string> => {
   const packageRoot = await findPackageRoot();
   return `node ${JSON.stringify(path.join(packageRoot, 'tests', 'fixtures', 'fake-agents', `fake-${role}.mjs`))} --prompt '{{PROMPT_PATH}}' --output '{{OUTPUT_PATH}}' --workspace '{{WORKSPACE}}' --phase '{{PHASE_ID}}'`;
@@ -152,9 +159,9 @@ const applyPresetToAgents = async (
   if (preset === 'codex') {
     return {
       ...next,
-      planner: shellAgent(codexTemplate, next.planner),
-      executor: shellAgent(codexTemplate, next.executor),
-      rechecker: shellAgent(codexTemplate, next.rechecker),
+      planner: codexShellAgent(next.planner),
+      executor: codexShellAgent(next.executor),
+      rechecker: codexShellAgent(next.rechecker),
     };
   }
   if (preset === 'cursor') {
@@ -173,9 +180,9 @@ const applyPresetToAgents = async (
   }
   if (preset === 'mixed-codex-cursor') {
     return {
-      planner: shellAgent(codexTemplate, next.planner),
-      executor: shellAgent(codexTemplate, next.executor),
-      rechecker: shellAgent(codexTemplate, next.rechecker),
+      planner: codexShellAgent(next.planner),
+      executor: codexShellAgent(next.executor),
+      rechecker: codexShellAgent(next.rechecker),
       cursorSubtask: shellAgent(cursorTemplate, next.cursorSubtask),
     };
   }
