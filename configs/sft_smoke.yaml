@@ -1,0 +1,62 @@
+schema_version: 1
+run_name: phase06a_sft
+seed: 20260601
+device: cpu
+dtype: float32
+base:
+  config: configs/kgpt_30m.yaml
+  checkpoint: experiments/runs/phase05a_kgpt30m_smoke/checkpoint_last.pt
+  bootstrap_if_missing: true
+  bootstrap_max_steps: 10
+  bootstrap_run_name: phase05a_kgpt30m_smoke
+prompt_template:
+  version: kgpt_sft_v1_compact
+  pattern: "Q:{instruction}\nA:{response}"
+  prompt_pattern: "Q:{instruction}\nA:"
+dataset:
+  source_name: phase06a_repo_authored_instruction_smoke_v1
+  license: Repo-authored fixture for this project; no third-party instruction data.
+  split_seed: 20260601
+  validation_fraction: 0.25
+  dedup_strategy: Exact normalized instruction and response sha256 deduplication.
+  contamination_notes: Tiny synthetic commands only; no benchmark, private, or scraped instruction data.
+  response_only_loss: true
+  manifest_path: docs/phase06a_instruction_data_manifest.json
+  records:
+    - id: sft-001
+      instruction: say hi
+      response: "hi"
+    - id: sft-002
+      instruction: say ok
+      response: "ok"
+    - id: sft-003
+      instruction: say yes
+      response: "yes"
+    - id: sft-004
+      instruction: say no
+      response: "no"
+    - id: sft-005
+      instruction: repeat cat
+      response: "cat"
+    - id: sft-006
+      instruction: repeat sun
+      response: "sun"
+    - id: sft-007
+      instruction: answer red
+      response: "red"
+    - id: sft-008
+      instruction: answer blue
+      response: "blue"
+training:
+  batch_size: 4
+  train_steps: 50
+  output_dir: experiments/runs
+  checkpoint_every: 50
+  eval_every: 10
+  sample_every: 25
+  learning_rate: 0.0005
+  max_grad_norm: 1.0
+generation:
+  max_new_tokens: 8
+  temperature: 0.0
+  top_k: 0

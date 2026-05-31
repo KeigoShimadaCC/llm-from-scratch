@@ -1,0 +1,32 @@
+{
+  "contamination_notes": "Tiny synthetic commands only; no benchmark, private, or scraped instruction data.",
+  "dedup_strategy": "Exact normalized instruction and response sha256 deduplication.",
+  "license": "Repo-authored fixture for this project; no third-party instruction data.",
+  "prompt_template_version": "kgpt_sft_v1_compact",
+  "record_count": 8,
+  "response_only_loss": true,
+  "schema_version": 1,
+  "source_name": "phase06a_repo_authored_instruction_smoke_v1",
+  "split_seed": 20260601,
+  "splits": {
+    "train": {
+      "record_count": 6,
+      "record_ids": [
+        "sft-003",
+        "sft-008",
+        "sft-001",
+        "sft-004",
+        "sft-002",
+        "sft-005"
+      ]
+    },
+    "validation": {
+      "record_count": 2,
+      "record_ids": [
+        "sft-007",
+        "sft-006"
+      ]
+    }
+  },
+  "validation_fraction": 0.25
+}
