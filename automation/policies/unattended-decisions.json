@@ -1,0 +1,37 @@
+{
+  "schemaVersion": 1,
+  "mode": "agent-decides-within-policy",
+  "purpose": "Pre-approve bounded decisions so auto mode can run end to end without pausing for human approval.",
+  "decisionAuthority": {
+    "agentMayChoose": [
+      "repo-authored synthetic fixtures for tests and smoke runs",
+      "public or permissively licensed datasets documented with source, license, checksum when available, split, dedup, and leakage notes",
+      "tokenizer candidate that wins the committed tokenizer report against the phase metrics",
+      "architecture defaults already established in the phase plan",
+      "documented fallback only when required evidence proves compute, dependency, or hardware infeasibility",
+      "final project positioning based on evidence: achieved, partially achieved with documented fallback, or blocked"
+    ],
+    "agentMustNotChoose": [
+      "private corpora or credentials",
+      "undocumented dataset licenses",
+      "pretrained model wrappers in the scratch-core path",
+      "unsupported final claims",
+      "committing generated checkpoints, raw corpora, tokenized datasets, or ignored run directories"
+    ]
+  },
+  "defaults": {
+    "fixtureCorpus": "repo-authored synthetic text unless a public-domain source is documented",
+    "tokenizerSelection": "choose the candidate with the best documented English/Japanese tradeoff and no roundtrip failures",
+    "datasetPolicy": "permissive/public sources only, with manifest evidence before training claims",
+    "scalePolicy": "train kgpt-30m unless infeasible; fallback requires evidence, smaller run, and final write-up downgrade",
+    "mlxPolicy": "implement MLX comparison unless infeasible; deferral requires blocker evidence and final write-up downgrade",
+    "finalClaimPolicy": "do not call the original North Star fully achieved if 30M+ training or MLX comparison is deferred"
+  },
+  "fallbackEvidenceRequired": [
+    "command attempted or dry-run validation",
+    "hardware, dependency, time, or data blocker",
+    "smaller fallback artifact when applicable",
+    "PROGRESS.md entry",
+    "final report wording constraint"
+  ]
+}

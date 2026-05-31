@@ -55,9 +55,9 @@ These paths are forbidden to commit or manually edit as phase source changes. Re
 - Define the small model config ladder.
 - Add concrete configs for `kgpt-30m` and stretch configs for `kgpt-50m` and `kgpt-100m`, each with computed parameter count.
 - Choose and document final tokenizer for 30M+ training based on PHASE-02A and PHASE-04A evidence.
-- Define data mixture ratios before training, defaulting to a documented English/Japanese mix from the North Star unless human approval chooses otherwise.
+- Define data mixture ratios before training, defaulting to a documented English/Japanese mix from the North Star unless human or unattended-policy approval chooses otherwise.
 - Add profiling and reporting for Mac memory and throughput.
-- Train at least one 30M+ model from random initialization unless infeasible; infeasibility requires evidence, a smaller fallback run, and a human-approved explanation.
+- Train at least one 30M+ model from random initialization unless infeasible; infeasibility requires evidence, a smaller fallback run, and a human or unattended-policy approved explanation.
 - Attempt `kgpt-50m` or `kgpt-100m` only after `kgpt-30m` passes the scale gate, or document why the stretch run is not feasible.
 - Document bottlenecks and scaling behavior.
 
@@ -67,7 +67,7 @@ These paths are forbidden to commit or manually edit as phase source changes. Re
 - Final tokenizer decision note.
 - Data mixture manifest with ratios and sources.
 - Throughput/memory profiling command and report.
-- 30M+ training report or human-approved infeasibility report with fallback evidence.
+- 30M+ training report or human or unattended-policy approved infeasibility report with fallback evidence.
 
 ## Evidence Artifacts
 
@@ -82,7 +82,7 @@ These paths are forbidden to commit or manually edit as phase source changes. Re
 
 ## Acceptance Criteria
 
-- At least one 30M+ model is trained from scratch to a documented completion point with validation loss, fixed-prompt samples, and checkpoint metadata, unless infeasible with documented human-approved fallback.
+- At least one 30M+ model is trained from scratch to a documented completion point with validation loss, fixed-prompt samples, and checkpoint metadata, unless infeasible with documented human or unattended-policy approved fallback.
 - Loss curves and generation snapshots are saved outside git and summarized in docs.
 - Training bottlenecks are documented.
 - The report compares behavior to smaller runs.
@@ -94,7 +94,8 @@ These paths are forbidden to commit or manually edit as phase source changes. Re
 - `uv run pytest`
 - `uv run ruff check .`
 - `git diff --check`
-- Add the exact 30M+ training launch/resume validation, profiling, fixed-prompt eval, and scaling-report commands here once implemented, and require them before marking PHASE-05A complete or accepting a fallback.
+- `uv run python -m train.pretrain --config configs/kgpt_30m.yaml --dry-run --validate-resume`
+- `uv run python -m eval.compare_runs --manifest docs/phase05a_scaling_manifest.json --output docs/phase05a_scaling_report.md`
 
 ## Human Decisions
 
@@ -104,7 +105,7 @@ These paths are forbidden to commit or manually edit as phase source changes. Re
 
 ## Phase Gate
 
-Mark complete only when the Definition of Done requirement for at least one 30M+ trained model is satisfied, or when a documented compute limit and fallback is explicitly accepted by the human/orchestrator.
+Mark complete only when the Definition of Done requirement for at least one 30M+ trained model is satisfied, or when a documented compute limit and fallback is explicitly accepted by the human/orchestrator or unattended decision policy.
 
 ## Risks
 

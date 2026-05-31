@@ -88,4 +88,28 @@ describe('migrate', () => {
       expect(report.recommendedNextActions.join('\n')).toContain('agentic migrate');
     });
   });
+
+  it('does not reset explicitly reviewed automerge policy fields', async () => {
+    await withTempRepo(async (repoRoot) => {
+      const policyPath = path.join(repoRoot, 'automation', 'policies', 'automerge-policy.json');
+      const policy = JSON.parse(await readFile(policyPath, 'utf8')) as Record<string, unknown>;
+      policy.enabled = true;
+      policy.automationSafetyReviewed = true;
+      policy.deleteBranchAfterMerge = true;
+      policy.removeCleanWorktreeAfterMerge = true;
+      policy.allowNoRemoteChecksWhenLocalGatePasses = false;
+      await writeFile(policyPath, JSON.stringify(policy, null, 2));
+
+      const migrationReport = await runMigrations(repoRoot);
+      expect(migrationReport.migrations.map((migration) => migration.id)).not.toContain('policy-safe-default-enabled');
+      expect(migrationReport.migrations.map((migration) => migration.id)).not.toContain(
+        'policy-safe-default-deleteBranchAfterMerge',
+      );
+
+      const doctorReport = await runDoctor(repoRoot, {
+        commandRunner: async () => ({ exitCode: 0, stdout: '## main\n', stderr: '' }),
+      });
+      expect(doctorReport.checks.find((check) => check.id === 'config-migrations-available')?.status).toBe('pass');
+    });
+  });
 });

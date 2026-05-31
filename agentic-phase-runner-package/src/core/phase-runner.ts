@@ -26,6 +26,14 @@ export interface PhaseDefinition {
   allowedPaths: string[];
   parallelGroup: string;
   automerge: boolean;
+  validationCommands?: PhaseValidationCommand[];
+}
+
+export interface PhaseValidationCommand {
+  id: string;
+  command: string;
+  timeoutMs?: number;
+  requiredFor?: string[];
 }
 
 export interface PhaseGraph {
@@ -56,10 +64,15 @@ export interface PhaseState {
 export interface AutomergePolicy {
   schemaVersion: number;
   enabled: boolean;
+  automationSafetyReviewed?: boolean;
   mergeMethod: 'merge' | 'squash' | 'rebase';
   deleteBranchAfterMerge: boolean;
   removeCleanWorktreeAfterMerge: boolean;
   allowNoRemoteChecksWhenLocalGatePasses: boolean;
+  remoteChecks?: {
+    mode: 'required' | 'local_only' | 'hybrid';
+    localOnlyPhases?: string[];
+  };
   requiredLocalCommands: string[];
   requiredPreflight: string[];
   requiredArtifacts: string[];
@@ -119,7 +132,7 @@ export interface PhaseRunBundle {
     setup: string[];
     cursorImplementation: string;
     cursorRecheck: string;
-    localValidation: string[];
+    localValidation: PhaseValidationCommand[];
     pr: string[];
     cleanup: string[];
   };
@@ -152,6 +165,8 @@ export interface AutomergeDecision {
   deleteBranchAfterMerge: boolean;
   removeCleanWorktreeAfterMerge: boolean;
 }
+
+export type PhaseGateDecision = AutomergeDecision;
 
 export interface PhaseCompletionMetadata {
   branch?: string;
@@ -353,7 +368,7 @@ export const buildRunnablePhase = (
       executorCommand: `{{AGENT_COMMAND}} --workspace ${quoteShell(worktreePath)} --prompt ${quoteShell(implementationPromptPath)}`,
       recheckCommand: `{{AGENT_COMMAND}} --workspace ${quoteShell(worktreePath)} --prompt ${quoteShell(recheckPromptPath)}`,
     },
-    requiredCommands: [...config.graph.globalValidationCommands],
+    requiredCommands: commandTexts(localValidationCommandsForPhase(config.graph, phase)),
     notes: [
       'The deterministic runner is the phase sequencer and release controller.',
       'The planner role is read-only and must produce a validated plan before execution.',
@@ -364,6 +379,49 @@ export const buildRunnablePhase = (
 };
 
 const quoteShell = (value: string): string => `'${value.replace(/'/g, "'\\''")}'`;
+
+const commandIdFromText = (prefix: string, index: number, command: string): string => {
+  const slug = command
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/^-|-$/g, '')
+    .slice(0, 48);
+  return `${prefix}-${String(index + 1).padStart(2, '0')}${slug ? `-${slug}` : ''}`;
+};
+
+export const normalizeValidationCommand = (
+  command: string | PhaseValidationCommand,
+  index = 0,
+  prefix = 'command',
+): PhaseValidationCommand =>
+  typeof command === 'string'
+    ? {
+        id: commandIdFromText(prefix, index, command),
+        command,
+        requiredFor: ['phase'],
+      }
+    : {
+        ...command,
+        requiredFor: command.requiredFor ?? ['phase'],
+      };
+
+export const commandText = (command: string | PhaseValidationCommand): string =>
+  typeof command === 'string' ? command : command.command;
+
+export const commandTexts = (commands: Array<string | PhaseValidationCommand>): string[] =>
+  commands.map((command) => commandText(command));
+
+export const localValidationCommandsForPhase = (
+  graph: PhaseGraph,
+  phase: PhaseDefinition,
+): PhaseValidationCommand[] => [
+  ...graph.globalValidationCommands.map((command, index) =>
+    normalizeValidationCommand(command, index, 'global'),
+  ),
+  ...(phase.validationCommands ?? []).map((command, index) =>
+    normalizeValidationCommand(command, index, phase.id.toLowerCase()),
+  ),
+];
 
 const replaceAllLiteral = (source: string, token: string, value: string): string =>
   source.split(token).join(value);
@@ -420,6 +478,10 @@ export const buildPhaseRunBundle = async (
     WORKTREE_PATH: runnable.worktreePath,
     EVIDENCE_DIR: runnable.evidenceDir,
     ALLOWED_PATHS: phase.allowedPaths.map((allowedPath) => `- ${allowedPath}`).join('\n'),
+    VALIDATION_COMMANDS: commandTexts(localValidationCommandsForPhase(config.graph, phase))
+      .map((command) => `- ${command}`)
+      .join('\n'),
+    UNATTENDED_DECISIONS_PATH: 'automation/policies/unattended-decisions.json',
   };
 
   return {
@@ -438,7 +500,7 @@ export const buildPhaseRunBundle = async (
       ],
       cursorImplementation: runnable.cursorDelegate.executorCommand,
       cursorRecheck: runnable.cursorDelegate.recheckCommand,
-      localValidation: [...config.graph.globalValidationCommands],
+      localValidation: localValidationCommandsForPhase(config.graph, phase),
       pr: [
         `gh pr create --fill --base <BASE_BRANCH> --head ${quoteShell(runnable.branch)}`,
         'gh pr checks <pr-number> --watch',
@@ -496,6 +558,8 @@ export const evaluateAutomerge = (
 ): AutomergeDecision => {
   const reasons: string[] = [];
   const commandByName = new Map(evidence.localCommands.map((entry) => [entry.command, entry]));
+  const acceptance = evaluatePhaseAcceptanceGate(phase, evidence);
+  reasons.push(...acceptance.reasons);
 
   if (!policy.enabled || !phase.automerge) {
     reasons.push('Automerge is disabled by policy or phase configuration.');
@@ -516,13 +580,54 @@ export const evaluateAutomerge = (
     reasons.push('Remote PR checks are still pending.');
   } else if (
     evidence.remoteChecks === 'none' &&
-    !policy.allowNoRemoteChecksWhenLocalGatePasses
+    remoteChecksRequiredForPhase(policy, phase)
   ) {
     reasons.push('Remote PR checks are absent and policy does not allow local-only gating.');
   }
 
+  return {
+    decision: reasons.length === 0 ? 'allow' : 'block',
+    reasons,
+    mergeCommand:
+      reasons.length === 0
+        ? `gh pr merge <pr-number> --${policy.mergeMethod} --delete-branch`
+        : undefined,
+    deleteBranchAfterMerge: policy.deleteBranchAfterMerge,
+    removeCleanWorktreeAfterMerge: policy.removeCleanWorktreeAfterMerge,
+  };
+};
+
+export const remoteChecksRequiredForPhase = (
+  policy: AutomergePolicy,
+  phase: PhaseDefinition,
+): boolean => {
+  if (policy.allowNoRemoteChecksWhenLocalGatePasses) {
+    return false;
+  }
+  const mode = policy.remoteChecks?.mode ?? 'required';
+  if (mode === 'local_only') {
+    return false;
+  }
+  if (mode === 'hybrid' && (policy.remoteChecks?.localOnlyPhases ?? []).includes(phase.id)) {
+    return false;
+  }
+  return true;
+};
+
+export const evaluatePhaseAcceptanceGate = (
+  phase: PhaseDefinition,
+  evidence: PhaseMergeEvidence,
+): PhaseGateDecision => {
+  const reasons: string[] = [];
+
+  for (const command of evidence.localCommands) {
+    if (command.status !== 'pass') {
+      reasons.push(`Local command did not pass: ${command.command} (${command.status})`);
+    }
+  }
+
   if (evidence.cursorRecheck !== 'pass') {
-    reasons.push(`Cursor recheck did not pass: ${evidence.cursorRecheck}`);
+    reasons.push(`Recheck did not pass: ${evidence.cursorRecheck}`);
   }
 
   if (!evidence.phaseAcceptanceComplete) {
@@ -550,12 +655,8 @@ export const evaluateAutomerge = (
   return {
     decision: reasons.length === 0 ? 'allow' : 'block',
     reasons,
-    mergeCommand:
-      reasons.length === 0
-        ? `gh pr merge <pr-number> --${policy.mergeMethod} --delete-branch`
-        : undefined,
-    deleteBranchAfterMerge: policy.deleteBranchAfterMerge,
-    removeCleanWorktreeAfterMerge: policy.removeCleanWorktreeAfterMerge,
+    deleteBranchAfterMerge: false,
+    removeCleanWorktreeAfterMerge: false,
   };
 };
 

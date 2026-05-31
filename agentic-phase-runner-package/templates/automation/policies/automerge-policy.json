@@ -1,10 +1,15 @@
 {
   "schemaVersion": 1,
   "enabled": false,
+  "automationSafetyReviewed": false,
   "mergeMethod": "squash",
   "deleteBranchAfterMerge": false,
   "removeCleanWorktreeAfterMerge": false,
   "allowNoRemoteChecksWhenLocalGatePasses": false,
+  "remoteChecks": {
+    "mode": "required",
+    "localOnlyPhases": []
+  },
   "requiredLocalCommands": [
     "pnpm test",
     "pnpm run typecheck",

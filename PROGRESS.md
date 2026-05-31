@@ -32,6 +32,8 @@ _(none)_
 - [x] Added root docs for setup, data conventions, experiment artifacts, and North Star discovery.
 - [x] Tightened phase-plan specs for artifact policy, data/tokenizer provenance, scale gates, evaluation assets, MLX inference, and final evidence mapping.
 - [x] Clarified generated evidence versus forbidden paths, phase-specific validation expectations, and final North Star fallback positioning.
+- [x] Added phase-specific validation command contracts, reviewed hybrid automerge policy, unattended decision policy, CI workflow, readiness command, and separate phase-acceptance versus merge gates.
+- [x] Hardened migration, doctor, dry-run, and readiness checks so reviewed automation can reach 10/10 once the worktree is clean.
 
 ## Phase Checklist
 
@@ -60,6 +62,16 @@ _(none)_
 - 2026-05-31: `./bin/agentic status --repo-root .` still reports PHASE-00B as current and next runnable.
 - 2026-05-31: `./bin/agentic run --repo-root . --phase PHASE-00B --mode manual --dry-run` completed after final phase-plan tightening tweaks.
 - 2026-05-31: `git diff --check` passed after final phase-plan tightening tweaks.
+- 2026-05-31: `pnpm --dir agentic-phase-runner-package run typecheck` passed after automation-readiness hardening changes.
+- 2026-05-31: `pnpm --dir agentic-phase-runner-package run test` passed after automation-readiness hardening changes: 16 files, 68 tests.
+- 2026-05-31: `pnpm --dir agentic-phase-runner-package run build` passed after automation-readiness hardening changes.
+- 2026-05-31: `./bin/agentic doctor --repo-root .` passed with no migration warnings after reviewed automerge policy handling.
+- 2026-05-31: `./bin/agentic run --repo-root . --phase PHASE-00B --mode auto --preset codex --plan-approval auto --dry-run` completed and wrote ignored evidence under `runs/phase-runner/PHASE-00B/2026-05-31T13:57:25Z`.
+- 2026-05-31: `./bin/agentic readiness --repo-root . --target phase00b-auto` and `--target unattended` reported 7/10 in sandbox because the worktree was dirty and GitHub network/auth checks could not complete.
+- 2026-05-31: Escalated `./bin/agentic readiness --repo-root . --target phase00b-auto` reported 9/10: GitHub auth and remote reachability passed, with only the current dirty worktree blocking 10/10.
+- 2026-05-31: `git diff --check` passed after automation-readiness hardening changes.
+- 2026-05-31: After committing automation-readiness hardening, escalated `./bin/agentic readiness --repo-root . --target phase00b-auto` reported 10/10.
+- 2026-05-31: After committing automation-readiness hardening, escalated `./bin/agentic readiness --repo-root . --target unattended` reported 10/10.
 
 ## Phase Archive
 

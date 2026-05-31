@@ -13,6 +13,7 @@ import { runNextCommand } from './commands/next.js';
 import { runOnboardCommand } from './commands/onboard.js';
 import { runPlanCommand } from './commands/plan.js';
 import { runPresetsCommand } from './commands/presets.js';
+import { runReadinessCommand } from './commands/readiness.js';
 import { runReportCommand } from './commands/report.js';
 import { runResumeCommand } from './commands/resume.js';
 import { runRunCommand } from './commands/run.js';
@@ -30,6 +31,7 @@ const usage = `Usage:
   agentic presets [--json]
   agentic configure-agent [--repo-root <path>] --preset manual|codex|cursor|claude-code|mixed-codex-cursor [--dry-run] [--apply]
   agentic migrate [--repo-root <path>] [--dry-run] [--apply]
+  agentic readiness [--repo-root <path>] --target phase00b-auto|unattended
   agentic inspect [--repo-root <path>] [--phase PHASE-01A] [--run-id <id>] [--latest]
   agentic why-blocked [--repo-root <path>] [--phase PHASE-01A] [--run-id <id>] [--latest]
   agentic report [--repo-root <path>] [--phase PHASE-01A] [--run-id <id>] [--latest] [--output <path>]
@@ -113,6 +115,7 @@ export const runCli = async (argv = process.argv.slice(2)): Promise<void> => {
   if (parsed.command === 'presets') return runPresetsCommand(parsed.options);
   if (parsed.command === 'configure-agent') return runConfigureAgentCommand(parsed.repoRoot, parsed.options);
   if (parsed.command === 'migrate') return runMigrateCommand(parsed.repoRoot, parsed.options);
+  if (parsed.command === 'readiness') return runReadinessCommand(parsed.repoRoot, parsed.options);
   if (parsed.command === 'inspect') return runInspectCommand(parsed.repoRoot, parsed.options);
   if (parsed.command === 'why-blocked') return runWhyBlockedCommand(parsed.repoRoot, parsed.options);
   if (parsed.command === 'report') return runReportCommand(parsed.repoRoot, parsed.options);

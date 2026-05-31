@@ -222,6 +222,17 @@ const policySafeDefaultsCheck = (policy: AutomergePolicy | undefined): DoctorChe
   const unsafeFields = Object.entries(unsafe)
     .filter(([, value]) => value)
     .map(([field]) => field);
+  if (unsafeFields.length > 0 && policy.automationSafetyReviewed === true) {
+    return {
+      id: 'policy-safe-merge-defaults',
+      status: 'pass',
+      message: 'Policy enables reviewed automation gates.',
+      details: {
+        enabledFields: unsafeFields,
+        remoteChecks: policy.remoteChecks ?? { mode: 'required' },
+      },
+    };
+  }
   return unsafeFields.length === 0
     ? {
         id: 'policy-safe-merge-defaults',
@@ -243,6 +254,9 @@ const commandSafetyCheck = (
 ): DoctorCheck => {
   const commands = [
     ...(graph?.globalValidationCommands ?? []),
+    ...(graph?.phases ?? []).flatMap((phase) =>
+      (phase.validationCommands ?? []).map((command) => command.command),
+    ),
     ...(policy?.requiredLocalCommands ?? []),
     ...(policy?.requiredPreflight ?? []),
     ...(autopilotConfig?.preflightCommands ?? []),

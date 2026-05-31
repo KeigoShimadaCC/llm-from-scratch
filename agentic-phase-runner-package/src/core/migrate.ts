@@ -106,12 +106,15 @@ export const detectMigrations = async (repoRootInput: string): Promise<Migration
   }
 
   if (policy) {
-    const safeDefaults: Array<[keyof AutomergePolicy, unknown]> = [
-      ['enabled', false],
-      ['allowNoRemoteChecksWhenLocalGatePasses', false],
-      ['deleteBranchAfterMerge', false],
-      ['removeCleanWorktreeAfterMerge', false],
-    ];
+    const safeDefaults: Array<[keyof AutomergePolicy, unknown]> =
+      policy.automationSafetyReviewed === true
+        ? [['allowNoRemoteChecksWhenLocalGatePasses', false]]
+        : [
+            ['enabled', false],
+            ['allowNoRemoteChecksWhenLocalGatePasses', false],
+            ['deleteBranchAfterMerge', false],
+            ['removeCleanWorktreeAfterMerge', false],
+          ];
     for (const [field, value] of safeDefaults) {
       if (policy[field] !== value) {
         migrations.push({
@@ -163,10 +166,11 @@ export const runMigrations = async (
 
     const policy = await readJson<Record<string, unknown>>(paths.policyPath);
     if (policy && migrations.some((migration) => migration.targetPath === relativePath(repoRoot, paths.policyPath))) {
-      policy.enabled = false;
-      policy.allowNoRemoteChecksWhenLocalGatePasses = false;
-      policy.deleteBranchAfterMerge = false;
-      policy.removeCleanWorktreeAfterMerge = false;
+      for (const migration of migrations.filter(
+        (candidate) => candidate.targetPath === relativePath(repoRoot, paths.policyPath),
+      )) {
+        setField(policy, migration.field, migration.value);
+      }
       await mkdir(path.dirname(paths.policyPath), { recursive: true });
       await writeFile(paths.policyPath, stringifyDeterministicJson(policy));
     }

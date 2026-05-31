@@ -37,8 +37,11 @@ import {
 import { scanChangedPathsForSecrets } from '../evidence/secret-scan.js';
 import {
   buildPhaseRunBundle,
+  commandText,
+  commandTexts,
   defaultRunnerPaths,
   evaluateAutomerge,
+  evaluatePhaseAcceptanceGate,
   evidenceDirForPhase,
   evidenceDirForPhaseId,
   getRunnablePhases,
@@ -47,6 +50,7 @@ import {
   markPhaseComplete,
   writePhaseRunBundle,
   writePhaseState,
+  type PhaseValidationCommand,
   type RunnablePhase,
   type RunnerPaths,
 } from './phase-runner.js';
@@ -157,21 +161,31 @@ const commandResultPath = (evidenceDir: string, slug: string, index: number) => 
   };
 };
 
+const safeCommandSlug = (value: string): string =>
+  value
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/^-|-$/g, '')
+    .slice(0, 48) || 'command';
+
 const runShellCommands = async (
   executor: CommandExecutor,
   cwd: string,
   evidenceDir: string,
-  commands: string[],
+  commands: Array<string | PhaseValidationCommand>,
   slugPrefix: string,
   options: { dryRun: boolean; timeoutMs?: number; inactivityTimeoutMs?: number; maxRetries?: number },
 ): Promise<CommandExecutionResult[]> => {
   const results: CommandExecutionResult[] = [];
   let index = 1;
   for (const command of commands) {
-    const paths = commandResultPath(evidenceDir, `${slugPrefix}-${index}`, index);
+    const commandValue = commandText(command);
+    const timeoutMs = typeof command === 'string' ? options.timeoutMs : command.timeoutMs ?? options.timeoutMs;
+    const commandId = typeof command === 'string' ? `${slugPrefix}-${index}` : command.id;
+    const paths = commandResultPath(evidenceDir, safeCommandSlug(commandId), index);
     if (options.dryRun) {
       results.push({
-        command,
+        command: commandValue,
         cwd,
         exitCode: 0,
         startedAt: new Date().toISOString(),
@@ -182,14 +196,14 @@ const runShellCommands = async (
         status: 'pass',
       });
       await mkdir(path.dirname(paths.stdoutPath), { recursive: true });
-      await writeFile(paths.stdoutPath, `[dry-run] ${command}\n`);
+      await writeFile(paths.stdoutPath, `[dry-run] ${commandValue}\n`);
       await writeFile(paths.stderrPath, '');
     } else {
       results.push(
-        await executor.run(command, {
+        await executor.run(commandValue, {
           cwd,
           ...paths,
-          timeoutMs: options.timeoutMs,
+          timeoutMs,
           inactivityTimeoutMs: options.inactivityTimeoutMs,
           maxRetries: options.maxRetries,
         }),
@@ -244,7 +258,7 @@ const writeDryRunPlan = async (
       ...bundle.commands.preflight.map((command) => `- ${command}`),
       '',
       'Local validation:',
-      ...bundle.commands.localValidation.map((command) => `- ${command}`),
+      ...bundle.commands.localValidation.map((command) => `- ${commandText(command)}`),
       '',
       'Notes:',
       ...runnable.notes.map((note) => `- ${note}`),
@@ -765,6 +779,7 @@ export const executeStage = async (
       worktreeStatus: statusBefore,
       secretScan,
       remoteChecks: 'none',
+      requiredCommands: commandTexts(bundle.commands.localValidation),
     });
     await writePhaseMergeEvidence(evidenceDir, evidence);
     await completeStage('local-evidence', 'local-gate');
@@ -774,7 +789,7 @@ export const executeStage = async (
     const evidence = JSON.parse(
       await readFile(path.join(evidenceDir, 'phase-merge-evidence.json'), 'utf8'),
     );
-    const decision = evaluateAutomerge(phase, config.automergePolicy, {
+    const decision = evaluatePhaseAcceptanceGate(phase, {
       ...evidence,
       worktreeClean: true,
     });
@@ -878,6 +893,7 @@ export const executeStage = async (
       worktreeStatus: statusAfter,
       secretScan,
       remoteChecks,
+      requiredCommands: commandTexts(bundle.commands.localValidation),
     });
     await writePhaseMergeEvidence(evidenceDir, evidence);
     await completeStage('remote-evidence', 'final-gate');
@@ -887,7 +903,9 @@ export const executeStage = async (
     const evidence = JSON.parse(
       await readFile(path.join(evidenceDir, 'phase-merge-evidence.json'), 'utf8'),
     );
-    const decision = evaluateAutomerge(phase, config.automergePolicy, evidence);
+    const decision = options.safetyFlags.allowMerge
+      ? evaluateAutomerge(phase, config.automergePolicy, evidence)
+      : evaluatePhaseAcceptanceGate(phase, evidence);
     await writeFinalDecision(evidenceDir, { stage: 'final-gate', decision, evidence });
     if (decision.decision !== 'allow') {
       await fail(`Final gate blocked: ${decision.reasons.join('; ')}`);
@@ -1133,9 +1151,13 @@ export const runAutopilotForPhase = async (
     }
 
     await snapshotProgress(repoRoot, evidenceDir, 'after');
+    const prMeta = await readJsonFile<{ number?: number }>(path.join(evidenceDir, 'pr.json'));
+    const mergeMeta = await readJsonFile<{ mergeCommit?: string }>(path.join(evidenceDir, 'merge.json'));
     const nextState = markPhaseComplete(config.graph, config.state, phaseId, {
       branch: bundle.branch,
       evidenceDir,
+      ...(typeof prMeta?.number === 'number' ? { pr: prMeta.number } : {}),
+      ...(mergeMeta?.mergeCommit ? { mergeCommit: mergeMeta.mergeCommit } : {}),
     });
     await writePhaseState(runnerPaths.statePath, nextState);
     runState = advanceRunState((await loadRunState(evidenceDir)) ?? runState, {
@@ -1154,6 +1176,8 @@ export const runAutopilotForPhase = async (
     };
   } catch (error) {
     const message = error instanceof Error ? error.message : String(error);
+    const blocked = markPhaseBlocked(config.graph, config.state, phaseId, message);
+    await writePhaseState(runnerPaths.statePath, blocked);
     runState = advanceRunState((await loadRunState(evidenceDir)) ?? runState, {
       status: 'blocked',
       lastError: message,

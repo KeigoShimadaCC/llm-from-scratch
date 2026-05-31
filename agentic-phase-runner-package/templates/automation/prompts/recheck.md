@@ -11,6 +11,8 @@ Audit against:
 - actual changed files
 - validation evidence
 - PROGRESS.md
+- required validation commands:
+{{VALIDATION_COMMANDS}}
 
 Do not merge, push, delete branches/worktrees, edit secrets, or broaden scope.
 

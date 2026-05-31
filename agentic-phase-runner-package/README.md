@@ -14,7 +14,7 @@ The package provides a deterministic TypeScript runner for phase-based agent wor
 6. Parse structured reports.
 7. Run local validation.
 8. Collect changed paths and secret-scan evidence.
-9. Evaluate a deterministic merge gate.
+9. Evaluate a deterministic phase-acceptance gate and, separately, a merge gate.
 10. Optionally create PRs, watch checks, merge, clean up, update state, and resume.
 11. Inspect repo readiness, profile target repos, generate deterministic starter plans, and explain blocked runs.
 
@@ -69,6 +69,7 @@ pnpm --dir agentic-phase-runner-package exec agentic boom --repo-root . --idea "
 pnpm --dir agentic-phase-runner-package exec agentic plan --repo-root . --idea "Build a local-first note app" --dry-run
 pnpm --dir agentic-phase-runner-package exec agentic plan --repo-root . --idea "Build a local-first note app" --apply --force
 pnpm --dir agentic-phase-runner-package exec agentic status --repo-root .
+pnpm --dir agentic-phase-runner-package exec agentic readiness --repo-root . --target phase00b-auto
 pnpm --dir agentic-phase-runner-package exec agentic next --repo-root . --from PHASE-01A
 pnpm --dir agentic-phase-runner-package exec agentic bundle --repo-root . --phase PHASE-01A
 pnpm --dir agentic-phase-runner-package exec agentic run --repo-root . --phase PHASE-01A --mode manual --dry-run
@@ -144,6 +145,8 @@ pnpm --dir agentic-phase-runner-package exec agentic run --repo-root . --from PH
 If `agentic init` already created placeholder concept, graph, state, or policy files, `plan --apply` reports those files as skipped. Use `--force` only before editing those placeholders, or merge the proposed content manually.
 
 No real agent execution occurs unless explicitly enabled. `auto` mode still obeys deterministic gates; it does not bypass validation.
+
+Use `agentic readiness --target phase00b-auto|unattended` before auto mode. It checks clean git state, reviewed automerge policy, hybrid remote-check policy, phase-specific validation commands, unattended decision policy, CI workflow presence, GitHub CLI auth, remote reachability, shell-agent config, and bundle construction.
 
 ## North-Star Workflow
 
@@ -251,7 +254,7 @@ pnpm --dir agentic-phase-runner-package exec agentic run --repo-root . --phase P
 
 ## Deterministic Gate
 
-`agentic gate` evaluates `phase-merge-evidence.json` against `automation/policies/automerge-policy.json`. It blocks on failed required commands, failed remote checks, incomplete acceptance, blocked recheck, changed paths outside `allowedPaths`, dirty worktrees, secret hits, and blocking gaps.
+`agentic gate` evaluates `phase-merge-evidence.json` against `automation/policies/automerge-policy.json`. Runtime phase acceptance is checked before commit; PR merge authorization is checked separately after remote evidence exists. The merge gate blocks on failed required commands, failed remote checks, incomplete acceptance, blocked recheck, changed paths outside `allowedPaths`, dirty worktrees, secret hits, and blocking gaps.
 
 ```bash
 pnpm --dir agentic-phase-runner-package exec agentic gate --repo-root . --phase PHASE-01A --evidence runs/phase-runner/PHASE-01A/<run-id>/phase-merge-evidence.json

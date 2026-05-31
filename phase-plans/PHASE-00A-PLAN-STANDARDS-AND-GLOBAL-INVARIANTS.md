@@ -53,7 +53,7 @@ Use this file as the permanent checklist for all phase plans. This file is not a
 ## Phase Dependency Policy
 
 - Each executable phase must list predecessor phases, reusable assets it depends on, and downstream phases it unblocks.
-- A dependency is satisfied only when its phase gate is complete or the human/orchestrator accepts a documented blocker and fallback.
+- A dependency is satisfied only when its phase gate is complete or the human/orchestrator, or the committed unattended decision policy, accepts a documented blocker and fallback.
 - Later phases must not weaken earlier evidence requirements to claim completion.
 
 ## Validation Policy
@@ -64,7 +64,7 @@ Use this file as the permanent checklist for all phase plans. This file is not a
 
 ## Human Decisions
 
-The agent may implement scoped mechanics, but the human/orchestrator owns:
+The agent may implement scoped mechanics. In supervised mode the human/orchestrator owns these decisions; in unattended mode `automation/policies/unattended-decisions.json` pre-approves bounded choices and fallback rules:
 
 - final dataset inclusion and licensing judgment;
 - final tokenizer choice for serious training;
@@ -75,7 +75,7 @@ The agent may implement scoped mechanics, but the human/orchestrator owns:
 
 ## Phase Gate Policy
 
-- A phase may be marked complete only after its required validation, evidence artifacts, artifact policy check, and human decisions are resolved.
+- A phase may be marked complete only after its required validation, evidence artifacts, artifact policy check, and human or unattended-policy decisions are resolved.
 - Completion notes must name any ignored run artifacts used as evidence without committing those artifacts.
 
 ## Deferred Backlog Policy

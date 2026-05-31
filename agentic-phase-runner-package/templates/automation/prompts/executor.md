@@ -12,6 +12,8 @@ Rules:
 - Keep edits inside:
 {{ALLOWED_PATHS}}
 - Run targeted checks where practical.
+- Implement and run the exact phase validation commands when this phase creates their target CLI/script:
+{{VALIDATION_COMMANDS}}
 - Do not merge, push, delete branches/worktrees, fabricate validation, or update phase state.
 - Do not edit secrets or `.env` files.
 

@@ -1,10 +1,17 @@
 {
   "schemaVersion": 1,
-  "enabled": false,
+  "enabled": true,
+  "automationSafetyReviewed": true,
   "mergeMethod": "squash",
-  "deleteBranchAfterMerge": false,
-  "removeCleanWorktreeAfterMerge": false,
+  "deleteBranchAfterMerge": true,
+  "removeCleanWorktreeAfterMerge": true,
   "allowNoRemoteChecksWhenLocalGatePasses": false,
+  "remoteChecks": {
+    "mode": "hybrid",
+    "localOnlyPhases": [
+      "PHASE-00B"
+    ]
+  },
   "requiredLocalCommands": [
     "uv run pytest",
     "uv run ruff check .",

@@ -95,7 +95,8 @@ These paths are forbidden to commit or manually edit as phase source changes. Re
 - `uv run pytest`
 - `uv run ruff check .`
 - `git diff --check`
-- Add the exact claim-to-evidence audit, link/path check, and reproducible-command smoke commands here once implemented, and require them before marking PHASE-09A complete.
+- `uv run python -m eval.audit_claims --doc docs/FINAL_WRITEUP.md --output docs/claim_evidence_audit.md`
+- `uv run python -m eval.check_repro_commands --doc docs/COMMAND_INDEX.md`
 
 ## Human Decisions
 

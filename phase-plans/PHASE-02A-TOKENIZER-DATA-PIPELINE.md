@@ -17,7 +17,7 @@ Move from character-level modeling to real token-level LLM training.
 
 - PHASE-01A is complete and the character-level loop can overfit tiny data.
 - The repository has a documented artifact policy for ignored local data and tokenized files.
-- Human approval is available for dataset source/license decisions.
+- Human or unattended-policy approval is available for dataset source/license decisions.
 
 ## Phase Dependencies
 
@@ -97,7 +97,8 @@ These paths are forbidden to commit or manually edit as phase source changes. Re
 - `uv run pytest`
 - `uv run ruff check .`
 - `git diff --check`
-- Add the exact tokenizer report generation, data manifest validation, and token batch sampler smoke commands here once implemented, and require them before marking PHASE-02A complete.
+- `uv run python -m tokenizer.train_report --config configs/tokenizer_bilingual.yaml --output docs/tokenizer_report.md`
+- `uv run python -m train.sample_batches --config configs/tokenized_smoke.yaml --max-batches 2`
 
 ## Human Decisions
 

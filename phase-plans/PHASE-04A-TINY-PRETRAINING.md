@@ -93,7 +93,8 @@ These paths are forbidden to commit or manually edit as phase source changes. Re
 - `uv run pytest`
 - `uv run ruff check .`
 - `git diff --check`
-- Add the exact tiny pretraining smoke/run command and report generation command here once implemented, and require them before marking PHASE-04A complete.
+- `uv run python -m train.pretrain --config configs/kgpt_tiny.yaml --max-steps 200 --run-name phase04a_tiny_smoke`
+- `uv run python -m eval.report --config configs/eval_fixed_prompts.yaml --checkpoint experiments/runs/phase04a_tiny_smoke/checkpoint_last.pt --output docs/phase04a_tiny_report.md`
 
 ## Human Decisions
 

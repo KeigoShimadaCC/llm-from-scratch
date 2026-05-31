@@ -97,7 +97,8 @@ These paths are forbidden to commit or manually edit as phase source changes. Re
 - `uv run pytest`
 - `uv run ruff check .`
 - `git diff --check`
-- Add the exact Transformer micro-train smoke and generation command here once implemented, and require them before marking PHASE-03A complete.
+- `uv run python -m train.transformer_smoke --config configs/transformer_micro.yaml --max-steps 20`
+- `uv run python -m inference.generate --config configs/transformer_micro.yaml --prompt hello --max-new-tokens 16 --seed 123`
 
 ## Human Decisions
 

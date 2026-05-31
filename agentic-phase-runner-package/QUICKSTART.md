@@ -99,6 +99,7 @@ PROGRESS.md
 
 ```bash
 pnpm --dir agentic-phase-runner-package exec agentic status --repo-root .
+pnpm --dir agentic-phase-runner-package exec agentic readiness --repo-root . --target phase00b-auto
 pnpm --dir agentic-phase-runner-package exec agentic next --repo-root . --from PHASE-01A
 pnpm --dir agentic-phase-runner-package exec agentic inspect --repo-root .
 pnpm --dir agentic-phase-runner-package exec agentic run --repo-root . \
@@ -143,6 +144,13 @@ pnpm --dir agentic-phase-runner-package exec agentic run --repo-root . \
 ```
 
 Supervised mode may run configured shell agents, but it still does not create PRs or merge.
+
+For auto mode, run readiness first and require a clean repo, reviewed automerge policy, CI or hybrid remote-check policy, GitHub CLI auth, reachable remote, and phase-specific validation commands:
+
+```bash
+pnpm --dir agentic-phase-runner-package exec agentic readiness --repo-root . --target unattended
+pnpm --dir agentic-phase-runner-package exec agentic run --repo-root . --from PHASE-01A --until-complete --mode auto --preset codex --plan-approval auto
+```
 
 ### 10. Diagnose Or Report A Run
 

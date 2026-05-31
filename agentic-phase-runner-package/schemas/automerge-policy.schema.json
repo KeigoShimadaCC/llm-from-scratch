@@ -6,10 +6,19 @@
   "properties": {
     "schemaVersion": { "const": 1 },
     "enabled": { "type": "boolean" },
+    "automationSafetyReviewed": { "type": "boolean" },
     "mergeMethod": { "enum": ["merge", "squash", "rebase"] },
     "deleteBranchAfterMerge": { "type": "boolean" },
     "removeCleanWorktreeAfterMerge": { "type": "boolean" },
     "allowNoRemoteChecksWhenLocalGatePasses": { "type": "boolean" },
+    "remoteChecks": {
+      "type": "object",
+      "required": ["mode"],
+      "properties": {
+        "mode": { "enum": ["required", "local_only", "hybrid"] },
+        "localOnlyPhases": { "type": "array", "items": { "type": "string" } }
+      }
+    },
     "requiredLocalCommands": { "type": "array", "items": { "type": "string" } },
     "requiredPreflight": { "type": "array", "items": { "type": "string" } },
     "requiredArtifacts": { "type": "array", "items": { "type": "string" } },

@@ -41,6 +41,8 @@ Inspect the current workflow:
 ```bash
 ./bin/agentic doctor --repo-root .
 ./bin/agentic status --repo-root .
+./bin/agentic readiness --repo-root . --target phase00b-auto
+./bin/agentic readiness --repo-root . --target unattended
 ```
 
 Dry-run the first implementation phase:
@@ -49,10 +51,11 @@ Dry-run the first implementation phase:
 ./bin/agentic run --repo-root . --phase PHASE-00B --mode manual --dry-run
 ```
 
-Run supervised agent execution only after reviewing the dry-run evidence:
+Run auto execution only after readiness passes and GitHub CLI authentication is valid:
 
 ```bash
-./bin/agentic run --repo-root . --phase PHASE-00B --mode supervised --agents shell
+./bin/agentic run --repo-root . --phase PHASE-00B --mode auto --preset codex --plan-approval auto
+./bin/agentic run --repo-root . --from PHASE-00B --until-complete --mode auto --preset codex --plan-approval auto
 ```
 
 ## Validation Contract
@@ -65,7 +68,7 @@ uv run ruff check .
 git diff --check
 ```
 
-The current prep baseline does not implement Python source yet, so `PHASE-00B` is responsible for creating `pyproject.toml`, the package skeleton, and the first passing Python validation.
+Each phase also has phase-specific validation commands in `automation/phase-graph.json`. The current prep baseline does not implement Python source yet, so `PHASE-00B` is responsible for creating `pyproject.toml`, the package skeleton, the dummy training smoke command, and the first passing Python validation.
 
 ## Phase Roadmap
 

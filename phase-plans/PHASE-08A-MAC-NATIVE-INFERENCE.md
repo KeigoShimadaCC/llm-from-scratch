@@ -58,7 +58,7 @@ These paths are forbidden to commit or manually edit as phase source changes. Re
 - Add KV-cache support if not already present.
 - Add KV-cache parity tests showing cached and uncached generation agree where deterministic.
 - Add PyTorch MPS benchmark.
-- Add MLX inference path or produce a formal deferral gate with blocker evidence, human approval, and a concrete follow-up plan. Default expectation is PyTorch-vs-MLX comparison.
+- Add MLX inference path or produce a formal deferral gate with blocker evidence, human or unattended-policy approval, and a concrete follow-up plan. Default expectation is PyTorch-vs-MLX comparison.
 - Add CPU, MPS, and MLX benchmark protocol with prompt set, model, context length, max tokens, warmup, measured runs, tokens/sec, latency, and memory where measurable.
 - Write a model card or local inference guide.
 
@@ -87,7 +87,7 @@ These paths are forbidden to commit or manually edit as phase source changes. Re
 
 - A trained model can run locally without cloud services.
 - Latency and throughput are measured.
-- PyTorch MPS and MLX paths are compared, or MLX is formally deferred with blocker evidence and human approval.
+- PyTorch MPS and MLX paths are compared, or MLX is formally deferred with blocker evidence and human or unattended-policy approval.
 - CLI usage is documented.
 - Sampling algorithms, stop behavior, and deterministic seeding are tested or documented.
 - KV-cache output parity is tested when KV cache exists.
@@ -97,7 +97,9 @@ These paths are forbidden to commit or manually edit as phase source changes. Re
 - `uv run pytest`
 - `uv run ruff check .`
 - `git diff --check`
-- Add the exact local generation smoke, KV-cache parity, PyTorch MPS benchmark, and MLX comparison or deferral-evidence commands here once implemented, and require them before marking PHASE-08A complete.
+- `uv run python -m inference.generate --config configs/inference_smoke.yaml --prompt hello --max-new-tokens 16 --seed 123`
+- `uv run python -m inference.kv_cache_parity --config configs/inference_smoke.yaml`
+- `uv run python -m inference.benchmark --config configs/inference_benchmark.yaml --max-new-tokens 32 --output docs/phase08a_benchmark.md`
 
 ## Human Decisions
 

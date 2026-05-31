@@ -32,7 +32,7 @@ Ignored local artifacts may be generated for validation and evidence, but they m
 
 ## Human Decisions
 
-List decisions that must be made by the human/orchestrator before the phase can be considered complete.
+List decisions that must be made by the human/orchestrator in supervised mode or resolved by `automation/policies/unattended-decisions.json` in unattended mode before the phase can be considered complete.
 
 ## Phase Gate
 

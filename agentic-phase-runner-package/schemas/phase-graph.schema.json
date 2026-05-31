@@ -19,7 +19,20 @@
           "dependsOn": { "type": "array", "items": { "type": "string" } },
           "allowedPaths": { "type": "array", "items": { "type": "string" } },
           "parallelGroup": { "type": "string" },
-          "automerge": { "type": "boolean" }
+          "automerge": { "type": "boolean" },
+          "validationCommands": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "required": ["id", "command"],
+              "properties": {
+                "id": { "type": "string" },
+                "command": { "type": "string" },
+                "timeoutMs": { "type": "integer", "minimum": 1 },
+                "requiredFor": { "type": "array", "items": { "type": "string" } }
+              }
+            }
+          }
         }
       }
     }

@@ -19,6 +19,7 @@ export * from './core/version.js';
 export * from './core/agent-presets.js';
 export * from './core/migrate.js';
 export * from './core/report.js';
+export * from './core/readiness.js';
 export * from './core/package-installer.js';
 export * from './core/command-safety.js';
 export * from './adapters/command-executor.js';

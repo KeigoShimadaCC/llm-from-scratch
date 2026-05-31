@@ -13,7 +13,7 @@ Convert a pretrained scratch model into a simple instruction-following variant.
 
 ## Prerequisites
 
-- PHASE-05A is complete or a human-approved fallback base checkpoint exists.
+- PHASE-05A is complete or a human or unattended-policy approved fallback base checkpoint exists.
 - Base checkpoint, tokenizer, and config are compatible with SFT loading.
 - Instruction dataset source/license is approved.
 
@@ -92,7 +92,8 @@ These paths are forbidden to commit or manually edit as phase source changes. Re
 - `uv run pytest`
 - `uv run ruff check .`
 - `git diff --check`
-- Add the exact SFT smoke training, fixed SFT eval, and base-vs-SFT comparison commands here once implemented, and require them before marking PHASE-06A complete.
+- `uv run python -m train.sft --config configs/sft_smoke.yaml --max-steps 50 --run-name phase06a_sft_smoke`
+- `uv run python -m eval.sft_compare --config configs/sft_eval.yaml --output docs/phase06a_sft_eval.md`
 
 ## Human Decisions
 

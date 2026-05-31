@@ -1,0 +1,54 @@
+name: CI
+
+on:
+  pull_request:
+  push:
+    branches:
+      - main
+
+jobs:
+  validation:
+    runs-on: macos-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 10
+
+      - name: Install runner dependencies
+        run: pnpm --dir agentic-phase-runner-package install --frozen-lockfile
+
+      - name: Typecheck runner
+        run: pnpm --dir agentic-phase-runner-package run typecheck
+
+      - name: Test runner
+        run: pnpm --dir agentic-phase-runner-package run test
+
+      - name: Build runner
+        run: pnpm --dir agentic-phase-runner-package run build
+
+      - name: Runner doctor
+        run: ./bin/agentic doctor --repo-root .
+
+      - name: Git whitespace check
+        run: git diff --check
+
+      - name: Setup uv
+        if: hashFiles('pyproject.toml') != ''
+        uses: astral-sh/setup-uv@v5
+
+      - name: Python tests
+        if: hashFiles('pyproject.toml') != ''
+        run: uv run pytest
+
+      - name: Python lint
+        if: hashFiles('pyproject.toml') != ''
+        run: uv run ruff check .

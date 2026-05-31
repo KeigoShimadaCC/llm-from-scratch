@@ -31,7 +31,27 @@
         "PROGRESS.md"
       ],
       "parallelGroup": "foundation",
-      "automerge": false
+      "automerge": true,
+      "validationCommands": [
+        {
+          "id": "phase-00b-dummy-training-smoke",
+          "command": "uv run python -m train.dummy --config configs/dummy.yaml --run-name phase00b_smoke",
+          "timeoutMs": 300000,
+          "requiredFor": [
+            "phase",
+            "merge"
+          ]
+        },
+        {
+          "id": "phase-00b-env-smoke",
+          "command": "uv run python -m kgpt.env_check --optional-mps",
+          "timeoutMs": 120000,
+          "requiredFor": [
+            "phase",
+            "merge"
+          ]
+        }
+      ]
     },
     {
       "id": "PHASE-01A",
@@ -51,7 +71,27 @@
         "PROGRESS.md"
       ],
       "parallelGroup": "core",
-      "automerge": false
+      "automerge": true,
+      "validationCommands": [
+        {
+          "id": "phase-01a-overfit-smoke",
+          "command": "uv run python -m train.micro_char --config configs/micro_char.yaml --max-steps 200 --run-name phase01a_overfit_smoke",
+          "timeoutMs": 600000,
+          "requiredFor": [
+            "phase",
+            "merge"
+          ]
+        },
+        {
+          "id": "phase-01a-deterministic-generation",
+          "command": "uv run python -m inference.generate_char --checkpoint experiments/runs/phase01a_overfit_smoke/checkpoint_last.pt --prompt hello --seed 123 --max-new-tokens 32",
+          "timeoutMs": 180000,
+          "requiredFor": [
+            "phase",
+            "merge"
+          ]
+        }
+      ]
     },
     {
       "id": "PHASE-02A",
@@ -70,7 +110,27 @@
         "PROGRESS.md"
       ],
       "parallelGroup": "core",
-      "automerge": false
+      "automerge": true,
+      "validationCommands": [
+        {
+          "id": "phase-02a-tokenizer-report",
+          "command": "uv run python -m tokenizer.train_report --config configs/tokenizer_bilingual.yaml --output docs/tokenizer_report.md",
+          "timeoutMs": 900000,
+          "requiredFor": [
+            "phase",
+            "merge"
+          ]
+        },
+        {
+          "id": "phase-02a-batch-sampler-smoke",
+          "command": "uv run python -m train.sample_batches --config configs/tokenized_smoke.yaml --max-batches 2",
+          "timeoutMs": 180000,
+          "requiredFor": [
+            "phase",
+            "merge"
+          ]
+        }
+      ]
     },
     {
       "id": "PHASE-03A",
@@ -89,7 +149,27 @@
         "PROGRESS.md"
       ],
       "parallelGroup": "core",
-      "automerge": false
+      "automerge": true,
+      "validationCommands": [
+        {
+          "id": "phase-03a-transformer-train-smoke",
+          "command": "uv run python -m train.transformer_smoke --config configs/transformer_micro.yaml --max-steps 20",
+          "timeoutMs": 300000,
+          "requiredFor": [
+            "phase",
+            "merge"
+          ]
+        },
+        {
+          "id": "phase-03a-transformer-generation-smoke",
+          "command": "uv run python -m inference.generate --config configs/transformer_micro.yaml --prompt hello --max-new-tokens 16 --seed 123",
+          "timeoutMs": 180000,
+          "requiredFor": [
+            "phase",
+            "merge"
+          ]
+        }
+      ]
     },
     {
       "id": "PHASE-04A",
@@ -108,7 +188,27 @@
         "PROGRESS.md"
       ],
       "parallelGroup": "training",
-      "automerge": false
+      "automerge": true,
+      "validationCommands": [
+        {
+          "id": "phase-04a-tiny-pretrain-smoke",
+          "command": "uv run python -m train.pretrain --config configs/kgpt_tiny.yaml --max-steps 200 --run-name phase04a_tiny_smoke",
+          "timeoutMs": 1800000,
+          "requiredFor": [
+            "phase",
+            "merge"
+          ]
+        },
+        {
+          "id": "phase-04a-report-generation",
+          "command": "uv run python -m eval.report --config configs/eval_fixed_prompts.yaml --checkpoint experiments/runs/phase04a_tiny_smoke/checkpoint_last.pt --output docs/phase04a_tiny_report.md",
+          "timeoutMs": 300000,
+          "requiredFor": [
+            "phase",
+            "merge"
+          ]
+        }
+      ]
     },
     {
       "id": "PHASE-05A",
@@ -127,7 +227,27 @@
         "PROGRESS.md"
       ],
       "parallelGroup": "training",
-      "automerge": false
+      "automerge": true,
+      "validationCommands": [
+        {
+          "id": "phase-05a-30m-launch-resume-validation",
+          "command": "uv run python -m train.pretrain --config configs/kgpt_30m.yaml --dry-run --validate-resume",
+          "timeoutMs": 300000,
+          "requiredFor": [
+            "phase",
+            "merge"
+          ]
+        },
+        {
+          "id": "phase-05a-scaling-report",
+          "command": "uv run python -m eval.compare_runs --manifest docs/phase05a_scaling_manifest.json --output docs/phase05a_scaling_report.md",
+          "timeoutMs": 300000,
+          "requiredFor": [
+            "phase",
+            "merge"
+          ]
+        }
+      ]
     },
     {
       "id": "PHASE-06A",
@@ -146,7 +266,27 @@
         "PROGRESS.md"
       ],
       "parallelGroup": "instruction",
-      "automerge": false
+      "automerge": true,
+      "validationCommands": [
+        {
+          "id": "phase-06a-sft-smoke",
+          "command": "uv run python -m train.sft --config configs/sft_smoke.yaml --max-steps 50 --run-name phase06a_sft_smoke",
+          "timeoutMs": 600000,
+          "requiredFor": [
+            "phase",
+            "merge"
+          ]
+        },
+        {
+          "id": "phase-06a-sft-comparison",
+          "command": "uv run python -m eval.sft_compare --config configs/sft_eval.yaml --output docs/phase06a_sft_eval.md",
+          "timeoutMs": 300000,
+          "requiredFor": [
+            "phase",
+            "merge"
+          ]
+        }
+      ]
     },
     {
       "id": "PHASE-07A",
@@ -165,7 +305,27 @@
         "PROGRESS.md"
       ],
       "parallelGroup": "evaluation",
-      "automerge": false
+      "automerge": true,
+      "validationCommands": [
+        {
+          "id": "phase-07a-eval-report",
+          "command": "uv run python -m eval.report --config configs/eval_fixed_prompts.yaml --output docs/phase07a_eval_report.md",
+          "timeoutMs": 300000,
+          "requiredFor": [
+            "phase",
+            "merge"
+          ]
+        },
+        {
+          "id": "phase-07a-checkpoint-comparison",
+          "command": "uv run python -m eval.compare_checkpoints --manifest docs/checkpoint_manifest.json --output docs/phase07a_checkpoint_comparison.md",
+          "timeoutMs": 300000,
+          "requiredFor": [
+            "phase",
+            "merge"
+          ]
+        }
+      ]
     },
     {
       "id": "PHASE-08A",
@@ -183,7 +343,36 @@
         "PROGRESS.md"
       ],
       "parallelGroup": "inference",
-      "automerge": false
+      "automerge": true,
+      "validationCommands": [
+        {
+          "id": "phase-08a-local-generation-smoke",
+          "command": "uv run python -m inference.generate --config configs/inference_smoke.yaml --prompt hello --max-new-tokens 16 --seed 123",
+          "timeoutMs": 180000,
+          "requiredFor": [
+            "phase",
+            "merge"
+          ]
+        },
+        {
+          "id": "phase-08a-kv-cache-parity",
+          "command": "uv run python -m inference.kv_cache_parity --config configs/inference_smoke.yaml",
+          "timeoutMs": 180000,
+          "requiredFor": [
+            "phase",
+            "merge"
+          ]
+        },
+        {
+          "id": "phase-08a-inference-benchmark",
+          "command": "uv run python -m inference.benchmark --config configs/inference_benchmark.yaml --max-new-tokens 32 --output docs/phase08a_benchmark.md",
+          "timeoutMs": 600000,
+          "requiredFor": [
+            "phase",
+            "merge"
+          ]
+        }
+      ]
     },
     {
       "id": "PHASE-09A",
@@ -200,7 +389,27 @@
         "PROGRESS.md"
       ],
       "parallelGroup": "docs",
-      "automerge": false
+      "automerge": true,
+      "validationCommands": [
+        {
+          "id": "phase-09a-claim-evidence-audit",
+          "command": "uv run python -m eval.audit_claims --doc docs/FINAL_WRITEUP.md --output docs/claim_evidence_audit.md",
+          "timeoutMs": 300000,
+          "requiredFor": [
+            "phase",
+            "merge"
+          ]
+        },
+        {
+          "id": "phase-09a-command-index-smoke",
+          "command": "uv run python -m eval.check_repro_commands --doc docs/COMMAND_INDEX.md",
+          "timeoutMs": 300000,
+          "requiredFor": [
+            "phase",
+            "merge"
+          ]
+        }
+      ]
     }
   ]
 }
