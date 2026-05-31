@@ -1,0 +1,35 @@
+schema_version: 1
+run_name: phase03a_transformer_micro
+seed: 20260601
+device: cpu
+dtype: float32
+model_name: kgpt-decoder-transformer-micro
+tokenizer:
+  model_path: data/tokenized/tokenizers/phase02a-byte-bpe-bilingual.json
+  fallback_training_config: configs/tokenizer_bilingual.yaml
+data:
+  tokenized_config: configs/tokenized_smoke.yaml
+  metadata_path: data/tokenized/phase02a_smoke/metadata.json
+  split: train
+model:
+  vocab_size: 377
+  context_length: 16
+  embedding_dim: 32
+  num_layers: 2
+  num_heads: 4
+  mlp_hidden_dim: 64
+  dropout: 0.0
+  tie_embeddings: true
+optimizer:
+  name: adamw
+  learning_rate: 0.005
+training:
+  batch_size: 4
+  train_steps: 20
+  output_dir: experiments/runs
+  checkpoint_every: 20
+  eval_every: 10
+generation:
+  max_new_tokens: 16
+  temperature: 0.0
+  top_k: 0
