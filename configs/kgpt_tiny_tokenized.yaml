@@ -1,0 +1,127 @@
+schema_version: 1
+tokenizer:
+  model_path: data/tokenized/tokenizers/phase02a-byte-bpe-bilingual.json
+  fallback_training_config: configs/tokenizer_bilingual.yaml
+dataset:
+  output_dir: data/tokenized/phase04a_tiny
+  metadata_path: data/tokenized/phase04a_tiny/metadata.json
+  manifest_path: docs/phase04a_data_manifest.json
+  source_name: phase04a_repo_authored_tiny_pretrain_v1
+  url_or_local_note: Repo-authored local synthetic English/Japanese tiny pretraining corpus embedded in this config.
+  license: Repo-authored fixture for this project; no third-party text source.
+  language_mix: English, Japanese, and mixed Japanese/English training notes.
+  preprocessing_command: uv run python -m train.pretrain --config configs/kgpt_tiny.yaml --max-steps 200 --run-name phase04a_tiny_smoke
+  split_method: Deterministic sha256 ordering by seed, record id, and normalized text hash with validation_fraction=0.20.
+  split_seed: 20260601
+  validation_fraction: 0.20
+  dedup_strategy: Unicode NFKC normalization, line-ending normalization, trailing-space trim, then exact normalized text sha256 deduplication.
+  contamination_leakage_notes: Repo-authored synthetic text only; exact normalized text hashes are checked for overlap between train and validation.
+  records:
+    - id: en-train-001
+      language: en
+      text: A tiny language model learns stable syntax from clean local text and reproducible batches.
+    - id: en-train-002
+      language: en
+      text: The training loop records validation loss, perplexity, learning rate, and generated samples.
+    - id: en-train-003
+      language: en
+      text: A checkpoint can resume from the last saved step without changing the source corpus.
+    - id: en-train-004
+      language: en
+      text: Clear data manifests make every experiment easier to audit and repeat on a Mac.
+    - id: en-train-005
+      language: en
+      text: The model predicts the next token from previous tokens using causal self attention.
+    - id: en-train-006
+      language: en
+      text: Validation loss should improve before any larger pretraining run is trusted.
+    - id: en-train-007
+      language: en
+      text: Gradient clipping keeps a small scratch Transformer stable during early experiments.
+    - id: en-train-008
+      language: en
+      text: A fixed prompt set reveals whether samples become less random during training.
+    - id: en-train-009
+      language: en
+      text: The tokenizer uses byte fallback so every UTF-8 character can be represented.
+    - id: en-train-010
+      language: en
+      text: Tiny pretraining is a scaling baseline, not a claim of general language ability.
+    - id: en-train-011
+      language: en
+      text: Reproducible configs describe model size, context length, optimizer, and schedule.
+    - id: en-train-012
+      language: en
+      text: Best checkpoint selection uses validation loss instead of a subjective sample.
+    - id: ja-train-001
+      language: ja
+      text: 小さな言語モデルは、きれいなローカルデータから安定した文を学びます。
+    - id: ja-train-002
+      language: ja
+      text: 学習ループは検証損失、パープレキシティ、学習率、サンプルを記録します。
+    - id: ja-train-003
+      language: ja
+      text: チェックポイントから再開しても、元のコーパスは変更しません。
+    - id: ja-train-004
+      language: ja
+      text: データの出所とライセンスを明記すると、実験を監査しやすくなります。
+    - id: ja-train-005
+      language: ja
+      text: 因果的な自己注意は未来のトークンを見ずに次のトークンを予測します。
+    - id: ja-train-006
+      language: ja
+      text: 大きな事前学習の前に、小さな検証損失の改善を確認します。
+    - id: ja-train-007
+      language: ja
+      text: 勾配クリッピングは小さなTransformerの初期実験を安定させます。
+    - id: ja-train-008
+      language: ja
+      text: 固定プロンプトを使うと、生成サンプルの変化を比較できます。
+    - id: ja-train-009
+      language: ja
+      text: バイトフォールバックにより、すべてのUTF-8文字を表現できます。
+    - id: ja-train-010
+      language: ja
+      text: tiny pretraining は汎用性能ではなく、スケーリングの基準を作ります。
+    - id: ja-train-011
+      language: ja
+      text: 再現可能な設定にはモデルサイズ、文脈長、最適化、スケジュールを書きます。
+    - id: ja-train-012
+      language: ja
+      text: 主観的なサンプルではなく、検証損失で最良チェックポイントを選びます。
+    - id: mix-train-001
+      language: ja-en
+      text: KeigoGPT は local Mac で tiny pretraining の loss curve を確認します。
+    - id: mix-train-002
+      language: ja-en
+      text: validation split と train split の overlap は checksum でゼロにします。
+    - id: mix-train-003
+      language: ja-en
+      text: scheduler warmup と cosine decay は metrics.jsonl に記録します。
+    - id: mix-train-004
+      language: ja-en
+      text: checkpoint_best.pt は validation loss が改善した step を保存します。
+    - id: mix-train-005
+      language: ja-en
+      text: samples.txt は hello, training, 小さなモデル などの固定promptを追跡します。
+    - id: mix-train-006
+      language: ja-en
+      text: data manifest と eval report は PHASE-05A の scaling decision に使います。
+    - id: mix-train-007
+      language: ja-en
+      text: CPU smoke run では batch size と gradient accumulation を小さく保ちます。
+    - id: mix-train-008
+      language: ja-en
+      text: Reproducible Mac training keeps code, config, metrics, and report connected.
+    - id: mix-val-001
+      language: en
+      text: Clean validation text checks whether the tiny model learns repeated training structure.
+    - id: mix-val-002
+      language: ja
+      text: 検証データは学習データと同じ形式ですが、同じ文は含めません。
+    - id: mix-val-003
+      language: ja-en
+      text: Fixed prompts compare English and 日本語 generation across checkpoints.
+    - id: mix-val-004
+      language: en
+      text: A meaningful tiny run improves validation loss and records failure modes.
