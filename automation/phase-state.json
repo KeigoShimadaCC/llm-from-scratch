@@ -1,6 +1,6 @@
 {
-  "currentPhase": "PHASE-01A",
-  "lastUpdated": "2026-05-31",
+  "currentPhase": "PHASE-02A",
+  "lastUpdated": "2026-06-01",
   "phases": {
     "PHASE-00B": {
       "branch": "main",
@@ -8,7 +8,11 @@
       "status": "complete"
     },
     "PHASE-01A": {
-      "status": "queued"
+      "branch": "phase/phase-01a-microgpt-character-lm",
+      "evidenceDir": "runs/phase-runner/PHASE-01A/2026-05-31T16:09:24Z",
+      "mergeCommit": "464c3342d3adb9e115e27c068dc513147a7af091",
+      "pr": 1,
+      "status": "complete"
     },
     "PHASE-02A": {
       "status": "queued"
