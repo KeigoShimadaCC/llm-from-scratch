@@ -373,7 +373,7 @@ const defaultAutopilotConfig = (): Record<string, unknown> => ({
     planner: {
       provider: 'manual',
       commandTemplate:
-        "codex exec --sandbox workspace-write --add-dir '{{EVIDENCE_DIR}}' --add-dir /private/tmp --json --output-last-message '{{OUTPUT_PATH}}' - < '{{PROMPT_PATH}}'",
+        "codex exec --sandbox workspace-write --add-dir '{{EVIDENCE_DIR}}' --add-dir /private/tmp --json --output-last-message '{{OUTPUT_PATH}}' \"$(cat '{{PROMPT_PATH}}')\"",
       timeoutMs: 3600000,
       inactivityTimeoutMs: 1200000,
       maxRetries: 0,
@@ -381,7 +381,7 @@ const defaultAutopilotConfig = (): Record<string, unknown> => ({
     executor: {
       provider: 'manual',
       commandTemplate:
-        "codex exec --sandbox workspace-write --add-dir '{{EVIDENCE_DIR}}' --add-dir /private/tmp --json --output-last-message '{{OUTPUT_PATH}}' - < '{{PROMPT_PATH}}'",
+        "codex exec --sandbox workspace-write --add-dir '{{EVIDENCE_DIR}}' --add-dir /private/tmp --json --output-last-message '{{OUTPUT_PATH}}' \"$(cat '{{PROMPT_PATH}}')\"",
       timeoutMs: 3600000,
       inactivityTimeoutMs: 1200000,
       maxRetries: 0,
@@ -389,7 +389,7 @@ const defaultAutopilotConfig = (): Record<string, unknown> => ({
     rechecker: {
       provider: 'manual',
       commandTemplate:
-        "codex exec --sandbox workspace-write --add-dir '{{EVIDENCE_DIR}}' --add-dir /private/tmp --json --output-last-message '{{OUTPUT_PATH}}' - < '{{PROMPT_PATH}}'",
+        "codex exec --sandbox workspace-write --add-dir '{{EVIDENCE_DIR}}' --add-dir /private/tmp --json --output-last-message '{{OUTPUT_PATH}}' \"$(cat '{{PROMPT_PATH}}')\"",
       timeoutMs: 1800000,
       inactivityTimeoutMs: 1200000,
       maxRetries: 0,

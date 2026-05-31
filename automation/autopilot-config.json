@@ -8,21 +8,21 @@
       "timeoutMs": 900000
     },
     "executor": {
-      "commandTemplate": "codex exec --sandbox workspace-write --add-dir '{{EVIDENCE_DIR}}' --add-dir /private/tmp --json --output-last-message '{{OUTPUT_PATH}}' - < '{{PROMPT_PATH}}'",
+      "commandTemplate": "codex exec --sandbox workspace-write --add-dir '{{EVIDENCE_DIR}}' --add-dir /private/tmp --json --output-last-message '{{OUTPUT_PATH}}' \"$(cat '{{PROMPT_PATH}}')\"",
       "inactivityTimeoutMs": 1200000,
       "maxRetries": 0,
       "provider": "shell",
       "timeoutMs": 3600000
     },
     "planner": {
-      "commandTemplate": "codex exec --sandbox workspace-write --add-dir '{{EVIDENCE_DIR}}' --add-dir /private/tmp --json --output-last-message '{{OUTPUT_PATH}}' - < '{{PROMPT_PATH}}'",
+      "commandTemplate": "codex exec --sandbox workspace-write --add-dir '{{EVIDENCE_DIR}}' --add-dir /private/tmp --json --output-last-message '{{OUTPUT_PATH}}' \"$(cat '{{PROMPT_PATH}}')\"",
       "inactivityTimeoutMs": 1200000,
       "maxRetries": 0,
       "provider": "shell",
       "timeoutMs": 3600000
     },
     "rechecker": {
-      "commandTemplate": "codex exec --sandbox workspace-write --add-dir '{{EVIDENCE_DIR}}' --add-dir /private/tmp --json --output-last-message '{{OUTPUT_PATH}}' - < '{{PROMPT_PATH}}'",
+      "commandTemplate": "codex exec --sandbox workspace-write --add-dir '{{EVIDENCE_DIR}}' --add-dir /private/tmp --json --output-last-message '{{OUTPUT_PATH}}' \"$(cat '{{PROMPT_PATH}}')\"",
       "inactivityTimeoutMs": 1200000,
       "maxRetries": 0,
       "provider": "shell",

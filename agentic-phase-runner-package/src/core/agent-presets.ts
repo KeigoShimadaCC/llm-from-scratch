@@ -42,7 +42,7 @@ const defaultShellFields = {
 };
 
 const codexTemplate =
-  "codex exec --sandbox workspace-write --add-dir '{{EVIDENCE_DIR}}' --add-dir /private/tmp --json --output-last-message '{{OUTPUT_PATH}}' - < '{{PROMPT_PATH}}'";
+  "codex exec --sandbox workspace-write --add-dir '{{EVIDENCE_DIR}}' --add-dir /private/tmp --json --output-last-message '{{OUTPUT_PATH}}' \"$(cat '{{PROMPT_PATH}}')\"";
 const defaultManualCommand = codexTemplate;
 const cursorTemplate = "agent --print --trust --workspace '{{WORKSPACE}}' \"$(cat '{{PROMPT_PATH}}')\"";
 const claudeTemplate = "claude --print \"$(cat '{{PROMPT_PATH}}')\"";
