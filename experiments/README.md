@@ -16,3 +16,13 @@ Each serious run should preserve:
 - evaluation report.
 
 Large checkpoints, generated run directories, and local benchmark outputs must not be committed.
+
+PHASE-00B dummy training writes:
+
+- `config.yaml`
+- `metrics.jsonl`
+- `samples.txt`
+- `checkpoint_last.pt`
+- `manifest.json`
+
+Those files are generated evidence and must remain under ignored `experiments/runs/` directories.

@@ -1,0 +1,24 @@
+[project]
+name = "keigogpt-lab"
+version = "0.1.0"
+description = "Mac-local LLM-from-scratch lab foundation."
+readme = "README.md"
+requires-python = ">=3.11,<3.13"
+dependencies = [
+  "numpy>=1.26",
+  "pyyaml>=6.0",
+  "pytest>=8.0",
+  "ruff>=0.8",
+  "torch>=2.2",
+]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["."]
+
+[tool.ruff]
+line-length = 120
+target-version = "py311"
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "UP", "B"]

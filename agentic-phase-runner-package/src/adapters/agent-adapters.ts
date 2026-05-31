@@ -108,6 +108,7 @@ export class ShellAgentAdapter implements AgentAdapter {
     const stdoutPath = path.join(commandResultsDir, `agent-${slug}.stdout.log`);
     const stderrPath = path.join(commandResultsDir, `agent-${slug}.stderr.log`);
 
+    await writeFile(input.outputPath, '');
     const commandResult = await this.executor.run(command, {
       cwd: input.workspace,
       timeoutMs: input.timeoutMs ?? this.config.timeoutMs,
@@ -117,8 +118,12 @@ export class ShellAgentAdapter implements AgentAdapter {
       stderrPath,
     });
 
-    const outputText = await readFile(stdoutPath, 'utf8').catch(() => '');
-    await writeFile(input.outputPath, outputText);
+    const outputFileText = await readFile(input.outputPath, 'utf8').catch(() => '');
+    const stdoutText = await readFile(stdoutPath, 'utf8').catch(() => '');
+    const outputText = outputFileText.trim().length > 0 ? outputFileText : stdoutText;
+    if (outputFileText.trim().length === 0) {
+      await writeFile(input.outputPath, outputText);
+    }
 
     const parsed = parseAgentStructuredReport(outputText, input.role, input.phaseId);
     const reportBase =

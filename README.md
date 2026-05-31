@@ -27,6 +27,23 @@ The scratch-core path owns:
 
 The core path must not hide behavior behind Hugging Face `AutoModelForCausalLM` or equivalent pretrained model wrappers. Reference implementations and practical open-weight experiments may exist later only as explicit comparison layers.
 
+## Python Lab Setup
+
+PHASE-00B adds the first runnable Python foundation. Use Python 3.11 or 3.12 through `uv`:
+
+```bash
+uv sync
+uv run pytest
+uv run ruff check .
+```
+
+The first smoke run uses fake token data only and writes ignored artifacts under `experiments/runs/`:
+
+```bash
+uv run python -m train.dummy --config configs/dummy.yaml --run-name phase00b_smoke
+uv run python -m kgpt.env_check --optional-mps
+```
+
 ## Agentic Runner Setup
 
 Build the local runner package before using `./bin/agentic` on a fresh clone:
@@ -68,7 +85,7 @@ uv run ruff check .
 git diff --check
 ```
 
-Each phase also has phase-specific validation commands in `automation/phase-graph.json`. The current prep baseline does not implement Python source yet, so `PHASE-00B` is responsible for creating `pyproject.toml`, the package skeleton, the dummy training smoke command, and the first passing Python validation.
+Each phase also has phase-specific validation commands in `automation/phase-graph.json`. PHASE-00B owns the Python project skeleton, config loader, checkpoint helpers, dummy training smoke command, and first passing Python validation.
 
 ## Phase Roadmap
 

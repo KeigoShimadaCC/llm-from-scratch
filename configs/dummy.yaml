@@ -1,0 +1,17 @@
+run_name: dummy
+seed: 1337
+device: cpu
+dtype: float32
+model_name: kgpt-dummy-bigram
+vocab_size: 128
+context_length: 16
+batch_size: 8
+train_steps: 12
+optimizer:
+  name: adamw
+  learning_rate: 0.001
+output_dir: experiments/runs
+checkpoint_every: 12
+eval_every: 4
+sample_every: 4
+tokenizer_id: fake-tokenizer-v0

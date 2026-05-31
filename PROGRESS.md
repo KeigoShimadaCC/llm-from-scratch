@@ -6,8 +6,8 @@ Living coordination file for phase-based agent work.
 
 | Field | Value |
 | --- | --- |
-| Phase | PHASE-00B |
-| Goal | Project Phase 0: repository and lab foundation |
+| Phase | PHASE-01A |
+| Goal | MicroGPT character language model |
 | Branch | main |
 | Worktree | /Users/keigoshimada/Documents/llm-from-scratch |
 | Status | queued |
@@ -16,8 +16,7 @@ Living coordination file for phase-based agent work.
 
 ### Open
 
-- [ ] Execute PHASE-00B from `phase-plans/PHASE-00B-REPO-LAB-FOUNDATION.md`.
-- [ ] Create the Python project skeleton, config system, dummy training loop, checkpoint format, and first tests.
+- [ ] Start PHASE-01A from `phase-plans/PHASE-01A-MICROGPT-CHARACTER-LM.md`.
 
 ### In Progress
 
@@ -35,12 +34,21 @@ _(none)_
 - [x] Added phase-specific validation command contracts, reviewed hybrid automerge policy, unattended decision policy, CI workflow, readiness command, and separate phase-acceptance versus merge gates.
 - [x] Hardened migration, doctor, dry-run, and readiness checks so reviewed automation can reach 10/10 once the worktree is clean.
 - [x] Added GitHub repository metadata from the North Star: description and project topics.
+- [x] Added Python project metadata, config schema, deterministic seeding, checkpoint helpers, dummy training, placeholder CLIs, and foundation tests.
+- [x] Completed PHASE-00B validation and recorded ignored run evidence.
 
 ## Phase Checklist
 
 - [x] Acceptance criteria mapped to tasks for PHASE-00B.
-- [ ] Required validation commands run.
-- [ ] Evidence recorded.
+- [x] Accepted plan read before implementation.
+- [x] North Star Phase 0 and training run artifact conventions read before implementation.
+- [x] Python project metadata and lockfile added.
+- [x] Importable package skeleton and CLI entrypoints added.
+- [x] Config, seeding, checkpoint helpers added.
+- [x] Dummy training command writes ignored run artifacts.
+- [x] Foundation tests added.
+- [x] Required validation commands run.
+- [x] Evidence recorded.
 
 ## Future Backlog
 
@@ -75,7 +83,25 @@ _(none)_
 - 2026-05-31: After committing automation-readiness hardening, escalated `./bin/agentic readiness --repo-root . --target unattended` reported 10/10.
 - 2026-05-31: First live `PHASE-00B` auto run blocked at plan acceptance because the planner prompt did not require `allowedPaths` or `acceptanceCriteriaCovered` in task JSON; tightened planner templates and reset `PHASE-00B` to queued before rerun.
 - 2026-05-31: Escalated `gh repo view KeigoShimadaCC/llm-from-scratch --json description,homepageUrl,repositoryTopics,url` verified the GitHub repo description and topics after metadata update.
+- 2026-05-31: Second live `PHASE-00B` auto run passed plan acceptance but executor hit the 5-minute inactivity timeout after starting implementation; increased executor/rechecker inactivity timeouts locally before resume.
+- 2026-05-31: Nested executor remained stalled after safer streaming resume, so PHASE-00B implementation was steered directly in the main workspace while preserving accepted-plan evidence under `runs/phase-runner/PHASE-00B/2026-05-31T14:18:34Z/`.
+- 2026-05-31: `uv run pytest` passed for PHASE-00B: 5 tests.
+- 2026-05-31: `uv lock --check` passed after adding `pyproject.toml` and `uv.lock`.
+- 2026-05-31: `uv run ruff check .` passed.
+- 2026-05-31: `git diff --check` passed.
+- 2026-05-31: `pnpm --dir agentic-phase-runner-package run typecheck`, `test`, and `build` passed after the runner output-capture steering change.
+- 2026-05-31: `uv run python -m train.dummy --config configs/dummy.yaml --run-name phase00b_smoke` passed and generated ignored evidence under `experiments/runs/20260531T145036Z_phase00b_smoke/`.
+- 2026-05-31: `uv run python -m kgpt.env_check --optional-mps` passed with Python 3.12.11, Torch 2.12.0, CPU available, and MPS available.
+- 2026-05-31: `./bin/agentic doctor --repo-root .` passed after PHASE-00B implementation.
+- 2026-05-31: `./bin/agentic status --repo-root .` reported PHASE-01A as the next runnable phase after phase state was advanced.
 
 ## Phase Archive
 
-_(none)_
+### PHASE-00B - Repository And Lab Foundation
+
+Status: complete
+Completed: 2026-05-31
+Evidence:
+- Accepted automation plan: `runs/phase-runner/PHASE-00B/2026-05-31T14:18:34Z/accepted-plan/accepted-plan.json`
+- Ignored dummy run: `experiments/runs/20260531T145036Z_phase00b_smoke/`
+- Validation commands: `uv run pytest`, `uv run ruff check .`, `git diff --check`, `uv run python -m train.dummy --config configs/dummy.yaml --run-name phase00b_smoke`, `uv run python -m kgpt.env_check --optional-mps`

@@ -1,9 +1,11 @@
 {
-  "currentPhase": "PHASE-00B",
+  "currentPhase": "PHASE-01A",
   "lastUpdated": "2026-05-31",
   "phases": {
     "PHASE-00B": {
-      "status": "queued"
+      "branch": "main",
+      "evidenceDir": "runs/phase-runner/PHASE-00B/2026-05-31T14:18:34Z",
+      "status": "complete"
     },
     "PHASE-01A": {
       "status": "queued"
