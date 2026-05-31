@@ -1,5 +1,5 @@
 {
-  "currentPhase": "PHASE-08A",
+  "currentPhase": "PHASE-09A",
   "lastUpdated": "2026-06-01",
   "phases": {
     "PHASE-00B": {
@@ -54,7 +54,10 @@
       "status": "complete"
     },
     "PHASE-08A": {
-      "status": "queued"
+      "branch": "phase/phase-08a-mac-native-inference",
+      "mergeCommit": "477ca2850ed889288da1cec9162752cb0ca0fdab",
+      "pr": 8,
+      "status": "complete"
     },
     "PHASE-09A": {
       "status": "queued"

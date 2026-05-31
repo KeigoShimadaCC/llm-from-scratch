@@ -6,17 +6,17 @@ Living coordination file for phase-based agent work.
 
 | Field | Value |
 | --- | --- |
-| Phase | PHASE-08A |
-| Goal | Mac-native inference |
-| Branch | phase/phase-08a-mac-native-inference |
-| Worktree | /Users/keigoshimada/Documents/llm-from-scratch-phase-08a-mac-native-inference-wt |
-| Status | validation passed; PR pending |
+| Phase | PHASE-09A |
+| Goal | Final write-up and portfolio |
+| Branch | main |
+| Worktree | /Users/keigoshimada/Documents/llm-from-scratch |
+| Status | queued |
 
 ## Task Queue
 
 ### Open
 
-- [ ] Publish PHASE-08A PR and merge after CI passes.
+- [ ] Start PHASE-09A from `phase-plans/PHASE-09A-FINAL-WRITEUP-PORTFOLIO.md`.
 
 ### In Progress
 
@@ -24,6 +24,7 @@ _(none)_
 
 ### Done
 
+- [x] Merged PHASE-08A via PR #8 at merge commit `477ca2850ed889288da1cec9162752cb0ca0fdab`.
 - [x] Implemented PHASE-08A completion/chat CLI, sampling controls, KV-cache parity, benchmark report, and MLX deferral evidence.
 - [x] Validated PHASE-08A locally with generation smoke, KV-cache parity, benchmark, full tests, lint, and whitespace checks.
 - [x] Completed PHASE-08A plan audit; no blocking implementation gaps remain. MLX is explicitly deferred, not claimed as achieved.
@@ -282,8 +283,28 @@ _(none)_
 - 2026-06-01: PHASE-07A validation passed: `uv run pytest` (29 tests), `uv run ruff check .`, `git diff --check`, `uv run python -m eval.report --config configs/eval_fixed_prompts.yaml --output docs/phase07a_eval_report.md`, and `uv run python -m eval.compare_checkpoints --manifest docs/checkpoint_manifest.json --output docs/phase07a_checkpoint_comparison.md`. Both PHASE-07A reports completed with one live micro checkpoint row from `experiments/runs/phase03a_transformer_micro/` and three summary-only rows for missing ignored tiny/30M/SFT artifacts.
 - 2026-06-01: PHASE-07A PR #7 passed GitHub CI and merged to `main` at `af0b07bed26e67bbe788b0eec4fb93566e42543f`.
 - 2026-06-01: PHASE-08A validation passed: `uv run pytest` (34 tests), `uv run ruff check .`, `git diff --check`, `uv run python -m inference.generate --config configs/inference_smoke.yaml --prompt hello --max-new-tokens 16 --seed 123`, `uv run python -m inference.kv_cache_parity --config configs/inference_smoke.yaml`, and `uv run python -m inference.benchmark --config configs/inference_benchmark.yaml --max-new-tokens 32 --output docs/phase08a_benchmark.md`. The local benchmark measured CPU and PyTorch MPS and formally deferred MLX with blocker evidence.
+- 2026-06-01: PHASE-08A PR #8 passed GitHub CI and merged to `main` at `477ca2850ed889288da1cec9162752cb0ca0fdab`.
 
 ## Phase Archive
+
+### PHASE-08A - Mac-Native Inference
+
+Status: complete
+Completed: 2026-06-01
+Evidence:
+- PR: #8
+- Merge commit: `477ca2850ed889288da1cec9162752cb0ca0fdab`
+- Inference configs: `configs/inference_smoke.yaml`, `configs/inference_benchmark.yaml`
+- Completion/chat/runtime CLIs: `inference/generate.py`, `inference/chat.py`, `inference/runtime.py`
+- KV-cache and benchmark CLIs: `inference/kv_cache_parity.py`, `inference/benchmark.py`
+- Transformer KV-cache support: `kgpt/transformer.py`
+- Guide and reports: `docs/phase08a_inference_guide.md`, `docs/phase08a_model_loading_report.md`, `docs/phase08a_benchmark.md`
+- Evidence artifacts: `docs/phase08a_generation_example.json`, `docs/phase08a_kv_cache_parity.json`
+- MLX deferral: `docs/phase08a_mlx_deferral.md`
+- Tests: `tests/test_transformer.py`, `tests/test_inference_runtime.py`
+- Ignored inference artifacts: `experiments/runs/phase03a_transformer_micro/`, `data/tokenized/**`
+- Validation commands: `uv run pytest`, `uv run ruff check .`, `git diff --check`, `uv run python -m inference.generate --config configs/inference_smoke.yaml --prompt hello --max-new-tokens 16 --seed 123`, `uv run python -m inference.kv_cache_parity --config configs/inference_smoke.yaml`, `uv run python -m inference.benchmark --config configs/inference_benchmark.yaml --max-new-tokens 32 --output docs/phase08a_benchmark.md`
+- Result note: CPU and PyTorch MPS benchmark rows were measured locally; MLX is explicitly deferred and must not be described as a completed PyTorch-vs-MLX comparison.
 
 ### PHASE-07A - Evaluation And Failure Analysis
 
