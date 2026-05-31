@@ -8,15 +8,15 @@ Living coordination file for phase-based agent work.
 | --- | --- |
 | Phase | PHASE-04A |
 | Goal | Tiny pretraining run |
-| Branch | main |
-| Worktree | /Users/keigoshimada/Documents/llm-from-scratch |
-| Status | queued |
+| Branch | phase/phase-04a-tiny-pretraining |
+| Worktree | /Users/keigoshimada/Documents/llm-from-scratch-phase-04a-tiny-pretraining-wt |
+| Status | validation passed; PR pending |
 
 ## Task Queue
 
 ### Open
 
-- [ ] Start PHASE-04A from `phase-plans/PHASE-04A-TINY-PRETRAINING.md`.
+_(none)_
 
 ### In Progress
 
@@ -24,6 +24,8 @@ _(none)_
 
 ### Done
 
+- [x] Implemented PHASE-04A from the phase plan after runner planning stalled before producing an accepted plan.
+- [x] Validated PHASE-04A tiny pretraining, fixed-prompt report generation, and resume probe locally.
 - [x] Merged PHASE-03A via PR #3 at merge commit `d672096c7ebdbee1e09bf85431380e5105a4b9bc`.
 - [x] Implemented PHASE-03A from accepted plan `runs/phase-runner/PHASE-03A/2026-05-31T17:12:39Z/accepted-plan/accepted-plan.json`.
 - [x] Validated PHASE-03A Transformer architecture, smoke training, and generation commands locally.
@@ -44,6 +46,19 @@ _(none)_
 - [x] Implemented PHASE-01A character tokenizer, context MLP training loop, deterministic generation, tests, prompt asset, mini report, and ignored overfit evidence.
 
 ## Phase Checklist
+
+### PHASE-04A - Tiny Pretraining Run
+
+- [x] North Star Phase 4 direction read before implementation.
+- [x] Active phase plan read before implementation.
+- [x] Runner attempt preserved as evidence under `runs/phase-runner/PHASE-04A/2026-05-31T17:35:44Z/`.
+- [x] Tiny pretraining dataset config with source/license, split, dedup, and leakage notes added.
+- [x] 5M-20M parameter tiny model config, optimizer, scheduler, gradient accumulation, cadence, and budget added.
+- [x] Token-level pretraining loop, metrics logging, best-checkpoint selection, samples, and resume behavior added.
+- [x] Fixed-prompt eval config and report generator added.
+- [x] Resume or checkpoint behavior tests added.
+- [x] Required validation commands run.
+- [x] Ignored tiny-run evidence recorded.
 
 ### PHASE-03A - Core Decoder-Only Transformer
 
@@ -171,6 +186,14 @@ _(none)_
 - 2026-06-01: `uv run python -m train.transformer_smoke --config configs/transformer_micro.yaml --max-steps 20` passed and generated ignored evidence under `experiments/runs/phase03a_transformer_micro/`; train loss went from 22.25092887878418 to 1.0929747819900513 with 29,728 parameters.
 - 2026-06-01: `uv run python -m inference.generate --config configs/transformer_micro.yaml --prompt hello --max-new-tokens 16 --seed 123` passed from the Transformer smoke checkpoint and generated 16 new tokens.
 - 2026-06-01: PHASE-03A PR #3 passed GitHub CI and merged to `main` at `d672096c7ebdbee1e09bf85431380e5105a4b9bc`.
+- 2026-06-01: PHASE-04A live runner attempt stalled in planning with zero-byte planner logs under `runs/phase-runner/PHASE-04A/2026-05-31T17:35:44Z/`; implementation proceeded manually from the phase plan.
+- 2026-06-01: PHASE-04A focused tests passed: `uv run pytest tests/test_pretrain.py -q` -> 3 passed.
+- 2026-06-01: `uv run pytest` passed for PHASE-04A: 21 tests.
+- 2026-06-01: `uv run ruff check .` passed.
+- 2026-06-01: `git diff --check` passed.
+- 2026-06-01: `uv run python -m train.pretrain --config configs/kgpt_tiny.yaml --max-steps 200 --run-name phase04a_tiny_smoke` passed and generated ignored evidence under `experiments/runs/phase04a_tiny_smoke/`; parameter count was 5,633,536 and validation loss improved from 164.59511184692383 to 4.059329509735107.
+- 2026-06-01: `uv run python -m eval.report --config configs/eval_fixed_prompts.yaml --checkpoint experiments/runs/phase04a_tiny_smoke/checkpoint_last.pt --output docs/phase04a_tiny_report.md` passed and wrote the fixed-prompt report.
+- 2026-06-01: `uv run python -m train.pretrain --config configs/kgpt_tiny.yaml --max-steps 8 --run-name phase04a_runtime_probe --resume` passed, proving checkpoint resume from the earlier 5-step probe.
 
 ## Phase Archive
 

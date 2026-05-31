@@ -1,0 +1,14 @@
+schema_version: 1
+title: PHASE-04A tiny pretraining fixed-prompt report
+run_name: phase04a_tiny_smoke
+fixed_prompts:
+  - hello
+  - The model learns
+  - training loop
+  - 小さなモデル
+  - 検証データ
+generation:
+  max_new_tokens: 32
+  temperature: 0.0
+  top_k: 0
+next_scale_recommendation: Move to PHASE-05A only if validation loss improves by the predeclared threshold and checkpoint_best.pt exists.
