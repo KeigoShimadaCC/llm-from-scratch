@@ -8,15 +8,15 @@ Living coordination file for phase-based agent work.
 | --- | --- |
 | Phase | PHASE-05A |
 | Goal | Small practical model |
-| Branch | main |
-| Worktree | /Users/keigoshimada/Documents/llm-from-scratch |
-| Status | queued |
+| Branch | phase/phase-05a-small-practical-model |
+| Worktree | /Users/keigoshimada/Documents/llm-from-scratch-phase-05a-small-practical-model-wt |
+| Status | validation passed; PR pending |
 
 ## Task Queue
 
 ### Open
 
-- [ ] Start PHASE-05A from `phase-plans/PHASE-05A-SMALL-PRACTICAL-MODEL.md`.
+_(none)_
 
 ### In Progress
 
@@ -24,6 +24,8 @@ _(none)_
 
 ### Done
 
+- [x] Implemented PHASE-05A configs, dry-run/profile tooling, scaling report, and 30M+ local training evidence.
+- [x] Validated PHASE-05A locally with 30M dry-run/resume validation and scaling report generation.
 - [x] Merged PHASE-04A via PR #4 at merge commit `988fa5abfb1aa344cfe526de5a5bb0629c2b6b36`.
 - [x] Implemented PHASE-04A from the phase plan after runner planning stalled before producing an accepted plan.
 - [x] Validated PHASE-04A tiny pretraining, fixed-prompt report generation, and resume probe locally.
@@ -47,6 +49,19 @@ _(none)_
 - [x] Implemented PHASE-01A character tokenizer, context MLP training loop, deterministic generation, tests, prompt asset, mini report, and ignored overfit evidence.
 
 ## Phase Checklist
+
+### PHASE-05A - Small Practical Model
+
+- [x] North Star Phase 5 direction read before implementation.
+- [x] Active phase plan read before implementation.
+- [x] `kgpt-30m` config and stretch configs with computed parameter counts added.
+- [x] Final tokenizer decision and data mixture manifest documented.
+- [x] 30M dry-run, resume validation, profiling, and scaling comparison commands added.
+- [x] At least one 30M+ local run completed or infeasibility documented with fallback evidence.
+- [x] Scaling report compares micro, tiny, and 30M+ behavior.
+- [x] Stretch `kgpt-50m`/`kgpt-100m` decision recorded.
+- [x] Required validation commands run.
+- [x] Ignored 30M+ evidence recorded.
 
 ### PHASE-04A - Tiny Pretraining Run
 
@@ -196,6 +211,15 @@ _(none)_
 - 2026-06-01: `uv run python -m eval.report --config configs/eval_fixed_prompts.yaml --checkpoint experiments/runs/phase04a_tiny_smoke/checkpoint_last.pt --output docs/phase04a_tiny_report.md` passed and wrote the fixed-prompt report.
 - 2026-06-01: `uv run python -m train.pretrain --config configs/kgpt_tiny.yaml --max-steps 8 --run-name phase04a_runtime_probe --resume` passed, proving checkpoint resume from the earlier 5-step probe.
 - 2026-06-01: PHASE-04A PR #4 passed GitHub CI and merged to `main` at `988fa5abfb1aa344cfe526de5a5bb0629c2b6b36`.
+- 2026-06-01: PHASE-05A focused tests passed: `uv run pytest tests/test_pretrain.py -q` -> 4 passed.
+- 2026-06-01: `uv run python -m train.pretrain --config configs/kgpt_30m.yaml --dry-run --validate-resume` passed with 31,734,272 parameters and resume validation.
+- 2026-06-01: `uv run python -m train.pretrain --config configs/kgpt_30m.yaml --max-steps 40 --run-name phase05a_kgpt30m_smoke` passed and generated ignored evidence under `experiments/runs/phase05a_kgpt30m_smoke/`; validation loss improved from 316.75299072265625 to 11.464725255966187.
+- 2026-06-01: `uv run python -m train.pretrain --config configs/kgpt_50m.yaml --dry-run` passed with 59,345,280 parameters.
+- 2026-06-01: `uv run python -m train.pretrain --config configs/kgpt_100m.yaml --dry-run` passed with 113,721,600 parameters.
+- 2026-06-01: `uv run pytest` passed for PHASE-05A: 22 tests.
+- 2026-06-01: `uv run ruff check .` passed.
+- 2026-06-01: `git diff --check` passed.
+- 2026-06-01: `uv run python -m eval.compare_runs --manifest docs/phase05a_scaling_manifest.json --output docs/phase05a_scaling_report.md` passed and confirmed a trained 30M+ run in the scaling manifest.
 
 ## Phase Archive
 

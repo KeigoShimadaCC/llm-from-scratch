@@ -3,6 +3,7 @@ from __future__ import annotations
 import argparse
 import json
 import shutil
+import tempfile
 import time
 from datetime import UTC, datetime
 from pathlib import Path
@@ -41,12 +42,24 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--max-steps", type=int, help="Override training.train_steps.")
     parser.add_argument("--run-name", help="Override run_name.")
     parser.add_argument("--resume", action="store_true", help="Resume from checkpoint_last.pt in the run directory.")
+    parser.add_argument("--dry-run", action="store_true", help="Validate config/model wiring without training.")
+    parser.add_argument(
+        "--validate-resume",
+        action="store_true",
+        help="With --dry-run, create and reload a temporary checkpoint to validate resume metadata.",
+    )
     args = parser.parse_args(argv)
 
     if args.max_steps is not None and args.max_steps <= 0:
         raise ValueError("--max-steps must be positive.")
     config = load_pretrain_config(args.config)
     config = with_pretrain_overrides(config, run_name=args.run_name, train_steps=args.max_steps)
+    if args.dry_run:
+        result = run_pretrain_dry_run(config=config, validate_resume=args.validate_resume)
+        print(json.dumps(result, sort_keys=True))
+        return 0
+    if args.validate_resume:
+        raise ValueError("--validate-resume requires --dry-run.")
     run_dir = create_or_resume_run_dir(config, resume=args.resume)
     result = run_pretraining(config=config, run_dir=run_dir, resume=args.resume)
     print(json.dumps(result, sort_keys=True))
@@ -66,8 +79,11 @@ def run_pretraining(*, config: PretrainConfig, run_dir: Path, resume: bool = Fal
     model = DecoderOnlyTransformer(config.model).to(device)
     optimizer = torch.optim.AdamW(model.parameters(), lr=config.optimizer.learning_rate)
     parameter_count = count_parameters(model)
-    if parameter_count < 5_000_000 or parameter_count > 20_000_000:
-        raise ValueError(f"PHASE-04A model must be 5M-20M parameters, got {parameter_count:,}.")
+    if parameter_count < config.scale.min_parameters or parameter_count > config.scale.max_parameters:
+        raise ValueError(
+            f"{config.scale.label} model must be "
+            f"{config.scale.min_parameters:,}-{config.scale.max_parameters:,} parameters, got {parameter_count:,}."
+        )
 
     config_copy_path = run_dir / "config.yaml"
     metrics_path = run_dir / "metrics.jsonl"
@@ -300,6 +316,58 @@ def run_pretraining(*, config: PretrainConfig, run_dir: Path, resume: bool = Fal
         "loss_improvement_passed": passed,
         "checkpoint_last": str(checkpoint_last_path),
         "checkpoint_best": str(checkpoint_best_path),
+    }
+
+
+def run_pretrain_dry_run(*, config: PretrainConfig, validate_resume: bool) -> dict[str, Any]:
+    seed_everything(config.seed)
+    device = resolve_device(config.device)
+    model = DecoderOnlyTransformer(config.model).to(device)
+    optimizer = torch.optim.AdamW(model.parameters(), lr=config.optimizer.learning_rate)
+    parameter_count = count_parameters(model)
+    scale_passed = config.scale.min_parameters <= parameter_count <= config.scale.max_parameters
+    if not scale_passed:
+        raise ValueError(
+            f"{config.scale.label} model must be "
+            f"{config.scale.min_parameters:,}-{config.scale.max_parameters:,} parameters, got {parameter_count:,}."
+        )
+    resume_validation: dict[str, Any] | None = None
+    if validate_resume:
+        with tempfile.TemporaryDirectory(prefix="kgpt-resume-") as tmpdir:
+            run_dir = Path(tmpdir)
+            save_checkpoint(
+                run_dir / "checkpoint_last.pt",
+                model=model,
+                optimizer=optimizer,
+                metadata={
+                    "step": 0,
+                    "best_validation_loss": 1.0,
+                    "best_step": 0,
+                    "initial_validation_loss": 1.0,
+                },
+            )
+            state = load_resume_state(run_dir=run_dir, model=model, optimizer=optimizer)
+            resume_validation = {
+                "start_step": state.start_step,
+                "best_validation_loss": state.best_validation_loss,
+                "best_step": state.best_step,
+                "initial_validation_loss": state.initial_validation_loss,
+            }
+    return {
+        "config": str(config.source_path),
+        "run_name": config.run_name,
+        "model_name": config.model_name,
+        "scale_label": config.scale.label,
+        "parameter_count": parameter_count,
+        "scale_min": config.scale.min_parameters,
+        "scale_max": config.scale.max_parameters,
+        "scale_passed": scale_passed,
+        "device": str(device),
+        "dtype": config.dtype,
+        "target_steps": config.run_budget.target_steps,
+        "target_tokens": config.run_budget.target_tokens,
+        "resume_validation": resume_validation,
+        "dry_run": True,
     }
 
 

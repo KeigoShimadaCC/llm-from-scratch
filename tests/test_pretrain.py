@@ -18,8 +18,16 @@ def test_tiny_config_is_in_phase_scale_range() -> None:
     config = load_pretrain_config("configs/kgpt_tiny.yaml")
     model = DecoderOnlyTransformer(config.model)
     parameter_count = count_parameters(model)
-    assert 5_000_000 <= parameter_count <= 20_000_000
+    assert config.scale.min_parameters <= parameter_count <= config.scale.max_parameters
     assert config.training.loss_improvement_threshold == 0.10
+
+
+def test_kgpt_30m_config_crosses_north_star_gate() -> None:
+    config = load_pretrain_config("configs/kgpt_30m.yaml")
+    model = DecoderOnlyTransformer(config.model)
+    parameter_count = count_parameters(model)
+    assert parameter_count >= 30_000_000
+    assert config.scale.min_parameters <= parameter_count <= config.scale.max_parameters
 
 
 def test_learning_rate_schedule_warms_up_and_decays() -> None:
