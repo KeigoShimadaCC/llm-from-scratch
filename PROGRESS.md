@@ -8,15 +8,15 @@ Living coordination file for phase-based agent work.
 | --- | --- |
 | Phase | PHASE-07A |
 | Goal | Evaluation and failure analysis |
-| Branch | main |
-| Worktree | /Users/keigoshimada/Documents/llm-from-scratch |
-| Status | queued |
+| Branch | phase/phase-07a-evaluation-failure-analysis |
+| Worktree | /Users/keigoshimada/Documents/llm-from-scratch-phase-07a-evaluation-failure-analysis-wt |
+| Status | validation passed; PR pending |
 
 ## Task Queue
 
 ### Open
 
-- [ ] Start PHASE-07A from `phase-plans/PHASE-07A-EVALUATION-FAILURE-ANALYSIS.md`.
+- [ ] Publish PHASE-07A PR and merge after CI passes.
 
 ### In Progress
 
@@ -24,6 +24,9 @@ _(none)_
 
 ### Done
 
+- [x] Implemented PHASE-07A checkpoint evaluation, fixed prompt consolidation, failure taxonomy, and comparison reports.
+- [x] Validated PHASE-07A locally with report generation, checkpoint comparison, full tests, lint, and whitespace checks.
+- [x] Completed PHASE-07A plan audit; no blocking implementation gaps remain. Larger checkpoint rows are summary-only until ignored local artifacts are regenerated.
 - [x] Merged PHASE-06A via PR #6 at merge commit `4f3fd572e2f8ba0457445742ba08e083d658c97c`.
 - [x] Implemented PHASE-06A SFT config, prompt template, dataset manifest, response-only masking, trainer, and comparison report.
 - [x] Validated PHASE-06A locally with SFT smoke and base-vs-SFT fixed probes.
@@ -53,6 +56,18 @@ _(none)_
 - [x] Implemented PHASE-01A character tokenizer, context MLP training loop, deterministic generation, tests, prompt asset, mini report, and ignored overfit evidence.
 
 ## Phase Checklist
+
+### PHASE-07A - Evaluation And Failure Analysis
+
+- [x] North Star evaluation direction read before implementation.
+- [x] Active phase plan read before implementation.
+- [x] Fixed qualitative prompt set consolidated across earlier phases.
+- [x] Checkpoint-compatible evaluation CLI added.
+- [x] Metric definitions, report schema, and failure taxonomy documented.
+- [x] Leakage and memorization probes included or explicitly blocked by missing data evidence.
+- [x] Cross-checkpoint comparison report generated.
+- [x] Required validation commands run.
+- [x] Ignored eval evidence recorded if generated.
 
 ### PHASE-06A - Instruction Tuning
 
@@ -245,6 +260,7 @@ _(none)_
 - 2026-06-01: `uv run python -m train.sft --config configs/sft_smoke.yaml --max-steps 50 --run-name phase06a_sft_smoke` passed and generated ignored SFT evidence under `experiments/runs/phase06a_sft_smoke/`; held-out validation loss regressed from 32.469276428222656 to 63.17095756530762.
 - 2026-06-01: `uv run python -m eval.sft_compare --config configs/sft_eval.yaml --output docs/phase06a_sft_eval.md` passed; fixed-probe response loss improved from 35.40309000015259 to 0.0000020305075345561363.
 - 2026-06-01: PHASE-06A PR #6 passed GitHub CI and merged to `main` at `4f3fd572e2f8ba0457445742ba08e083d658c97c`.
+- 2026-06-01: PHASE-07A validation passed: `uv run pytest` (29 tests), `uv run ruff check .`, `git diff --check`, `uv run python -m eval.report --config configs/eval_fixed_prompts.yaml --output docs/phase07a_eval_report.md`, and `uv run python -m eval.compare_checkpoints --manifest docs/checkpoint_manifest.json --output docs/phase07a_checkpoint_comparison.md`. Both PHASE-07A reports completed with one live micro checkpoint row from `experiments/runs/phase03a_transformer_micro/` and three summary-only rows for missing ignored tiny/30M/SFT artifacts.
 
 ## Phase Archive
 

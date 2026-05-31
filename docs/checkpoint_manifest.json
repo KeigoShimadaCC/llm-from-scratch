@@ -1,0 +1,126 @@
+{
+  "schema_version": 1,
+  "manifest_path": "docs/checkpoint_manifest.json",
+  "eval_config": "configs/eval_fixed_prompts.yaml",
+  "artifact_policy": "Ignored checkpoint artifacts are evaluated live when present. Fresh clones and CI use committed phase summaries and mark those rows summary-only.",
+  "comparison_notes": [
+    "The corpus is repo-authored and tiny, so these reports compare wiring, scale behavior, and failure modes rather than general language quality.",
+    "Micro, tiny, 30M+, and SFT checkpoints use one prompt and metric schema.",
+    "SFT exact-match evidence is limited to the compact command fixture and does not override the held-out SFT validation regression."
+  ],
+  "checkpoints": [
+    {
+      "id": "phase03a_micro",
+      "label": "PHASE-03A micro Transformer",
+      "phase": "PHASE-03A",
+      "kind": "transformer_smoke",
+      "scale": "micro",
+      "config": "configs/transformer_micro.yaml",
+      "checkpoint": "experiments/runs/phase03a_transformer_micro/checkpoint_last.pt",
+      "run_dir": "experiments/runs/phase03a_transformer_micro",
+      "data_manifests": [
+        "docs/phase02a_data_manifest.json"
+      ],
+      "summary_source": "PROGRESS.md validation log and PHASE-03A archive",
+      "reproduce_command": "uv run python -m train.transformer_smoke --config configs/transformer_micro.yaml --max-steps 20",
+      "summary": {
+        "parameter_count": 29728,
+        "initial_validation_loss": 22.25092887878418,
+        "final_validation_loss": 1.0929747819900513,
+        "best_validation_loss": 1.0929747819900513,
+        "best_step": 20,
+        "tokens_seen": 1280,
+        "loss_improvement_fraction": 0.9508793586304738,
+        "failure_summary": [
+          "tiny_overfit_scope"
+        ]
+      }
+    },
+    {
+      "id": "phase04a_tiny",
+      "label": "PHASE-04A tiny pretraining",
+      "phase": "PHASE-04A",
+      "kind": "pretrain",
+      "scale": "tiny",
+      "config": "configs/kgpt_tiny.yaml",
+      "checkpoint": "experiments/runs/phase04a_tiny_smoke/checkpoint_last.pt",
+      "run_dir": "experiments/runs/phase04a_tiny_smoke",
+      "data_manifests": [
+        "docs/phase04a_data_manifest.json"
+      ],
+      "summary_source": "docs/phase04a_tiny_report.md and PROGRESS.md validation log",
+      "reproduce_command": "uv run python -m train.pretrain --config configs/kgpt_tiny.yaml --max-steps 200 --run-name phase04a_tiny_smoke",
+      "summary": {
+        "parameter_count": 5633536,
+        "initial_validation_loss": 164.59511184692383,
+        "final_validation_loss": 4.059329509735107,
+        "best_validation_loss": 4.059329509735107,
+        "best_step": 200,
+        "tokens_seen": 12800,
+        "loss_improvement_fraction": 0.9753374844235329,
+        "failure_summary": [
+          "repetition_risk",
+          "tiny_corpus_memorization_risk"
+        ]
+      }
+    },
+    {
+      "id": "phase05a_30m",
+      "label": "PHASE-05A kgpt-30m",
+      "phase": "PHASE-05A",
+      "kind": "pretrain",
+      "scale": "30m",
+      "config": "configs/kgpt_30m.yaml",
+      "checkpoint": "experiments/runs/phase05a_kgpt30m_smoke/checkpoint_last.pt",
+      "run_dir": "experiments/runs/phase05a_kgpt30m_smoke",
+      "data_manifests": [
+        "docs/phase04a_data_manifest.json",
+        "docs/phase05a_data_mixture_manifest.json"
+      ],
+      "summary_source": "docs/phase05a_scaling_manifest.json and PROGRESS.md validation log",
+      "reproduce_command": "uv run python -m train.pretrain --config configs/kgpt_30m.yaml --max-steps 40 --run-name phase05a_kgpt30m_smoke",
+      "summary": {
+        "parameter_count": 31734272,
+        "initial_validation_loss": 316.75299072265625,
+        "final_validation_loss": 11.464725255966187,
+        "best_validation_loss": 11.464725255966187,
+        "best_step": 40,
+        "tokens_seen": 1280,
+        "tokens_per_sec": 254.04497570222955,
+        "loss_improvement_fraction": 0.9638054711660023,
+        "failure_summary": [
+          "undersampled_30m_run",
+          "tiny_corpus_memorization_risk"
+        ]
+      }
+    },
+    {
+      "id": "phase06a_sft",
+      "label": "PHASE-06A instruction tuned",
+      "phase": "PHASE-06A",
+      "kind": "sft",
+      "scale": "30m-sft",
+      "config": "configs/sft_smoke.yaml",
+      "checkpoint": "experiments/runs/phase06a_sft_smoke/checkpoint_last.pt",
+      "run_dir": "experiments/runs/phase06a_sft_smoke",
+      "data_manifests": [
+        "docs/phase06a_instruction_data_manifest.json"
+      ],
+      "summary_source": "docs/phase06a_sft_eval.md and PROGRESS.md validation log",
+      "reproduce_command": "uv run python -m train.sft --config configs/sft_smoke.yaml --max-steps 50 --run-name phase06a_sft_smoke",
+      "summary": {
+        "parameter_count": 31734272,
+        "initial_validation_loss": 32.469276428222656,
+        "final_validation_loss": 63.17095756530762,
+        "base_fixed_probe_loss": 35.40309000015259,
+        "sft_fixed_probe_loss": 0.0000020305075345561363,
+        "fixed_probe_exact_match_rate": 1.0,
+        "exact_match_rate": null,
+        "failure_summary": [
+          "heldout_validation_regression",
+          "narrow_command_memorization"
+        ]
+      }
+    }
+  ]
+}
