@@ -7,6 +7,11 @@ The project target is educational but technically serious: implement the tokeniz
 ## Source Of Truth
 
 - North Star: `docs/NORTH_STAR_LLM_FROM_SCRATCH_MAC.md`
+- Final write-up: `docs/FINAL_WRITEUP.md`
+- Reproducible commands: `docs/COMMAND_INDEX.md`
+- Artifact index: `docs/ARTIFACT_INDEX.md`
+- Model card: `docs/MODEL_CARD.md`
+- Data card: `docs/DATA_CARD.md`
 - Phase plans: `phase-plans/`
 - Runner state: `automation/phase-graph.json` and `automation/phase-state.json`
 - Live coordination: `PROGRESS.md`
@@ -86,6 +91,27 @@ git diff --check
 ```
 
 Each phase also has phase-specific validation commands in `automation/phase-graph.json`. PHASE-00B owns the Python project skeleton, config loader, checkpoint helpers, dummy training smoke command, and first passing Python validation.
+
+## Current Project Status
+
+The current evidence supports: North Star partially achieved with documented fallback.
+
+Implemented and documented:
+
+- scratch-owned tokenizer/data/training/evaluation/inference path;
+- decoder-only Transformer trained from random initialization;
+- micro, tiny, and 30M+ local training evidence;
+- compact instruction-tuning smoke path;
+- fixed-prompt evaluation and failure analysis;
+- local PyTorch CPU/MPS inference with KV-cache parity and benchmark reports.
+
+Not fully achieved:
+
+- MLX inference and PyTorch-vs-MLX parity are formally deferred.
+- 50M and 100M stretch configs are dry-run targets, not trained checkpoints.
+- Model quality claims are limited to fixture-scale smoke evidence.
+
+Start with `docs/FINAL_WRITEUP.md`, then use `docs/COMMAND_INDEX.md` to rerun the evidence path.
 
 ## Phase Roadmap
 
