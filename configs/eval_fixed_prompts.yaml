@@ -1,14 +1,64 @@
-schema_version: 1
-title: PHASE-04A tiny pretraining fixed-prompt report
-run_name: phase04a_tiny_smoke
-fixed_prompts:
-  - hello
-  - The model learns
-  - training loop
-  - 小さなモデル
-  - 検証データ
+schema_version: 2
+title: PHASE-07A fixed checkpoint evaluation
+checkpoint_manifest: docs/checkpoint_manifest.json
+validation:
+  device: cpu
+  batches: 2
+  summary_fallback: true
 generation:
-  max_new_tokens: 32
+  max_new_tokens: 24
   temperature: 0.0
   top_k: 0
-next_scale_recommendation: Move to PHASE-05A only if validation loss improves by the predeclared threshold and checkpoint_best.pt exists.
+  distribution_top_k: 5
+fixed_prompts:
+  - id: english-continuation
+    category: english
+    prompt: "The model learns"
+  - id: japanese-continuation
+    category: japanese
+    prompt: "小さなモデル"
+  - id: technical-explanation
+    category: technical
+    prompt: "A transformer model uses attention because"
+  - id: instruction-gradient
+    category: instruction
+    prompt: "Q:Explain gradient descent in simple terms.\nA:"
+  - id: bilingual-translation
+    category: bilingual
+    prompt: "Translate this short sentence into Japanese: training loop"
+  - id: copy-probe
+    category: copy
+    prompt: "Copy exactly: kgpt"
+toy_tasks:
+  - id: toy-say-hi
+    category: toy_instruction
+    instruction: say hi
+    prompt: "Q:say hi\nA:"
+    expected_response: "hi"
+  - id: toy-repeat-cat
+    category: toy_instruction
+    instruction: repeat cat
+    prompt: "Q:repeat cat\nA:"
+    expected_response: "cat"
+  - id: toy-answer-blue
+    category: toy_instruction
+    instruction: answer blue
+    prompt: "Q:answer blue\nA:"
+    expected_response: "blue"
+  - id: toy-two-plus-two
+    category: arithmetic_toy
+    instruction: what is 2 plus 2?
+    prompt: "Q:what is 2 plus 2?\nA:"
+    expected_response: "4"
+metric_definitions:
+  validation_loss: Mean next-token loss for pretraining checkpoints or response-only loss for SFT checkpoints.
+  perplexity: exp(validation_loss), using the same cap as training reports.
+  tokens_per_sec: Last recorded throughput from the run metrics file when that ignored artifact is available.
+  memory_usage: Last recorded memory payload from run metrics; CPU runs report device only.
+  repetition_rate: Fraction of repeated 3-grams in generated completion text.
+  average_completion_tokens: Mean number of newly generated tokens across fixed prompts and toy tasks.
+  average_entropy: Mean next-token entropy at the prompt boundary.
+  exact_match_rate: Fraction of toy instruction completions exactly matching the expected response.
+memorization_probes:
+  method: Compare generated completions against normalized repo-authored source records when live samples exist.
+  missing_artifact_policy: If checkpoint artifacts are absent, use committed data manifest leakage counts and mark samples summary-only.
