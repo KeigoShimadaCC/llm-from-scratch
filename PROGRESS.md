@@ -6,17 +6,17 @@ Living coordination file for phase-based agent work.
 
 | Field | Value |
 | --- | --- |
-| Phase | PHASE-01A |
-| Goal | MicroGPT character language model |
-| Branch | phase/phase-01a-microgpt-character-lm |
-| Worktree | /Users/keigoshimada/Documents/llm-from-scratch-phase-01a-microgpt-character-lm-wt |
-| Status | complete |
+| Phase | PHASE-02A |
+| Goal | Tokenizer and dataset pipeline |
+| Branch | main |
+| Worktree | /Users/keigoshimada/Documents/llm-from-scratch |
+| Status | queued |
 
 ## Task Queue
 
 ### Open
 
-_(none)_
+- [ ] Start PHASE-02A from `phase-plans/PHASE-02A-TOKENIZER-DATA-PIPELINE.md`.
 
 ### In Progress
 
