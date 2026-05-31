@@ -1,0 +1,35 @@
+schema_version: 1
+run_name: phase08a_inference_smoke
+device: cpu
+dtype: float32
+model:
+  kind: transformer_smoke
+  config: configs/transformer_micro.yaml
+  checkpoint: experiments/runs/phase03a_transformer_micro/checkpoint_last.pt
+bootstrap:
+  if_missing: true
+  max_steps: 20
+generation:
+  max_new_tokens: 16
+  temperature: 0.0
+  top_k: 0
+  top_p: 0
+  repetition_penalty: 1.0
+  use_cache: false
+  stop_strings: []
+  stop_token_ids: []
+chat:
+  template: "Q:{instruction}\nA:"
+benchmark:
+  devices:
+    - cpu
+    - mps
+    - mlx
+  warmup_runs: 1
+  measured_runs: 1
+  prompts:
+    - hello
+    - "The model learns"
+mlx:
+  required: false
+  deferral_doc: docs/phase08a_mlx_deferral.md

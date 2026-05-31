@@ -8,15 +8,15 @@ Living coordination file for phase-based agent work.
 | --- | --- |
 | Phase | PHASE-08A |
 | Goal | Mac-native inference |
-| Branch | main |
-| Worktree | /Users/keigoshimada/Documents/llm-from-scratch |
-| Status | queued |
+| Branch | phase/phase-08a-mac-native-inference |
+| Worktree | /Users/keigoshimada/Documents/llm-from-scratch-phase-08a-mac-native-inference-wt |
+| Status | validation passed; PR pending |
 
 ## Task Queue
 
 ### Open
 
-- [ ] Start PHASE-08A from `phase-plans/PHASE-08A-MAC-NATIVE-INFERENCE.md`.
+- [ ] Publish PHASE-08A PR and merge after CI passes.
 
 ### In Progress
 
@@ -24,6 +24,9 @@ _(none)_
 
 ### Done
 
+- [x] Implemented PHASE-08A completion/chat CLI, sampling controls, KV-cache parity, benchmark report, and MLX deferral evidence.
+- [x] Validated PHASE-08A locally with generation smoke, KV-cache parity, benchmark, full tests, lint, and whitespace checks.
+- [x] Completed PHASE-08A plan audit; no blocking implementation gaps remain. MLX is explicitly deferred, not claimed as achieved.
 - [x] Merged PHASE-07A via PR #7 at merge commit `af0b07bed26e67bbe788b0eec4fb93566e42543f`.
 - [x] Implemented PHASE-07A checkpoint evaluation, fixed prompt consolidation, failure taxonomy, and comparison reports.
 - [x] Validated PHASE-07A locally with report generation, checkpoint comparison, full tests, lint, and whitespace checks.
@@ -57,6 +60,21 @@ _(none)_
 - [x] Implemented PHASE-01A character tokenizer, context MLP training loop, deterministic generation, tests, prompt asset, mini report, and ignored overfit evidence.
 
 ## Phase Checklist
+
+### PHASE-08A - Mac-Native Inference
+
+- [x] North Star inference direction read before implementation.
+- [x] Active phase plan read before implementation.
+- [x] Inference smoke and benchmark configs added.
+- [x] Completion CLI supports checkpoint/config/tokenizer/prompt/max tokens/temperature/top-k/top-p/seed/device/dtype/stop/output options.
+- [x] Chat/instruction-format CLI added.
+- [x] Greedy, temperature, top-k, top-p, deterministic seeding, stop behavior, and max-new-token behavior tested or documented.
+- [x] KV-cache support and parity validation added or formally deferred.
+- [x] CPU/MPS/MLX benchmark protocol and report added.
+- [x] MLX comparison implemented or formally deferred with blocker evidence.
+- [x] Local inference guide/model card added.
+- [x] Required validation commands run.
+- [x] Ignored inference evidence recorded.
 
 ### PHASE-07A - Evaluation And Failure Analysis
 
@@ -263,6 +281,7 @@ _(none)_
 - 2026-06-01: PHASE-06A PR #6 passed GitHub CI and merged to `main` at `4f3fd572e2f8ba0457445742ba08e083d658c97c`.
 - 2026-06-01: PHASE-07A validation passed: `uv run pytest` (29 tests), `uv run ruff check .`, `git diff --check`, `uv run python -m eval.report --config configs/eval_fixed_prompts.yaml --output docs/phase07a_eval_report.md`, and `uv run python -m eval.compare_checkpoints --manifest docs/checkpoint_manifest.json --output docs/phase07a_checkpoint_comparison.md`. Both PHASE-07A reports completed with one live micro checkpoint row from `experiments/runs/phase03a_transformer_micro/` and three summary-only rows for missing ignored tiny/30M/SFT artifacts.
 - 2026-06-01: PHASE-07A PR #7 passed GitHub CI and merged to `main` at `af0b07bed26e67bbe788b0eec4fb93566e42543f`.
+- 2026-06-01: PHASE-08A validation passed: `uv run pytest` (34 tests), `uv run ruff check .`, `git diff --check`, `uv run python -m inference.generate --config configs/inference_smoke.yaml --prompt hello --max-new-tokens 16 --seed 123`, `uv run python -m inference.kv_cache_parity --config configs/inference_smoke.yaml`, and `uv run python -m inference.benchmark --config configs/inference_benchmark.yaml --max-new-tokens 32 --output docs/phase08a_benchmark.md`. The local benchmark measured CPU and PyTorch MPS and formally deferred MLX with blocker evidence.
 
 ## Phase Archive
 
