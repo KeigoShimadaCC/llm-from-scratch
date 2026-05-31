@@ -1,5 +1,5 @@
 {
-  "currentPhase": "PHASE-04A",
+  "currentPhase": "PHASE-05A",
   "lastUpdated": "2026-06-01",
   "phases": {
     "PHASE-00B": {
@@ -29,7 +29,11 @@
       "status": "complete"
     },
     "PHASE-04A": {
-      "status": "queued"
+      "branch": "phase/phase-04a-tiny-pretraining",
+      "evidenceDir": "runs/phase-runner/PHASE-04A/2026-05-31T17:35:44Z",
+      "mergeCommit": "988fa5abfb1aa344cfe526de5a5bb0629c2b6b36",
+      "pr": 4,
+      "status": "complete"
     },
     "PHASE-05A": {
       "status": "queued"

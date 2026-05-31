@@ -6,17 +6,17 @@ Living coordination file for phase-based agent work.
 
 | Field | Value |
 | --- | --- |
-| Phase | PHASE-04A |
-| Goal | Tiny pretraining run |
-| Branch | phase/phase-04a-tiny-pretraining |
-| Worktree | /Users/keigoshimada/Documents/llm-from-scratch-phase-04a-tiny-pretraining-wt |
-| Status | validation passed; PR pending |
+| Phase | PHASE-05A |
+| Goal | Small practical model |
+| Branch | main |
+| Worktree | /Users/keigoshimada/Documents/llm-from-scratch |
+| Status | queued |
 
 ## Task Queue
 
 ### Open
 
-_(none)_
+- [ ] Start PHASE-05A from `phase-plans/PHASE-05A-SMALL-PRACTICAL-MODEL.md`.
 
 ### In Progress
 
@@ -24,6 +24,7 @@ _(none)_
 
 ### Done
 
+- [x] Merged PHASE-04A via PR #4 at merge commit `988fa5abfb1aa344cfe526de5a5bb0629c2b6b36`.
 - [x] Implemented PHASE-04A from the phase plan after runner planning stalled before producing an accepted plan.
 - [x] Validated PHASE-04A tiny pretraining, fixed-prompt report generation, and resume probe locally.
 - [x] Merged PHASE-03A via PR #3 at merge commit `d672096c7ebdbee1e09bf85431380e5105a4b9bc`.
@@ -194,8 +195,29 @@ _(none)_
 - 2026-06-01: `uv run python -m train.pretrain --config configs/kgpt_tiny.yaml --max-steps 200 --run-name phase04a_tiny_smoke` passed and generated ignored evidence under `experiments/runs/phase04a_tiny_smoke/`; parameter count was 5,633,536 and validation loss improved from 164.59511184692383 to 4.059329509735107.
 - 2026-06-01: `uv run python -m eval.report --config configs/eval_fixed_prompts.yaml --checkpoint experiments/runs/phase04a_tiny_smoke/checkpoint_last.pt --output docs/phase04a_tiny_report.md` passed and wrote the fixed-prompt report.
 - 2026-06-01: `uv run python -m train.pretrain --config configs/kgpt_tiny.yaml --max-steps 8 --run-name phase04a_runtime_probe --resume` passed, proving checkpoint resume from the earlier 5-step probe.
+- 2026-06-01: PHASE-04A PR #4 passed GitHub CI and merged to `main` at `988fa5abfb1aa344cfe526de5a5bb0629c2b6b36`.
 
 ## Phase Archive
+
+### PHASE-04A - Tiny Pretraining Run
+
+Status: complete
+Completed: 2026-06-01
+Evidence:
+- Runner attempt: `runs/phase-runner/PHASE-04A/2026-05-31T17:35:44Z/`
+- PR: #4
+- Merge commit: `988fa5abfb1aa344cfe526de5a5bb0629c2b6b36`
+- Tiny model config: `configs/kgpt_tiny.yaml`
+- Tiny tokenized-data config: `configs/kgpt_tiny_tokenized.yaml`
+- Fixed-prompt eval config: `configs/eval_fixed_prompts.yaml`
+- Data source manifest: `docs/phase04a_data_manifest.json`
+- Completed report: `docs/phase04a_tiny_report.md`
+- Pretraining implementation: `kgpt/pretrain.py`, `train/pretrain.py`
+- Report implementation: `eval/report.py`
+- Ignored tiny run: `experiments/runs/phase04a_tiny_smoke/`
+- Validation commands: `uv run pytest`, `uv run ruff check .`, `git diff --check`, `uv run python -m train.pretrain --config configs/kgpt_tiny.yaml --max-steps 200 --run-name phase04a_tiny_smoke`, `uv run python -m eval.report --config configs/eval_fixed_prompts.yaml --checkpoint experiments/runs/phase04a_tiny_smoke/checkpoint_last.pt --output docs/phase04a_tiny_report.md`
+- Resume probe: `uv run python -m train.pretrain --config configs/kgpt_tiny.yaml --max-steps 8 --run-name phase04a_runtime_probe --resume`
+- Automation phase state was manually advanced after the live runner stalled in planning with no planner output.
 
 ### PHASE-03A - Core Decoder-Only Transformer
 
