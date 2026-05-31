@@ -8,15 +8,15 @@ Living coordination file for phase-based agent work.
 | --- | --- |
 | Phase | PHASE-03A |
 | Goal | Core Transformer implementation |
-| Branch | main |
-| Worktree | /Users/keigoshimada/Documents/llm-from-scratch |
-| Status | queued |
+| Branch | phase/phase-03a-core-transformer |
+| Worktree | /Users/keigoshimada/Documents/llm-from-scratch-phase-03a-core-transformer-wt |
+| Status | validation passed; PR pending |
 
 ## Task Queue
 
 ### Open
 
-- [ ] Start PHASE-03A from `phase-plans/PHASE-03A-CORE-TRANSFORMER.md`.
+_(none)_
 
 ### In Progress
 
@@ -24,6 +24,8 @@ _(none)_
 
 ### Done
 
+- [x] Implemented PHASE-03A from accepted plan `runs/phase-runner/PHASE-03A/2026-05-31T17:12:39Z/accepted-plan/accepted-plan.json`.
+- [x] Validated PHASE-03A Transformer architecture, smoke training, and generation commands locally.
 - [x] Validated PHASE-02A implementation from the accepted plan at `runs/phase-runner/PHASE-02A/2026-05-31T16:41:04Z/accepted-plan/accepted-plan.json`.
 - [x] Merged PHASE-02A via PR #2 at merge commit `a1295e568294980f11dff5d7590ce5890d1b9d24`.
 - [x] Initialized the agentic phase-runner workflow files.
@@ -41,6 +43,20 @@ _(none)_
 - [x] Implemented PHASE-01A character tokenizer, context MLP training loop, deterministic generation, tests, prompt asset, mini report, and ignored overfit evidence.
 
 ## Phase Checklist
+
+### PHASE-03A - Core Decoder-Only Transformer
+
+- [x] Accepted plan read before implementation.
+- [x] North Star Phase 3 direction read before implementation.
+- [x] Active phase plan read before implementation.
+- [x] Transformer config, device, dtype, and sampling policy added.
+- [x] Decoder-only Transformer, causal attention, shifted loss, parameter counting, and tied embeddings implemented.
+- [x] Autoregressive generation path added.
+- [x] Transformer smoke trainer integrated with PHASE-02A token batches or documented synthetic fallback.
+- [x] Architecture invariant tests added.
+- [x] Architecture note added under `docs/`.
+- [x] Required validation commands run.
+- [x] Ignored micro-run evidence recorded.
 
 ### PHASE-01A - MicroGPT Character LM
 
@@ -147,6 +163,12 @@ _(none)_
 - 2026-06-01: `uv run python -m train.sample_batches --config configs/tokenized_smoke.yaml --max-batches 2` passed with input/target shapes `[4, 16]`, logits `[4, 16, 377]`, and ignored split artifacts under `data/tokenized/phase02a_smoke/`.
 - 2026-06-01: Recheck reran `uv run pytest`, `uv run ruff check .`, `git diff --check`, `uv run python -m tokenizer.train_report --config configs/tokenizer_bilingual.yaml --output docs/tokenizer_report.md`, and `uv run python -m train.sample_batches --config configs/tokenized_smoke.yaml --max-batches 2`; all passed. Metadata evidence confirmed `train`/`validation` splits, `uint16` token files, vocab size 377, zero leakage overlap, and one duplicate removed.
 - 2026-06-01: PHASE-02A PR #2 passed GitHub CI and merged to `main` at `a1295e568294980f11dff5d7590ce5890d1b9d24`. The runner final gate had falsely blocked because it checked remote status before GitHub registered checks; automation was patched to poll `statusCheckRollup` after an initial no-checks result.
+- 2026-06-01: PHASE-03A focused tests passed: `uv run pytest tests/test_transformer.py -q` -> 7 passed.
+- 2026-06-01: `uv run pytest` passed for PHASE-03A: 18 tests.
+- 2026-06-01: `uv run ruff check .` passed.
+- 2026-06-01: `git diff --check` passed.
+- 2026-06-01: `uv run python -m train.transformer_smoke --config configs/transformer_micro.yaml --max-steps 20` passed and generated ignored evidence under `experiments/runs/phase03a_transformer_micro/`; train loss went from 22.25092887878418 to 1.0929747819900513 with 29,728 parameters.
+- 2026-06-01: `uv run python -m inference.generate --config configs/transformer_micro.yaml --prompt hello --max-new-tokens 16 --seed 123` passed from the Transformer smoke checkpoint and generated 16 new tokens.
 
 ## Phase Archive
 
