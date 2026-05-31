@@ -1,4 +1,4 @@
-import { mkdir, writeFile } from 'node:fs/promises';
+import { mkdir, readFile, writeFile } from 'node:fs/promises';
 import path from 'node:path';
 
 import {
@@ -21,6 +21,14 @@ export interface RemoteChecksMetadata {
   status: 'pass' | 'fail' | 'pending' | 'none';
   rawStdout: string;
   commandResult: CommandExecutionResult;
+}
+
+interface StatusCheckRollupPayload {
+  statusCheckRollup?: Array<{
+    conclusion?: string | null;
+    state?: string | null;
+    status?: string | null;
+  }>;
 }
 
 export interface MergeMetadata {
@@ -122,6 +130,44 @@ export const parseChecksOutput = (stdout: string): RemoteChecksMetadata['status'
   return 'none';
 };
 
+export const parseStatusCheckRollup = (stdout: string): RemoteChecksMetadata['status'] => {
+  const parsed = JSON.parse(stdout) as StatusCheckRollupPayload;
+  const rollup = parsed.statusCheckRollup ?? [];
+  if (rollup.length === 0) {
+    return 'none';
+  }
+
+  const normalized = rollup.map((item) => ({
+    conclusion: (item.conclusion ?? '').toLowerCase(),
+    state: (item.state ?? '').toLowerCase(),
+    status: (item.status ?? '').toLowerCase(),
+  }));
+  if (
+    normalized.some(({ conclusion, state }) =>
+      ['failure', 'failed', 'timed_out', 'cancelled', 'action_required'].includes(conclusion) ||
+      ['failure', 'failed', 'error'].includes(state),
+    )
+  ) {
+    return 'fail';
+  }
+  if (
+    normalized.some(({ conclusion, state, status }) =>
+      conclusion === '' ||
+      ['expected', 'pending'].includes(state) ||
+      ['queued', 'requested', 'waiting', 'pending', 'in_progress'].includes(status),
+    )
+  ) {
+    return 'pending';
+  }
+  return 'pass';
+};
+
+const sleep = async (ms: number): Promise<void> => {
+  await new Promise((resolve) => {
+    setTimeout(resolve, ms);
+  });
+};
+
 export const parsePrViewMergeState = (stdout: string): {
   merged: boolean;
   state?: string;
@@ -186,7 +232,6 @@ export const createGitHubCliAdapter = (
         'gh-pr-create',
         ['pr', 'create', '--fill', '--base', input.base, '--head', input.branch],
       );
-      const { readFile } = await import('node:fs/promises');
       const stdout = await readFile(result.stdoutPath, 'utf8');
       const parsed = parsePrCreateOutput(stdout);
       const metadata: PrMetadata = {
@@ -211,17 +256,43 @@ export const createGitHubCliAdapter = (
         ['pr', 'checks', String(input.prNumber), '--watch'],
         input.timeoutMs,
       );
-      const { readFile } = await import('node:fs/promises');
       const stdout = await readFile(result.stdoutPath, 'utf8');
       const stderr = await readFile(result.stderrPath, 'utf8').catch(() => '');
       const combinedOutput = [stdout, stderr].filter((value) => value.length > 0).join('\n');
-      const status = parseChecksOutput(combinedOutput);
+      let status = parseChecksOutput(combinedOutput);
+      let latestResult = result;
+      let rawOutput = combinedOutput;
+      const deadline = Date.now() + (input.timeoutMs ?? 10 * 60 * 1000);
+      let attempt = 0;
+      while ((status === 'none' || status === 'pending') && Date.now() < deadline) {
+        attempt += 1;
+        const viewResult = await runGh(
+          input.repoRoot,
+          input.evidenceDir,
+          `gh-pr-view-checks-${attempt}`,
+          ['pr', 'view', String(input.prNumber), '--json', 'statusCheckRollup'],
+          input.timeoutMs,
+        );
+        latestResult = viewResult;
+        const viewStdout = await readFile(viewResult.stdoutPath, 'utf8');
+        const viewStderr = await readFile(viewResult.stderrPath, 'utf8').catch(() => '');
+        rawOutput = [rawOutput, viewStdout, viewStderr].filter((value) => value.length > 0).join('\n');
+        if (commandEvidenceStatus(viewResult) !== 'pass') {
+          status = 'fail';
+          break;
+        }
+        status = parseStatusCheckRollup(viewStdout);
+        if (status === 'pass' || status === 'fail') {
+          break;
+        }
+        await sleep(5000);
+      }
       const metadata: RemoteChecksMetadata = {
-        status: commandEvidenceStatus(result) === 'pass' || status === 'none' || status === 'pending'
+        status: commandEvidenceStatus(latestResult) === 'pass' || status === 'none' || status === 'pending'
           ? status
           : 'fail',
-        rawStdout: combinedOutput,
-        commandResult: result,
+        rawStdout: rawOutput,
+        commandResult: latestResult,
       };
       await writeFile(
         path.join(input.evidenceDir, 'checks.json'),
@@ -243,7 +314,6 @@ export const createGitHubCliAdapter = (
           ...(input.deleteBranch ? ['--delete-branch'] : []),
         ],
       );
-      const { readFile } = await import('node:fs/promises');
       const stdout = await readFile(result.stdoutPath, 'utf8');
       const mergeCommitMatch = stdout.match(/[0-9a-f]{7,40}/i);
       const metadata: MergeMetadata = {
@@ -268,7 +338,6 @@ export const createGitHubCliAdapter = (
         'gh-pr-view-merge-state',
         ['pr', 'view', String(input.prNumber), '--json', 'state,mergeCommit,mergedAt'],
       );
-      const { readFile } = await import('node:fs/promises');
       const stdout = await readFile(result.stdoutPath, 'utf8');
       const parsed =
         commandEvidenceStatus(result) === 'pass'

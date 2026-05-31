@@ -1,5 +1,5 @@
 {
-  "currentPhase": "PHASE-02A",
+  "currentPhase": "PHASE-03A",
   "lastUpdated": "2026-06-01",
   "phases": {
     "PHASE-00B": {
@@ -15,7 +15,11 @@
       "status": "complete"
     },
     "PHASE-02A": {
-      "status": "queued"
+      "branch": "phase/phase-02a-tokenizer-data-pipeline",
+      "evidenceDir": "runs/phase-runner/PHASE-02A/2026-05-31T16:41:04Z",
+      "mergeCommit": "a1295e568294980f11dff5d7590ce5890d1b9d24",
+      "pr": 2,
+      "status": "complete"
     },
     "PHASE-03A": {
       "status": "queued"

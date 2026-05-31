@@ -9,7 +9,7 @@ import { describe, expect, it } from 'vitest';
 import { runInitCommand } from '../src/cli/commands/init.js';
 import { configureAgentPreset } from '../src/core/agent-presets.js';
 import { runBoom } from '../src/core/boom.js';
-import { loadAutopilotConfig, runAutopilotForPhase } from '../src/core/phase-autopilot.js';
+import { loadAutopilotConfig, resumeAutopilot, runAutopilotForPhase } from '../src/core/phase-autopilot.js';
 
 const execFileAsync = promisify(execFile);
 
@@ -82,6 +82,30 @@ describe('fake-agent supervised execution', () => {
       await expect(readFile(path.join(summary.evidenceDir, 'agent-results', 'recheck-report.json'), 'utf8')).resolves.toContain(
         '"phaseAcceptanceComplete": true',
       );
+
+      const resumed = await resumeAutopilot(repoRoot, 'PHASE-01A', 'fake-agent-supervised', {
+        safetyFlags: {
+          allowAgentExecution: true,
+          allowPr: false,
+          allowMerge: false,
+          dryRun: false,
+          continueOnBlocked: false,
+          parallel: 1,
+          planApproval: 'auto',
+          plannerAgent: 'shell',
+          executorAgent: 'shell',
+          recheckerAgent: 'shell',
+        },
+        deps: {
+          autopilotConfig: loadedConfig,
+        },
+      });
+
+      expect(resumed.status).toBe('blocked');
+      expect(resumed.completedStages).toContain('planning');
+      expect(resumed.completedStages).toContain('execution');
+      expect(resumed.completedStages).toContain('remote-evidence');
+      expect(resumed.completedStages).not.toEqual([]);
     } finally {
       await rm(worktreePath, { recursive: true, force: true });
       await rm(repoRoot, { recursive: true, force: true });

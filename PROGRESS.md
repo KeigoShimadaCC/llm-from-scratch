@@ -6,17 +6,17 @@ Living coordination file for phase-based agent work.
 
 | Field | Value |
 | --- | --- |
-| Phase | PHASE-02A |
-| Goal | Tokenizer and dataset pipeline |
-| Branch | phase/phase-02a-tokenizer-data-pipeline |
-| Worktree | /Users/keigoshimada/Documents/llm-from-scratch-phase-02a-tokenizer-data-pipeline-wt |
-| Status | validation passed |
+| Phase | PHASE-03A |
+| Goal | Core Transformer implementation |
+| Branch | main |
+| Worktree | /Users/keigoshimada/Documents/llm-from-scratch |
+| Status | queued |
 
 ## Task Queue
 
 ### Open
 
-_(none)_
+- [ ] Start PHASE-03A from `phase-plans/PHASE-03A-CORE-TRANSFORMER.md`.
 
 ### In Progress
 
@@ -25,6 +25,7 @@ _(none)_
 ### Done
 
 - [x] Validated PHASE-02A implementation from the accepted plan at `runs/phase-runner/PHASE-02A/2026-05-31T16:41:04Z/accepted-plan/accepted-plan.json`.
+- [x] Merged PHASE-02A via PR #2 at merge commit `a1295e568294980f11dff5d7590ce5890d1b9d24`.
 - [x] Initialized the agentic phase-runner workflow files.
 - [x] Configured Codex as the supervised shell-agent preset.
 - [x] Replaced generic starter phase configuration with the Mac-local LLM project roadmap.
@@ -145,15 +146,18 @@ _(none)_
 - 2026-06-01: `uv run python -m tokenizer.train_report --config configs/tokenizer_bilingual.yaml --output docs/tokenizer_report.md` passed and generated a 377-token byte-level BPE tokenizer report.
 - 2026-06-01: `uv run python -m train.sample_batches --config configs/tokenized_smoke.yaml --max-batches 2` passed with input/target shapes `[4, 16]`, logits `[4, 16, 377]`, and ignored split artifacts under `data/tokenized/phase02a_smoke/`.
 - 2026-06-01: Recheck reran `uv run pytest`, `uv run ruff check .`, `git diff --check`, `uv run python -m tokenizer.train_report --config configs/tokenizer_bilingual.yaml --output docs/tokenizer_report.md`, and `uv run python -m train.sample_batches --config configs/tokenized_smoke.yaml --max-batches 2`; all passed. Metadata evidence confirmed `train`/`validation` splits, `uint16` token files, vocab size 377, zero leakage overlap, and one duplicate removed.
+- 2026-06-01: PHASE-02A PR #2 passed GitHub CI and merged to `main` at `a1295e568294980f11dff5d7590ce5890d1b9d24`. The runner final gate had falsely blocked because it checked remote status before GitHub registered checks; automation was patched to poll `statusCheckRollup` after an initial no-checks result.
 
 ## Phase Archive
 
 ### PHASE-02A - Tokenizer And Dataset Pipeline
 
-Status: validation passed
+Status: complete
 Completed: 2026-06-01
 Evidence:
 - Accepted automation plan: `runs/phase-runner/PHASE-02A/2026-05-31T16:41:04Z/accepted-plan/accepted-plan.json`
+- PR: #2
+- Merge commit: `a1295e568294980f11dff5d7590ce5890d1b9d24`
 - Tokenizer config: `configs/tokenizer_bilingual.yaml`
 - Tokenized smoke config: `configs/tokenized_smoke.yaml`
 - Tokenizer report: `docs/tokenizer_report.md`
@@ -161,7 +165,7 @@ Evidence:
 - Ignored tokenizer model: `data/tokenized/tokenizers/phase02a-byte-bpe-bilingual.json`
 - Ignored tokenized split metadata and token files: `data/tokenized/phase02a_smoke/`
 - Validation commands: `uv run pytest`, `uv run ruff check .`, `git diff --check`, `uv run python -m tokenizer.train_report --config configs/tokenizer_bilingual.yaml --output docs/tokenizer_report.md`, `uv run python -m train.sample_batches --config configs/tokenized_smoke.yaml --max-batches 2`
-- Automation phase state was not updated by this executor.
+- Automation phase state was manually advanced after the runner's premature remote-check final-gate block.
 
 ### PHASE-01A - MicroGPT Character LM
 

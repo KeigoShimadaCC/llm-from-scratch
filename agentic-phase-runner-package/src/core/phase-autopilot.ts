@@ -1055,20 +1055,28 @@ export const runAutopilotForPhase = async (
     preflightCommands: autopilotConfig.preflightCommands,
   });
   const runnable = getRunnablePhases(config, { repoRoot, from: phaseId, parallel: 1, runId })[0];
-  if (!runnable && !options.safetyFlags.dryRun) {
+  if (!runnable && !options.safetyFlags.dryRun && !options.resumeFrom) {
     throw new Error(`Phase is not runnable: ${phaseId}`);
   }
 
-  let runState = initialRunState({
-    phase: phaseId,
-    runId,
-    dryRun: options.safetyFlags.dryRun,
-    safetyFlags: {
-      allowAgentExecution: options.safetyFlags.allowAgentExecution,
-      allowPr: options.safetyFlags.allowPr,
-      allowMerge: options.safetyFlags.allowMerge,
-    },
-  });
+  const existingRunState = await loadRunState(evidenceDir);
+  let runState =
+    options.resumeFrom && existingRunState
+      ? advanceRunState(existingRunState, {
+          status: 'running',
+          currentStage: options.resumeFrom,
+          lastError: undefined,
+        })
+      : initialRunState({
+          phase: phaseId,
+          runId,
+          dryRun: options.safetyFlags.dryRun,
+          safetyFlags: {
+            allowAgentExecution: options.safetyFlags.allowAgentExecution,
+            allowPr: options.safetyFlags.allowPr,
+            allowMerge: options.safetyFlags.allowMerge,
+          },
+        });
   await writeRunState(evidenceDir, runState);
 
   if (options.safetyFlags.dryRun) {
