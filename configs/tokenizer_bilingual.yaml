@@ -1,0 +1,82 @@
+schema_version: 1
+tokenizer:
+  tokenizer_id: phase02a-byte-bpe-bilingual
+  algorithm: byte_bpe
+  model_path: data/tokenized/tokenizers/phase02a-byte-bpe-bilingual.json
+  target_vocab_sizes: [8000, 16000, 32000]
+  selected_target_vocab_size: 8000
+  min_pair_frequency: 2
+  candidates:
+    - id: byte_bpe
+      status: implemented
+      rationale: Repo-owned UTF-8 byte-level BPE gives deterministic roundtrip behavior without adding phase-forbidden dependencies.
+    - id: sentencepiece_unigram
+      status: rejected-for-phase
+      rationale: Requires adding the sentencepiece dependency and generated model artifacts; pyproject.toml and uv.lock are outside PHASE-02A allowed paths.
+    - id: sentencepiece_bpe
+      status: rejected-for-phase
+      rationale: Same dependency and lockfile constraint as SentencePiece unigram; revisit after dependency changes are explicitly in scope.
+dataset:
+  source_name: phase02a_synthetic_bilingual_smoke_v1
+  url_or_local_note: Repo-authored local synthetic English/Japanese smoke corpus embedded in configs/tokenizer_bilingual.yaml.
+  license: Repo-authored fixture for this project; no third-party text source.
+  language_mix: English, Japanese, and mixed Japanese/English technical sentences.
+  preprocessing_command: uv run python -m train.sample_batches --config configs/tokenized_smoke.yaml --max-batches 2
+  split_method: Deterministic sha256 ordering by seed, record id, and normalized text hash with validation_fraction from config.
+  dedup_strategy: Unicode NFKC normalization, line-ending normalization, trailing-space trim, then exact normalized text sha256 deduplication.
+  contamination_leakage_notes: Synthetic fixture only; leakage check rejects exact normalized text sha256 overlap across train and validation splits.
+  records:
+    - id: en-001
+      language: en
+      text: The small language model learns from clear, reproducible text.
+    - id: en-002
+      language: en
+      text: Token batches should keep inputs and targets shifted by one position.
+    - id: en-003
+      language: en
+      text: A tiny overfit test comes before larger training runs.
+    - id: en-004
+      language: en
+      text: Byte fallback keeps every UTF-8 character recoverable.
+    - id: ja-001
+      language: ja
+      text: 小さな言語モデルは、再現できるデータから学習します。
+    - id: ja-002
+      language: ja
+      text: トークンの入力と目標は一つずれて並びます。
+    - id: ja-003
+      language: ja
+      text: 日本語と英語を同じ実験で比較します。
+    - id: ja-004
+      language: ja
+      text: 未知の文字でもバイト列として復元できます。
+    - id: mix-001
+      language: ja-en
+      text: KeigoGPT は Mac mini で tokenizer と dataset pipeline を検証します。
+    - id: mix-002
+      language: ja-en
+      text: context length 128 では日本語の分割が効率に影響します。
+    - id: mix-003
+      language: ja-en
+      text: train split と validation split の漏洩を checksum で確認します。
+    - id: dup-001
+      language: en
+      text: Byte fallback keeps every UTF-8 character recoverable.
+report:
+  context_lengths: [128, 512]
+  sentences:
+    english:
+      - The model learns from clean local data.
+      - Tokenization changes the useful context length.
+    japanese:
+      - 小さなモデルが日本語と英語を学習します。
+      - 文脈長が短いと分割の粗さが目立ちます。
+    mixed:
+      - KeigoGPT は local Mac で training を試します。
+      - tokenizer report は English と日本語を比べます。
+  byte_fallback_probes:
+    - Unseen emoji 😀 and rare kanji 𠮷 still roundtrip.
+    - 未知の記号🧪もバイトで保持します。
+  bad_segmentation_examples:
+    - 形態素解析なしの日本語固有名詞「山田太郎」は細かく割れやすい。
+    - Emoji 😀🧪 and mixed-script identifiers kgpt_日本語_v1 fragment under tiny data.

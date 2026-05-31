@@ -2,7 +2,10 @@ from __future__ import annotations
 
 
 def main() -> int:
-    print("Tokenizer commands are introduced in later phases.")
+    print(
+        "Use `python -m tokenizer.train_report "
+        "--config configs/tokenizer_bilingual.yaml --output docs/tokenizer_report.md`."
+    )
     return 0
 
 

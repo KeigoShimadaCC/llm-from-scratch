@@ -8,15 +8,15 @@ Living coordination file for phase-based agent work.
 | --- | --- |
 | Phase | PHASE-02A |
 | Goal | Tokenizer and dataset pipeline |
-| Branch | main |
-| Worktree | /Users/keigoshimada/Documents/llm-from-scratch |
-| Status | queued |
+| Branch | phase/phase-02a-tokenizer-data-pipeline |
+| Worktree | /Users/keigoshimada/Documents/llm-from-scratch-phase-02a-tokenizer-data-pipeline-wt |
+| Status | validation passed |
 
 ## Task Queue
 
 ### Open
 
-- [ ] Start PHASE-02A from `phase-plans/PHASE-02A-TOKENIZER-DATA-PIPELINE.md`.
+_(none)_
 
 ### In Progress
 
@@ -24,6 +24,7 @@ _(none)_
 
 ### Done
 
+- [x] Validated PHASE-02A implementation from the accepted plan at `runs/phase-runner/PHASE-02A/2026-05-31T16:41:04Z/accepted-plan/accepted-plan.json`.
 - [x] Initialized the agentic phase-runner workflow files.
 - [x] Configured Codex as the supervised shell-agent preset.
 - [x] Replaced generic starter phase configuration with the Mac-local LLM project roadmap.
@@ -55,6 +56,20 @@ _(none)_
 - [x] Required validation commands run.
 - [x] Ignored run evidence recorded.
 
+### PHASE-02A - Tokenizer And Dataset Pipeline
+
+- [x] Accepted plan read before implementation.
+- [x] North Star Phase 2 direction read before implementation.
+- [x] Active phase plan read before implementation.
+- [x] Bilingual tokenizer config and smoke tokenized-data config added.
+- [x] Tokenizer candidates, vocabulary sweep, and report generation implemented.
+- [x] Data manifest schema, preprocessing, dedup, split generation, token writing, and metadata sidecar implemented.
+- [x] Token-level language-model batch sampler implemented.
+- [x] Roundtrip, split-integrity, leakage-check, dedup-smoke, batch-shape, and small-model-consumption tests added.
+- [x] Required validation commands run.
+- [x] Recheck validation rerun against the PHASE-02A plan, accepted plan, executor report, changed files, and generated evidence.
+- [x] Deferred tokenizer choice and larger-data backlog recorded.
+
 ### PHASE-00B - Repository And Lab Foundation
 
 - [x] Acceptance criteria mapped to tasks for PHASE-00B.
@@ -74,6 +89,7 @@ _(none)_
 - Expand the fixed prompt set in tokenizer and Transformer phases.
 - Add richer generation metrics in PHASE-07A.
 - Keep practical open-weight model experiments out of the scratch-core path unless a later phase explicitly creates a comparison branch.
+- Revisit the final tokenizer choice before larger PHASE-05A scale-up if the PHASE-02A synthetic bilingual smoke corpus is insufficient evidence.
 
 ## Validation Log
 
@@ -120,8 +136,32 @@ _(none)_
 - 2026-06-01: `git diff --check` passed.
 - 2026-06-01: `uv run python -m train.micro_char --config configs/micro_char.yaml --max-steps 200 --run-name phase01a_overfit_smoke` passed and generated ignored evidence under `experiments/runs/phase01a_overfit_smoke/`; train loss went from 2.714604377746582 to 0.00000252200834438554.
 - 2026-06-01: `uv run python -m inference.generate_char --checkpoint experiments/runs/phase01a_overfit_smoke/checkpoint_last.pt --prompt hello --seed 123 --max-new-tokens 32` passed and generated `hello microgpt.\nhello microgpt.\nhello`.
+- 2026-06-01: PHASE-02A implementation started from the accepted plan; validation not run yet.
+- 2026-06-01: PHASE-02A focused tests passed: `uv run pytest tests/test_byte_bpe_tokenizer.py tests/test_tokenizer_report.py tests/test_token_data_pipeline.py`.
+- 2026-06-01: PHASE-02A smoke commands passed and generated `docs/tokenizer_report.md`, `docs/phase02a_data_manifest.json`, and ignored token artifacts under `data/tokenized/`.
+- 2026-06-01: `uv run pytest` passed for PHASE-02A: 11 tests.
+- 2026-06-01: `uv run ruff check .` passed.
+- 2026-06-01: `git diff --check` passed.
+- 2026-06-01: `uv run python -m tokenizer.train_report --config configs/tokenizer_bilingual.yaml --output docs/tokenizer_report.md` passed and generated a 377-token byte-level BPE tokenizer report.
+- 2026-06-01: `uv run python -m train.sample_batches --config configs/tokenized_smoke.yaml --max-batches 2` passed with input/target shapes `[4, 16]`, logits `[4, 16, 377]`, and ignored split artifacts under `data/tokenized/phase02a_smoke/`.
+- 2026-06-01: Recheck reran `uv run pytest`, `uv run ruff check .`, `git diff --check`, `uv run python -m tokenizer.train_report --config configs/tokenizer_bilingual.yaml --output docs/tokenizer_report.md`, and `uv run python -m train.sample_batches --config configs/tokenized_smoke.yaml --max-batches 2`; all passed. Metadata evidence confirmed `train`/`validation` splits, `uint16` token files, vocab size 377, zero leakage overlap, and one duplicate removed.
 
 ## Phase Archive
+
+### PHASE-02A - Tokenizer And Dataset Pipeline
+
+Status: validation passed
+Completed: 2026-06-01
+Evidence:
+- Accepted automation plan: `runs/phase-runner/PHASE-02A/2026-05-31T16:41:04Z/accepted-plan/accepted-plan.json`
+- Tokenizer config: `configs/tokenizer_bilingual.yaml`
+- Tokenized smoke config: `configs/tokenized_smoke.yaml`
+- Tokenizer report: `docs/tokenizer_report.md`
+- Data source manifest: `docs/phase02a_data_manifest.json`
+- Ignored tokenizer model: `data/tokenized/tokenizers/phase02a-byte-bpe-bilingual.json`
+- Ignored tokenized split metadata and token files: `data/tokenized/phase02a_smoke/`
+- Validation commands: `uv run pytest`, `uv run ruff check .`, `git diff --check`, `uv run python -m tokenizer.train_report --config configs/tokenizer_bilingual.yaml --output docs/tokenizer_report.md`, `uv run python -m train.sample_batches --config configs/tokenized_smoke.yaml --max-batches 2`
+- Automation phase state was not updated by this executor.
 
 ### PHASE-01A - MicroGPT Character LM
 
