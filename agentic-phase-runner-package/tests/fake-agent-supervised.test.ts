@@ -41,8 +41,10 @@ describe('fake-agent supervised execution', () => {
       await writeFile(configPath, JSON.stringify(autopilotConfig, null, 2));
 
       await git(repoRoot, ['init']);
+      await git(repoRoot, ['config', 'user.email', 'test@example.invalid']);
+      await git(repoRoot, ['config', 'user.name', 'Agentic Test']);
       await git(repoRoot, ['add', '-A']);
-      await git(repoRoot, ['-c', 'user.email=test@example.invalid', '-c', 'user.name=Agentic Test', 'commit', '-m', 'initial']);
+      await git(repoRoot, ['commit', '-m', 'initial']);
 
       const loadedConfig = await loadAutopilotConfig(repoRoot, configPath);
       const summary = await runAutopilotForPhase(repoRoot, 'PHASE-01A', {
@@ -64,10 +66,13 @@ describe('fake-agent supervised execution', () => {
         },
       });
 
-      expect(['blocked', 'complete']).toContain(summary.status);
+      expect(summary.status).toBe('blocked');
       expect(summary.completedStages).toContain('planning');
       expect(summary.completedStages).toContain('execution');
       expect(summary.completedStages).toContain('recheck');
+      expect(summary.completedStages).toContain('local-gate');
+      expect(summary.completedStages).toContain('commit');
+      expect(summary.lastError).toContain('Remote PR checks are absent');
       await expect(readFile(path.join(summary.evidenceDir, 'agent-results', 'planner-report.json'), 'utf8')).resolves.toContain(
         '"planAcceptanceRecommendation": "accept"',
       );

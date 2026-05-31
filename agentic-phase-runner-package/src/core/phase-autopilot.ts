@@ -772,7 +772,10 @@ export const executeStage = async (
     const localResults = await readLocalValidationResults(evidenceDir);
     const evidence = collectPhaseMergeEvidence({
       phase,
-      policy: config.automergePolicy,
+      policy: {
+        ...config.automergePolicy,
+        allowNoRemoteChecksWhenLocalGatePasses: true,
+      },
       localCommandResults: localResults,
       recheckReport,
       changedPaths,
