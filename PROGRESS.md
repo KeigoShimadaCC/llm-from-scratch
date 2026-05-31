@@ -6,17 +6,17 @@ Living coordination file for phase-based agent work.
 
 | Field | Value |
 | --- | --- |
-| Phase | PHASE-07A |
-| Goal | Evaluation and failure analysis |
-| Branch | phase/phase-07a-evaluation-failure-analysis |
-| Worktree | /Users/keigoshimada/Documents/llm-from-scratch-phase-07a-evaluation-failure-analysis-wt |
-| Status | validation passed; PR pending |
+| Phase | PHASE-08A |
+| Goal | Mac-native inference |
+| Branch | main |
+| Worktree | /Users/keigoshimada/Documents/llm-from-scratch |
+| Status | queued |
 
 ## Task Queue
 
 ### Open
 
-- [ ] Publish PHASE-07A PR and merge after CI passes.
+- [ ] Start PHASE-08A from `phase-plans/PHASE-08A-MAC-NATIVE-INFERENCE.md`.
 
 ### In Progress
 
@@ -24,6 +24,7 @@ _(none)_
 
 ### Done
 
+- [x] Merged PHASE-07A via PR #7 at merge commit `af0b07bed26e67bbe788b0eec4fb93566e42543f`.
 - [x] Implemented PHASE-07A checkpoint evaluation, fixed prompt consolidation, failure taxonomy, and comparison reports.
 - [x] Validated PHASE-07A locally with report generation, checkpoint comparison, full tests, lint, and whitespace checks.
 - [x] Completed PHASE-07A plan audit; no blocking implementation gaps remain. Larger checkpoint rows are summary-only until ignored local artifacts are regenerated.
@@ -261,8 +262,27 @@ _(none)_
 - 2026-06-01: `uv run python -m eval.sft_compare --config configs/sft_eval.yaml --output docs/phase06a_sft_eval.md` passed; fixed-probe response loss improved from 35.40309000015259 to 0.0000020305075345561363.
 - 2026-06-01: PHASE-06A PR #6 passed GitHub CI and merged to `main` at `4f3fd572e2f8ba0457445742ba08e083d658c97c`.
 - 2026-06-01: PHASE-07A validation passed: `uv run pytest` (29 tests), `uv run ruff check .`, `git diff --check`, `uv run python -m eval.report --config configs/eval_fixed_prompts.yaml --output docs/phase07a_eval_report.md`, and `uv run python -m eval.compare_checkpoints --manifest docs/checkpoint_manifest.json --output docs/phase07a_checkpoint_comparison.md`. Both PHASE-07A reports completed with one live micro checkpoint row from `experiments/runs/phase03a_transformer_micro/` and three summary-only rows for missing ignored tiny/30M/SFT artifacts.
+- 2026-06-01: PHASE-07A PR #7 passed GitHub CI and merged to `main` at `af0b07bed26e67bbe788b0eec4fb93566e42543f`.
 
 ## Phase Archive
+
+### PHASE-07A - Evaluation And Failure Analysis
+
+Status: complete
+Completed: 2026-06-01
+Evidence:
+- PR: #7
+- Merge commit: `af0b07bed26e67bbe788b0eec4fb93566e42543f`
+- Eval config: `configs/eval_fixed_prompts.yaml`
+- Checkpoint manifest: `docs/checkpoint_manifest.json`
+- Eval schema and taxonomy: `docs/phase07a_eval_schema.md`
+- Eval report: `docs/phase07a_eval_report.md`
+- Comparison report: `docs/phase07a_checkpoint_comparison.md`
+- Evaluation implementation: `eval/checkpoint_eval.py`, `eval/report.py`, `eval/compare_checkpoints.py`
+- Tests: `tests/test_checkpoint_eval.py`
+- Ignored live micro checkpoint evidence: `experiments/runs/phase03a_transformer_micro/`
+- Validation commands: `uv run pytest`, `uv run ruff check .`, `git diff --check`, `uv run python -m eval.report --config configs/eval_fixed_prompts.yaml --output docs/phase07a_eval_report.md`, `uv run python -m eval.compare_checkpoints --manifest docs/checkpoint_manifest.json --output docs/phase07a_checkpoint_comparison.md`
+- Result note: PHASE-07A reports contain one live micro row and summary-only rows for tiny, 30M, and SFT when ignored checkpoints are absent; reproduce commands are listed in `docs/checkpoint_manifest.json`.
 
 ### PHASE-06A - Instruction Tuning
 
