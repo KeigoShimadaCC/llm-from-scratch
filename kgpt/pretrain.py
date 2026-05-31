@@ -54,6 +54,13 @@ class RunBudgetConfig:
 
 
 @dataclass(frozen=True)
+class ScaleGateConfig:
+    min_parameters: int
+    max_parameters: int
+    label: str
+
+
+@dataclass(frozen=True)
 class PretrainConfig:
     run_name: str
     seed: int
@@ -68,6 +75,7 @@ class PretrainConfig:
     data: PretrainDataConfig
     tokenizer: TransformerTokenizerConfig
     run_budget: RunBudgetConfig
+    scale: ScaleGateConfig
     sample_prompts: tuple[str, ...]
     source_path: Path
     config_hash: str
@@ -95,6 +103,14 @@ def load_pretrain_config(path: str | Path) -> PretrainConfig:
     data_raw = _required_mapping(raw, "data")
     tokenizer_raw = _required_mapping(raw, "tokenizer")
     budget_raw = _required_mapping(raw, "run_budget")
+    scale_raw = raw.get("scale")
+    if scale_raw is not None and not isinstance(scale_raw, dict):
+        raise ValueError("scale must be a mapping when provided.")
+    scale_mapping = scale_raw or {
+        "min_parameters": 5_000_000,
+        "max_parameters": 20_000_000,
+        "label": "kgpt-tiny",
+    }
     sample_prompts_raw = raw.get("sample_prompts")
     if not isinstance(sample_prompts_raw, list) or not all(isinstance(item, str) for item in sample_prompts_raw):
         raise ValueError("sample_prompts must be a list of strings.")
@@ -162,6 +178,11 @@ def load_pretrain_config(path: str | Path) -> PretrainConfig:
             target_wall_clock_minutes=_positive_int(budget_raw, "target_wall_clock_minutes"),
             hardware=_required_str(budget_raw, "hardware"),
         ),
+        scale=ScaleGateConfig(
+            min_parameters=_positive_int(scale_mapping, "min_parameters"),
+            max_parameters=_positive_int(scale_mapping, "max_parameters"),
+            label=_required_str(scale_mapping, "label"),
+        ),
         sample_prompts=tuple(sample_prompts_raw),
         source_path=config_path,
         config_hash=file_sha256(config_path),
@@ -225,6 +246,11 @@ def pretrain_config_to_dict(config: PretrainConfig) -> dict[str, Any]:
             "target_tokens": config.run_budget.target_tokens,
             "target_wall_clock_minutes": config.run_budget.target_wall_clock_minutes,
             "hardware": config.run_budget.hardware,
+        },
+        "scale": {
+            "min_parameters": config.scale.min_parameters,
+            "max_parameters": config.scale.max_parameters,
+            "label": config.scale.label,
         },
         "sample_prompts": list(config.sample_prompts),
         "source_path": str(config.source_path),
@@ -326,6 +352,11 @@ def checkpoint_metadata(
         "model_config": dict(config.model.__dict__),
         "pretrain_config": pretrain_config_to_dict(config),
         "parameter_count": parameter_count,
+        "scale": {
+            "label": config.scale.label,
+            "min_parameters": config.scale.min_parameters,
+            "max_parameters": config.scale.max_parameters,
+        },
         "step": step,
         "seed": config.seed,
         "git_commit": git_commit,

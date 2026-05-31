@@ -1,0 +1,82 @@
+{
+  "schema_version": 1,
+  "gate_status": "pass: kgpt-30m trained locally from random initialization to the configured 40-step PHASE-05A completion point.",
+  "phase_gate": "The North Star 30M+ requirement is satisfied for local educational scale-gate evidence. The run is not a quality claim because the corpus is intentionally tiny.",
+  "tokenizer_decision": {
+    "tokenizer_id": "phase02a-byte-bpe-bilingual",
+    "decision_doc": "docs/phase05a_tokenizer_decision.md",
+    "rationale": "Use the repo-owned byte-level BPE tokenizer because it has completed provenance, byte fallback, English/Japanese roundtrip behavior, and successful PHASE-04A tiny-pretraining evidence."
+  },
+  "data_mixture": {
+    "manifest_path": "docs/phase05a_data_mixture_manifest.json",
+    "ratio_summary": "Approximately 39% English, 36% Japanese, and 25% mixed Japanese/English by record count.",
+    "english_ratio": "14/36 records",
+    "japanese_ratio": "13/36 records",
+    "mixed_ratio": "9/36 records",
+    "license": "Repo-authored fixture for this project; no third-party text source."
+  },
+  "profiling": {
+    "method": "Final metrics.jsonl row from local CPU kgpt-30m smoke run.",
+    "device": "cpu",
+    "dtype": "float32",
+    "context_length": 32,
+    "batch_size": 1,
+    "tokens_per_sec": 254.04497570222955,
+    "peak_memory": "not available from CPU metrics helper",
+    "profile_doc": "docs/phase05a_mac_profile.md"
+  },
+  "runs": [
+    {
+      "name": "phase03a_transformer_micro",
+      "status": "trained",
+      "artifact_manifest": "experiments/runs/phase03a_transformer_micro/manifest.json",
+      "summary": {
+        "parameter_count": 29728,
+        "initial_validation_loss": 22.25092887878418,
+        "final_validation_loss": 1.0929747819900513,
+        "best_validation_loss": 1.0929747819900513,
+        "best_step": 20,
+        "loss_improvement_fraction": 0.9508793586304738,
+        "tokens_seen": 1280
+      }
+    },
+    {
+      "name": "phase04a_tiny_smoke",
+      "status": "trained",
+      "artifact_manifest": "experiments/runs/phase04a_tiny_smoke/manifest.json",
+      "summary": {
+        "parameter_count": 5633536,
+        "initial_validation_loss": 164.59511184692383,
+        "final_validation_loss": 4.059329509735107,
+        "best_validation_loss": 4.059329509735107,
+        "best_step": 200,
+        "loss_improvement_fraction": 0.9753374844235329,
+        "tokens_seen": 12800
+      }
+    },
+    {
+      "name": "phase05a_kgpt30m_smoke",
+      "status": "trained",
+      "artifact_manifest": "experiments/runs/phase05a_kgpt30m_smoke/manifest.json",
+      "summary": {
+        "parameter_count": 31734272,
+        "initial_validation_loss": 316.75299072265625,
+        "final_validation_loss": 11.464725255966187,
+        "best_validation_loss": 11.464725255966187,
+        "best_step": 40,
+        "loss_improvement_fraction": 0.9638054711660023,
+        "tokens_seen": 1280
+      }
+    }
+  ],
+  "stretch_decisions": [
+    "kgpt-50m dry-run passed with 59,345,280 parameters; actual training deferred until the 30M run is reviewed.",
+    "kgpt-100m dry-run passed with 113,721,600 parameters; actual training deferred until 50M evidence and a longer run budget exist."
+  ],
+  "bottlenecks": [
+    "The corpus is too small for meaningful language quality claims.",
+    "CPU throughput is sufficient for smoke evidence but not long 30M+ pretraining.",
+    "Japanese byte-level segmentation remains inefficient under the provisional tokenizer.",
+    "Memory profiling on CPU lacks peak memory; MPS/MLX profiling is deferred to later inference and optimization phases."
+  ]
+}

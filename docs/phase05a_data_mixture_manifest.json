@@ -1,0 +1,35 @@
+{
+  "schema_version": 1,
+  "mixture_id": "phase05a_repo_authored_bilingual_tiny_mixture_v1",
+  "source_manifest": "docs/phase04a_data_manifest.json",
+  "source_config": "configs/kgpt_tiny_tokenized.yaml",
+  "license": "Repo-authored fixture for this project; no third-party text source.",
+  "decision": "Use the PHASE-04A repo-authored English/Japanese/mixed corpus for local 30M scale wiring evidence.",
+  "ratios": {
+    "english_records": {
+      "count": 14,
+      "ratio": 0.3889
+    },
+    "japanese_records": {
+      "count": 13,
+      "ratio": 0.3611
+    },
+    "mixed_ja_en_records": {
+      "count": 9,
+      "ratio": 0.25
+    }
+  },
+  "ratio_summary": "14 English records, 13 Japanese records, and 9 mixed Japanese/English records, approximately 39/36/25 by record count.",
+  "split": {
+    "method": "Deterministic sha256 ordering by seed, record id, and normalized text hash with validation_fraction=0.20.",
+    "train_records": 29,
+    "validation_records": 7,
+    "leakage_overlap_count": 0
+  },
+  "dedup_strategy": "Unicode NFKC normalization, line-ending normalization, trailing-space trim, then exact normalized text sha256 deduplication.",
+  "limitations": [
+    "The corpus is intentionally tiny and repo-authored; it validates scale wiring, not broad model quality.",
+    "The mixture is record-count based, not token-count balanced.",
+    "Larger PHASE-05A or later datasets must keep source/license and ratio decisions explicit before longer training."
+  ]
+}

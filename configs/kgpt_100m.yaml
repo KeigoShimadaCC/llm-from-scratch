@@ -1,0 +1,57 @@
+schema_version: 1
+run_name: phase05a_kgpt100m_stretch
+seed: 20260601
+device: cpu
+dtype: float32
+model_name: kgpt-100m
+tokenizer:
+  model_path: data/tokenized/tokenizers/phase02a-byte-bpe-bilingual.json
+  fallback_training_config: configs/tokenizer_bilingual.yaml
+data:
+  tokenized_config: configs/kgpt_tiny_tokenized.yaml
+  metadata_path: data/tokenized/phase04a_tiny/metadata.json
+  split: train
+  validation_split: validation
+model:
+  vocab_size: 377
+  context_length: 32
+  embedding_dim: 768
+  num_layers: 16
+  num_heads: 12
+  mlp_hidden_dim: 3072
+  dropout: 0.0
+  tie_embeddings: true
+optimizer:
+  name: adamw
+  learning_rate: 0.0003
+scheduler:
+  warmup_steps: 5
+  min_lr_factor: 0.10
+training:
+  batch_size: 1
+  train_steps: 10
+  output_dir: experiments/runs
+  checkpoint_every: 10
+  eval_every: 10
+  sample_every: 10
+  gradient_accumulation_steps: 1
+  max_grad_norm: 1.0
+  validation_batches: 1
+  loss_improvement_threshold: 0.01
+scale:
+  min_parameters: 90000000
+  max_parameters: 130000000
+  label: kgpt-100m
+run_budget:
+  target_steps: 10
+  target_tokens: 320
+  target_wall_clock_minutes: 90
+  hardware: Stretch config only; do not run before kgpt-50m evidence and human/orchestrator approval.
+generation:
+  max_new_tokens: 32
+  temperature: 0.0
+  top_k: 0
+sample_prompts:
+  - hello
+  - The model learns
+  - 小さなモデル
