@@ -77,6 +77,7 @@ class TransformerExperimentConfig:
 class TransformerOutput:
     logits: torch.Tensor
     loss: torch.Tensor | None
+    past_key_values: tuple[tuple[torch.Tensor, torch.Tensor], ...] | None = None
 
 
 def causal_mask(sequence_length: int, *, device: torch.device | str | None = None) -> torch.Tensor:
@@ -85,6 +86,26 @@ def causal_mask(sequence_length: int, *, device: torch.device | str | None = Non
     return torch.tril(torch.ones((sequence_length, sequence_length), dtype=torch.bool, device=device)).view(
         1, 1, sequence_length, sequence_length
     )
+
+
+def causal_mask_for_cache(
+    *,
+    query_length: int,
+    key_length: int,
+    device: torch.device | str | None = None,
+) -> torch.Tensor:
+    if query_length <= 0 or key_length <= 0:
+        raise ValueError("query_length and key_length must be positive.")
+    past_length = key_length - query_length
+    if past_length < 0:
+        raise ValueError("key_length must be greater than or equal to query_length.")
+    query_positions = torch.arange(
+        past_length,
+        past_length + query_length,
+        device=device,
+    ).view(query_length, 1)
+    key_positions = torch.arange(key_length, device=device).view(1, key_length)
+    return (key_positions <= query_positions).view(1, 1, query_length, key_length)
 
 
 class CausalSelfAttention(nn.Module):
@@ -98,7 +119,13 @@ class CausalSelfAttention(nn.Module):
         self.projection = nn.Linear(config.embedding_dim, config.embedding_dim)
         self.dropout = nn.Dropout(config.dropout)
 
-    def forward(self, hidden_states: torch.Tensor) -> torch.Tensor:
+    def forward(
+        self,
+        hidden_states: torch.Tensor,
+        *,
+        past_key_value: tuple[torch.Tensor, torch.Tensor] | None = None,
+        use_cache: bool = False,
+    ) -> tuple[torch.Tensor, tuple[torch.Tensor, torch.Tensor] | None]:
         batch_size, sequence_length, embedding_dim = hidden_states.shape
         qkv = self.query_key_value(hidden_states)
         qkv = qkv.view(batch_size, sequence_length, 3, self.num_heads, self.head_dim)
@@ -106,14 +133,26 @@ class CausalSelfAttention(nn.Module):
         query = query.transpose(1, 2)
         key = key.transpose(1, 2)
         value = value.transpose(1, 2)
+        if past_key_value is not None:
+            past_key, past_value = past_key_value
+            key = torch.cat([past_key, key], dim=2)
+            value = torch.cat([past_value, value], dim=2)
 
         scores = query @ key.transpose(-2, -1)
         scores = scores / math.sqrt(self.head_dim)
-        scores = scores.masked_fill(~causal_mask(sequence_length, device=hidden_states.device), float("-inf"))
+        scores = scores.masked_fill(
+            ~causal_mask_for_cache(
+                query_length=sequence_length,
+                key_length=key.shape[2],
+                device=hidden_states.device,
+            ),
+            float("-inf"),
+        )
         weights = self.dropout(F.softmax(scores, dim=-1))
         attended = weights @ value
         attended = attended.transpose(1, 2).contiguous().view(batch_size, sequence_length, embedding_dim)
-        return self.projection(attended)
+        present = (key, value) if use_cache else None
+        return self.projection(attended), present
 
 
 class TransformerBlock(nn.Module):
@@ -129,9 +168,21 @@ class TransformerBlock(nn.Module):
             nn.Dropout(config.dropout),
         )
 
-    def forward(self, hidden_states: torch.Tensor) -> torch.Tensor:
-        hidden_states = hidden_states + self.attention(self.attention_norm(hidden_states))
-        return hidden_states + self.mlp(self.mlp_norm(hidden_states))
+    def forward(
+        self,
+        hidden_states: torch.Tensor,
+        *,
+        past_key_value: tuple[torch.Tensor, torch.Tensor] | None = None,
+        use_cache: bool = False,
+    ) -> tuple[torch.Tensor, tuple[torch.Tensor, torch.Tensor] | None]:
+        attention_output, present = self.attention(
+            self.attention_norm(hidden_states),
+            past_key_value=past_key_value,
+            use_cache=use_cache,
+        )
+        hidden_states = hidden_states + attention_output
+        hidden_states = hidden_states + self.mlp(self.mlp_norm(hidden_states))
+        return hidden_states, present
 
 
 class DecoderOnlyTransformer(nn.Module):
@@ -148,21 +199,53 @@ class DecoderOnlyTransformer(nn.Module):
         if config.tie_embeddings:
             self.lm_head.weight = self.token_embedding.weight
 
-    def forward(self, input_ids: torch.Tensor, targets: torch.Tensor | None = None) -> TransformerOutput:
+    def forward(
+        self,
+        input_ids: torch.Tensor,
+        targets: torch.Tensor | None = None,
+        *,
+        past_key_values: tuple[tuple[torch.Tensor, torch.Tensor], ...] | None = None,
+        use_cache: bool = False,
+    ) -> TransformerOutput:
         if input_ids.ndim != 2:
             raise ValueError("input_ids must have shape [batch, time].")
         if input_ids.shape[1] > self.config.context_length:
             raise ValueError("input sequence length exceeds configured context_length.")
+        if targets is not None and past_key_values is not None:
+            raise ValueError("targets are not supported with past_key_values.")
+        if past_key_values is not None and len(past_key_values) != len(self.blocks):
+            raise ValueError("past_key_values must have one entry per Transformer block.")
 
         batch_size, sequence_length = input_ids.shape
-        positions = torch.arange(sequence_length, device=input_ids.device).unsqueeze(0).expand(batch_size, -1)
+        past_length = 0
+        if past_key_values is not None:
+            past_length = int(past_key_values[0][0].shape[2])
+        if past_length + sequence_length > self.config.context_length:
+            raise ValueError("cached sequence length exceeds configured context_length.")
+        positions = torch.arange(
+            past_length,
+            past_length + sequence_length,
+            device=input_ids.device,
+        ).unsqueeze(0).expand(batch_size, -1)
         hidden_states = self.token_embedding(input_ids) + self.position_embedding(positions)
         hidden_states = self.drop(hidden_states)
-        for block in self.blocks:
-            hidden_states = block(hidden_states)
+        present_key_values: list[tuple[torch.Tensor, torch.Tensor]] = []
+        for index, block in enumerate(self.blocks):
+            past_key_value = past_key_values[index] if past_key_values is not None else None
+            hidden_states, present = block(
+                hidden_states,
+                past_key_value=past_key_value,
+                use_cache=use_cache,
+            )
+            if present is not None:
+                present_key_values.append(present)
         logits = self.lm_head(self.final_norm(hidden_states))
         loss = shifted_cross_entropy(logits, targets) if targets is not None else None
-        return TransformerOutput(logits=logits, loss=loss)
+        return TransformerOutput(
+            logits=logits,
+            loss=loss,
+            past_key_values=tuple(present_key_values) if use_cache else None,
+        )
 
 
 def shifted_cross_entropy(logits: torch.Tensor, targets: torch.Tensor) -> torch.Tensor:
@@ -206,13 +289,21 @@ def generate_tokens(
     seed: int,
     temperature: float,
     top_k: int | None = None,
+    top_p: float | None = None,
+    repetition_penalty: float = 1.0,
     eos_token_id: int | None = None,
+    stop_token_ids: set[int] | None = None,
     device: torch.device | None = None,
+    use_cache: bool = False,
 ) -> list[int]:
     if max_new_tokens < 0:
         raise ValueError("max_new_tokens must be non-negative.")
     if temperature < 0:
         raise ValueError("temperature must be non-negative.")
+    if top_p is not None and not 0 < top_p <= 1:
+        raise ValueError("top_p must be in the interval (0, 1].")
+    if repetition_penalty < 1:
+        raise ValueError("repetition_penalty must be at least 1.0.")
     if isinstance(input_ids, torch.Tensor):
         tokens = [int(item) for item in input_ids.flatten().tolist()]
     else:
@@ -222,15 +313,39 @@ def generate_tokens(
 
     run_device = device or next(model.parameters()).device
     generator = torch.Generator(device="cpu").manual_seed(seed)
+    stop_ids = set(stop_token_ids or set())
+    if eos_token_id is not None:
+        stop_ids.add(eos_token_id)
     model.eval()
+    past_key_values: tuple[tuple[torch.Tensor, torch.Tensor], ...] | None = None
     for _ in range(max_new_tokens):
-        context = tokens[-model.config.context_length :]
-        context_tensor = torch.tensor([context], dtype=torch.long, device=run_device)
-        with torch.no_grad():
-            logits = model(context_tensor).logits[0, -1].detach().cpu()
-        next_token_id = _sample_next_token(logits, temperature=temperature, top_k=top_k, generator=generator)
+        if use_cache:
+            cache_length = _cache_length(past_key_values)
+            if past_key_values is None or cache_length >= model.config.context_length:
+                context = tokens[-model.config.context_length :]
+                context_tensor = torch.tensor([context], dtype=torch.long, device=run_device)
+                past_key_values = None
+            else:
+                context_tensor = torch.tensor([[tokens[-1]]], dtype=torch.long, device=run_device)
+            with torch.no_grad():
+                output = model(context_tensor, past_key_values=past_key_values, use_cache=True)
+            past_key_values = output.past_key_values
+            logits = output.logits[0, -1].detach().cpu()
+        else:
+            context = tokens[-model.config.context_length :]
+            context_tensor = torch.tensor([context], dtype=torch.long, device=run_device)
+            with torch.no_grad():
+                logits = model(context_tensor).logits[0, -1].detach().cpu()
+        logits = _apply_repetition_penalty(logits, tokens=tokens, penalty=repetition_penalty)
+        next_token_id = _sample_next_token(
+            logits,
+            temperature=temperature,
+            top_k=top_k,
+            top_p=top_p,
+            generator=generator,
+        )
         tokens.append(next_token_id)
-        if eos_token_id is not None and next_token_id == eos_token_id:
+        if next_token_id in stop_ids:
             break
     return tokens
 
@@ -369,6 +484,7 @@ def _sample_next_token(
     *,
     temperature: float,
     top_k: int | None,
+    top_p: float | None,
     generator: torch.Generator,
 ) -> int:
     if temperature == 0:
@@ -378,8 +494,35 @@ def _sample_next_token(
         values, _indices = torch.topk(scaled, k=min(top_k, scaled.shape[-1]))
         floor = values[-1]
         scaled = torch.where(scaled < floor, torch.full_like(scaled, float("-inf")), scaled)
+    if top_p is not None and top_p < 1:
+        sorted_logits, sorted_indices = torch.sort(scaled, descending=True)
+        sorted_probabilities = F.softmax(sorted_logits, dim=-1)
+        cumulative = torch.cumsum(sorted_probabilities, dim=-1)
+        remove_sorted = cumulative > top_p
+        remove_sorted[1:] = remove_sorted[:-1].clone()
+        remove_sorted[0] = False
+        remove_indices = sorted_indices[remove_sorted]
+        scaled[remove_indices] = float("-inf")
     probabilities = F.softmax(scaled, dim=-1)
     return int(torch.multinomial(probabilities, num_samples=1, generator=generator).item())
+
+
+def _apply_repetition_penalty(logits: torch.Tensor, *, tokens: list[int], penalty: float) -> torch.Tensor:
+    if penalty == 1.0:
+        return logits
+    adjusted = logits.clone()
+    for token_id in set(tokens):
+        if adjusted[token_id] < 0:
+            adjusted[token_id] *= penalty
+        else:
+            adjusted[token_id] /= penalty
+    return adjusted
+
+
+def _cache_length(past_key_values: tuple[tuple[torch.Tensor, torch.Tensor], ...] | None) -> int:
+    if not past_key_values:
+        return 0
+    return int(past_key_values[0][0].shape[2])
 
 
 def _validate_model_config(config: TransformerModelConfig) -> None:

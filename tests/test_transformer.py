@@ -10,6 +10,7 @@ from kgpt.transformer import (
     TransformerExperimentConfig,
     TransformerModelConfig,
     causal_mask,
+    causal_mask_for_cache,
     count_parameters,
     generate_tokens,
     load_transformer_checkpoint,
@@ -34,6 +35,14 @@ def test_causal_mask_blocks_future_positions() -> None:
     assert mask.dtype is torch.bool
     assert bool(mask[0, 0, 2, 1])
     assert not bool(mask[0, 0, 1, 2])
+
+
+def test_cached_causal_mask_allows_past_positions() -> None:
+    mask = causal_mask_for_cache(query_length=2, key_length=5)
+    assert list(mask.shape) == [1, 1, 2, 5]
+    assert bool(mask[0, 0, 0, 3])
+    assert not bool(mask[0, 0, 0, 4])
+    assert bool(mask[0, 0, 1, 4])
 
 
 def test_future_token_change_cannot_change_earlier_logits() -> None:
@@ -82,6 +91,44 @@ def test_generation_is_seeded_and_appends_requested_tokens() -> None:
     assert first == second
     assert first[: len(prompt)] == prompt
     assert len(first) == len(prompt) + 3
+
+
+def test_cached_generation_matches_uncached_greedy_generation() -> None:
+    torch.manual_seed(11)
+    model = DecoderOnlyTransformer(_model_config(context_length=8))
+    prompt = [1, 2, 3]
+    uncached = generate_tokens(
+        model=model,
+        input_ids=prompt,
+        max_new_tokens=4,
+        seed=123,
+        temperature=0.0,
+        use_cache=False,
+    )
+    cached = generate_tokens(
+        model=model,
+        input_ids=prompt,
+        max_new_tokens=4,
+        seed=123,
+        temperature=0.0,
+        use_cache=True,
+    )
+    assert cached == uncached
+
+
+def test_generation_accepts_top_p_and_repetition_penalty() -> None:
+    torch.manual_seed(17)
+    model = DecoderOnlyTransformer(_model_config(context_length=8))
+    tokens = generate_tokens(
+        model=model,
+        input_ids=[1, 2, 3],
+        max_new_tokens=2,
+        seed=123,
+        temperature=0.8,
+        top_p=0.9,
+        repetition_penalty=1.1,
+    )
+    assert len(tokens) == 5
 
 
 def test_mps_request_falls_back_to_cpu_when_unavailable() -> None:
