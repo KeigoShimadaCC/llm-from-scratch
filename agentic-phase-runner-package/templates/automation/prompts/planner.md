@@ -23,13 +23,33 @@ Produce a concrete implementation plan that maps acceptance criteria to tasks, v
 Required validation commands for this phase:
 {{VALIDATION_COMMANDS}}
 
+Each task in the JSON report must include:
+- `id`: stable kebab-case task id.
+- `title`: short task title.
+- `description`: one sentence describing the work.
+- `allowedPaths`: non-empty list copied from the Allowed paths block above; every entry must be inside phase scope.
+- `acceptanceCriteriaCovered`: non-empty list of acceptance criteria covered by the task. Copy criteria exactly as `AC-N: <criterion text>` from the phase plan's Acceptance Criteria section. Across all tasks, cover every acceptance criterion.
+- `cursorDelegation`: `{ "recommended": false, "reason": "..." }` unless there is a bounded subtask that should be delegated.
+
 End with fenced JSON PlannerReport:
 {
   "schemaVersion": 1,
   "phase": "{{PHASE_ID}}",
   "status": "pass",
   "summary": "Plan summary",
-  "tasks": [],
+  "tasks": [
+    {
+      "id": "task-id",
+      "title": "Task title",
+      "description": "Task description",
+      "allowedPaths": ["<phase allowed path>"],
+      "acceptanceCriteriaCovered": ["AC-1: <criterion text>"],
+      "cursorDelegation": {
+        "recommended": false,
+        "reason": "Keep the task local unless delegation is bounded and safe."
+      }
+    }
+  ],
   "requiredFocusedTests": ["<copy required validation commands exactly>"],
   "requiredSmokeCommands": ["<copy phase-specific smoke commands exactly>"],
   "requiredArtifacts": ["runs/phase-runner/{{PHASE_ID}}/<run-id>/phase-merge-evidence.json"],

@@ -34,6 +34,7 @@ _(none)_
 - [x] Clarified generated evidence versus forbidden paths, phase-specific validation expectations, and final North Star fallback positioning.
 - [x] Added phase-specific validation command contracts, reviewed hybrid automerge policy, unattended decision policy, CI workflow, readiness command, and separate phase-acceptance versus merge gates.
 - [x] Hardened migration, doctor, dry-run, and readiness checks so reviewed automation can reach 10/10 once the worktree is clean.
+- [x] Added GitHub repository metadata from the North Star: description and project topics.
 
 ## Phase Checklist
 
@@ -72,6 +73,8 @@ _(none)_
 - 2026-05-31: `git diff --check` passed after automation-readiness hardening changes.
 - 2026-05-31: After committing automation-readiness hardening, escalated `./bin/agentic readiness --repo-root . --target phase00b-auto` reported 10/10.
 - 2026-05-31: After committing automation-readiness hardening, escalated `./bin/agentic readiness --repo-root . --target unattended` reported 10/10.
+- 2026-05-31: First live `PHASE-00B` auto run blocked at plan acceptance because the planner prompt did not require `allowedPaths` or `acceptanceCriteriaCovered` in task JSON; tightened planner templates and reset `PHASE-00B` to queued before rerun.
+- 2026-05-31: Escalated `gh repo view KeigoShimadaCC/llm-from-scratch --json description,homepageUrl,repositoryTopics,url` verified the GitHub repo description and topics after metadata update.
 
 ## Phase Archive
 
