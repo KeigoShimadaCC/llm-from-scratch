@@ -1,0 +1,24 @@
+schema_version: 1
+title: PHASE-06A SFT fixed evaluation
+base_config: configs/kgpt_30m.yaml
+base_checkpoint: experiments/runs/phase05a_kgpt30m_smoke/checkpoint_last.pt
+sft_config: configs/sft_smoke.yaml
+sft_checkpoint: experiments/runs/phase06a_sft_smoke/checkpoint_last.pt
+output_run_name: phase06a_sft_smoke
+fixed_probes:
+  - id: eval-001
+    instruction: say hi
+    expected_response: "hi"
+  - id: eval-002
+    instruction: say ok
+    expected_response: "ok"
+  - id: eval-003
+    instruction: repeat cat
+    expected_response: "cat"
+  - id: eval-004
+    instruction: answer blue
+    expected_response: "blue"
+generation:
+  max_new_tokens: 8
+  temperature: 0.0
+  top_k: 0

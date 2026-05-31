@@ -8,15 +8,15 @@ Living coordination file for phase-based agent work.
 | --- | --- |
 | Phase | PHASE-06A |
 | Goal | Instruction tuning |
-| Branch | main |
-| Worktree | /Users/keigoshimada/Documents/llm-from-scratch |
-| Status | queued |
+| Branch | phase/phase-06a-instruction-tuning |
+| Worktree | /Users/keigoshimada/Documents/llm-from-scratch-phase-06a-instruction-tuning-wt |
+| Status | validation passed; PR pending |
 
 ## Task Queue
 
 ### Open
 
-- [ ] Start PHASE-06A from `phase-plans/PHASE-06A-INSTRUCTION-TUNING.md`.
+_(none)_
 
 ### In Progress
 
@@ -24,6 +24,8 @@ _(none)_
 
 ### Done
 
+- [x] Implemented PHASE-06A SFT config, prompt template, dataset manifest, response-only masking, trainer, and comparison report.
+- [x] Validated PHASE-06A locally with SFT smoke and base-vs-SFT fixed probes.
 - [x] Merged PHASE-05A via PR #5 at merge commit `535ebf9b982cec4e6cb6aa8bc86a663408983316`.
 - [x] Implemented PHASE-05A configs, dry-run/profile tooling, scaling report, and 30M+ local training evidence.
 - [x] Validated PHASE-05A locally with 30M dry-run/resume validation and scaling report generation.
@@ -50,6 +52,19 @@ _(none)_
 - [x] Implemented PHASE-01A character tokenizer, context MLP training loop, deterministic generation, tests, prompt asset, mini report, and ignored overfit evidence.
 
 ## Phase Checklist
+
+### PHASE-06A - Instruction Tuning
+
+- [x] North Star Phase 6 direction read before implementation.
+- [x] Active phase plan read before implementation.
+- [x] Prompt template version and SFT configs added.
+- [x] Instruction dataset source/license, split, dedup, contamination notes, and fixed eval set documented.
+- [x] SFT data loading and response-only loss masking implemented.
+- [x] SFT training path produces ignored checkpoint and manifest.
+- [x] Base-vs-SFT comparison report implemented and generated.
+- [x] Prompt masking and dataset tests added.
+- [x] Required validation commands run.
+- [x] Ignored SFT evidence recorded.
 
 ### PHASE-05A - Small Practical Model
 
@@ -222,6 +237,12 @@ _(none)_
 - 2026-06-01: `git diff --check` passed.
 - 2026-06-01: `uv run python -m eval.compare_runs --manifest docs/phase05a_scaling_manifest.json --output docs/phase05a_scaling_report.md` passed and confirmed a trained 30M+ run in the scaling manifest.
 - 2026-06-01: PHASE-05A PR #5 passed GitHub CI and merged to `main` at `535ebf9b982cec4e6cb6aa8bc86a663408983316`.
+- 2026-06-01: PHASE-06A focused tests passed: `uv run pytest tests/test_sft.py -q` -> 3 passed.
+- 2026-06-01: `uv run pytest` passed for PHASE-06A: 25 tests.
+- 2026-06-01: `uv run ruff check .` passed.
+- 2026-06-01: `git diff --check` passed.
+- 2026-06-01: `uv run python -m train.sft --config configs/sft_smoke.yaml --max-steps 50 --run-name phase06a_sft_smoke` passed and generated ignored SFT evidence under `experiments/runs/phase06a_sft_smoke/`; held-out validation loss regressed from 32.469276428222656 to 63.17095756530762.
+- 2026-06-01: `uv run python -m eval.sft_compare --config configs/sft_eval.yaml --output docs/phase06a_sft_eval.md` passed; fixed-probe response loss improved from 35.40309000015259 to 0.0000020305075345561363.
 
 ## Phase Archive
 
