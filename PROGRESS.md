@@ -8,22 +8,25 @@ Living coordination file for phase-based agent work.
 | --- | --- |
 | Phase | PHASE-09A |
 | Goal | Final write-up and portfolio |
-| Branch | main |
-| Worktree | /Users/keigoshimada/Documents/llm-from-scratch |
-| Status | queued |
+| Branch | phase/phase-09a-final-writeup-portfolio |
+| Worktree | /Users/keigoshimada/Documents/llm-from-scratch-phase-09a-final-writeup-portfolio-wt |
+| Status | validation passed; PR pending |
 
 ## Task Queue
 
 ### Open
 
-- [ ] Start PHASE-09A from `phase-plans/PHASE-09A-FINAL-WRITEUP-PORTFOLIO.md`.
+- [ ] Publish and merge PHASE-09A.
 
 ### In Progress
 
-_(none)_
+- [ ] None.
 
 ### Done
 
+- [x] Implemented PHASE-09A final write-up, README navigation, command index, artifact index, model/data cards, claim audit, and command-index audit.
+- [x] Validated PHASE-09A locally with final audit commands, full tests, lint, and whitespace checks.
+- [x] Completed PHASE-09A plan audit; no blocking implementation gaps remain. The final positioning is explicitly partial with documented fallback.
 - [x] Merged PHASE-08A via PR #8 at merge commit `477ca2850ed889288da1cec9162752cb0ca0fdab`.
 - [x] Implemented PHASE-08A completion/chat CLI, sampling controls, KV-cache parity, benchmark report, and MLX deferral evidence.
 - [x] Validated PHASE-08A locally with generation smoke, KV-cache parity, benchmark, full tests, lint, and whitespace checks.
@@ -61,6 +64,20 @@ _(none)_
 - [x] Implemented PHASE-01A character tokenizer, context MLP training loop, deterministic generation, tests, prompt asset, mini report, and ignored overfit evidence.
 
 ## Phase Checklist
+
+### PHASE-09A - Final Write-Up And Portfolio Layer
+
+- [x] North Star final positioning read before implementation.
+- [x] Active phase plan read before implementation.
+- [x] Final technical write-up added.
+- [x] README navigation updated.
+- [x] Claim-to-evidence table added and audited.
+- [x] Artifact index added.
+- [x] Reproducible command index added and checked.
+- [x] Model/data cards added or linked.
+- [x] What changed between phases section added.
+- [x] Final positioning distinguishes achieved work from documented fallback.
+- [x] Required validation commands run.
 
 ### PHASE-08A - Mac-Native Inference
 
@@ -284,6 +301,7 @@ _(none)_
 - 2026-06-01: PHASE-07A PR #7 passed GitHub CI and merged to `main` at `af0b07bed26e67bbe788b0eec4fb93566e42543f`.
 - 2026-06-01: PHASE-08A validation passed: `uv run pytest` (34 tests), `uv run ruff check .`, `git diff --check`, `uv run python -m inference.generate --config configs/inference_smoke.yaml --prompt hello --max-new-tokens 16 --seed 123`, `uv run python -m inference.kv_cache_parity --config configs/inference_smoke.yaml`, and `uv run python -m inference.benchmark --config configs/inference_benchmark.yaml --max-new-tokens 32 --output docs/phase08a_benchmark.md`. The local benchmark measured CPU and PyTorch MPS and formally deferred MLX with blocker evidence.
 - 2026-06-01: PHASE-08A PR #8 passed GitHub CI and merged to `main` at `477ca2850ed889288da1cec9162752cb0ca0fdab`.
+- 2026-06-01: PHASE-09A validation passed: `uv run pytest` (34 tests), `uv run ruff check .`, `git diff --check`, `uv run python -m eval.audit_claims --doc docs/FINAL_WRITEUP.md --output docs/claim_evidence_audit.md` (11 claims, 0 unsupported), and `uv run python -m eval.check_repro_commands --doc docs/COMMAND_INDEX.md` (18 required command snippets, 0 missing).
 
 ## Phase Archive
 
