@@ -1,0 +1,63 @@
+run_name: micro_char
+seed: 123
+device: cpu
+dtype: float32
+model_name: kgpt-char-context-mlp
+context_length: 8
+batch_size: 64
+train_steps: 200
+optimizer:
+  name: adamw
+  learning_rate: 0.03
+output_dir: experiments/runs
+checkpoint_every: 200
+eval_every: 20
+sample_every: 50
+tokenizer_id: char-v1-synthetic-hello
+overfit_threshold: 0.1
+model:
+  embedding_dim: 32
+  hidden_dim: 128
+  dropout: 0.0
+data:
+  name: micro_char_synthetic_hello_v1
+  source: repo-authored synthetic fixture
+  license_note: no external source; intended for this repository's test and smoke-training use
+  train_fraction: 0.8
+  text: |
+    hello microgpt.
+    hello microgpt.
+    hello microgpt.
+    hello microgpt.
+    hello microgpt.
+    hello microgpt.
+    hello microgpt.
+    hello microgpt.
+    hello microgpt.
+    hello microgpt.
+    hello microgpt.
+    hello microgpt.
+    hello microgpt.
+    hello microgpt.
+    hello microgpt.
+    hello microgpt.
+    hello microgpt.
+    hello microgpt.
+    hello microgpt.
+    hello microgpt.
+    hello microgpt.
+    hello microgpt.
+    hello microgpt.
+    hello microgpt.
+    hello microgpt.
+    hello microgpt.
+    hello microgpt.
+    hello microgpt.
+    hello microgpt.
+    hello microgpt.
+    hello microgpt.
+    hello microgpt.
+generation:
+  prompt: hello
+  max_new_tokens: 32
+  temperature: 0.8
