@@ -60,7 +60,10 @@
       "status": "complete"
     },
     "PHASE-09A": {
-      "status": "queued"
+      "branch": "phase/phase-09a-final-writeup-portfolio",
+      "mergeCommit": "d8dc7da9fd18fc75d678653755ef71b2773ef246",
+      "pr": 9,
+      "status": "complete"
     }
   },
   "schemaVersion": 1,

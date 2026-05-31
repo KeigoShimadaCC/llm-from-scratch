@@ -8,15 +8,15 @@ Living coordination file for phase-based agent work.
 | --- | --- |
 | Phase | PHASE-09A |
 | Goal | Final write-up and portfolio |
-| Branch | phase/phase-09a-final-writeup-portfolio |
-| Worktree | /Users/keigoshimada/Documents/llm-from-scratch-phase-09a-final-writeup-portfolio-wt |
-| Status | validation passed; PR pending |
+| Branch | main |
+| Worktree | /Users/keigoshimada/Documents/llm-from-scratch |
+| Status | complete |
 
 ## Task Queue
 
 ### Open
 
-- [ ] Publish and merge PHASE-09A.
+- [x] None.
 
 ### In Progress
 
@@ -24,6 +24,7 @@ Living coordination file for phase-based agent work.
 
 ### Done
 
+- [x] Merged PHASE-09A via PR #9 at merge commit `d8dc7da9fd18fc75d678653755ef71b2773ef246`.
 - [x] Implemented PHASE-09A final write-up, README navigation, command index, artifact index, model/data cards, claim audit, and command-index audit.
 - [x] Validated PHASE-09A locally with final audit commands, full tests, lint, and whitespace checks.
 - [x] Completed PHASE-09A plan audit; no blocking implementation gaps remain. The final positioning is explicitly partial with documented fallback.
@@ -302,8 +303,26 @@ Living coordination file for phase-based agent work.
 - 2026-06-01: PHASE-08A validation passed: `uv run pytest` (34 tests), `uv run ruff check .`, `git diff --check`, `uv run python -m inference.generate --config configs/inference_smoke.yaml --prompt hello --max-new-tokens 16 --seed 123`, `uv run python -m inference.kv_cache_parity --config configs/inference_smoke.yaml`, and `uv run python -m inference.benchmark --config configs/inference_benchmark.yaml --max-new-tokens 32 --output docs/phase08a_benchmark.md`. The local benchmark measured CPU and PyTorch MPS and formally deferred MLX with blocker evidence.
 - 2026-06-01: PHASE-08A PR #8 passed GitHub CI and merged to `main` at `477ca2850ed889288da1cec9162752cb0ca0fdab`.
 - 2026-06-01: PHASE-09A validation passed: `uv run pytest` (34 tests), `uv run ruff check .`, `git diff --check`, `uv run python -m eval.audit_claims --doc docs/FINAL_WRITEUP.md --output docs/claim_evidence_audit.md` (11 claims, 0 unsupported), and `uv run python -m eval.check_repro_commands --doc docs/COMMAND_INDEX.md` (18 required command snippets, 0 missing).
+- 2026-06-01: PHASE-09A PR #9 passed GitHub CI and merged to `main` at `d8dc7da9fd18fc75d678653755ef71b2773ef246`. The final phase state was updated so all 10 phases are complete.
 
 ## Phase Archive
+
+### PHASE-09A - Final Write-Up And Portfolio Layer
+
+Status: complete
+Completed: 2026-06-01
+Evidence:
+- PR: #9
+- Merge commit: `d8dc7da9fd18fc75d678653755ef71b2773ef246`
+- Final write-up: `docs/FINAL_WRITEUP.md`
+- README navigation: `README.md`
+- Command index: `docs/COMMAND_INDEX.md`
+- Artifact index: `docs/ARTIFACT_INDEX.md`
+- Model/data cards: `docs/MODEL_CARD.md`, `docs/DATA_CARD.md`
+- Claim audit: `docs/claim_evidence_audit.md`
+- Audit CLIs: `eval/audit_claims.py`, `eval/check_repro_commands.py`
+- Validation commands: `uv run pytest`, `uv run ruff check .`, `git diff --check`, `uv run python -m eval.audit_claims --doc docs/FINAL_WRITEUP.md --output docs/claim_evidence_audit.md`, `uv run python -m eval.check_repro_commands --doc docs/COMMAND_INDEX.md`
+- Result note: Final positioning is `North Star partially achieved with documented fallback`; MLX inference remains deferred and 50M/100M stretch models are dry-run targets.
 
 ### PHASE-08A - Mac-Native Inference
 
