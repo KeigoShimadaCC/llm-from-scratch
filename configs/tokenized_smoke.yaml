@@ -1,0 +1,26 @@
+schema_version: 1
+tokenizer:
+  model_path: data/tokenized/tokenizers/phase02a-byte-bpe-bilingual.json
+  fallback_training_config: configs/tokenizer_bilingual.yaml
+dataset:
+  source_config: configs/tokenizer_bilingual.yaml
+  output_dir: data/tokenized/phase02a_smoke
+  metadata_path: data/tokenized/phase02a_smoke/metadata.json
+  manifest_path: docs/phase02a_data_manifest.json
+  source_name: phase02a_synthetic_bilingual_smoke_v1
+  url_or_local_note: Repo-authored local synthetic English/Japanese smoke corpus embedded in configs/tokenizer_bilingual.yaml.
+  license: Repo-authored fixture for this project; no third-party text source.
+  language_mix: English, Japanese, and mixed Japanese/English technical sentences.
+  preprocessing_command: uv run python -m train.sample_batches --config configs/tokenized_smoke.yaml --max-batches 2
+  split_method: Deterministic sha256 ordering by seed, record id, and normalized text hash with validation_fraction=0.25.
+  split_seed: 20260601
+  validation_fraction: 0.25
+  dedup_strategy: Unicode NFKC normalization, line-ending normalization, trailing-space trim, then exact normalized text sha256 deduplication.
+  contamination_leakage_notes: Synthetic fixture only; exact normalized text hashes are checked for overlap between train and validation.
+batch:
+  split: train
+  seed: 4242
+  batch_size: 4
+  context_length: 16
+  small_model:
+    embedding_dim: 8

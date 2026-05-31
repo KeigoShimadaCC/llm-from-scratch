@@ -1,0 +1,64 @@
+{
+  "checksum": {
+    "algorithm": "sha256 over sorted unique normalized text hashes",
+    "value": "49b910389edb119e687c0a5fb01fb539d355c6c290f2cc099109cb87d44b34f7"
+  },
+  "contamination_leakage_notes": "Synthetic fixture only; exact normalized text hashes are checked for overlap between train and validation.",
+  "dedup_strategy": "Unicode NFKC normalization, line-ending normalization, trailing-space trim, then exact normalized text sha256 deduplication.",
+  "duplicate_record_ids_removed": [
+    "dup-001"
+  ],
+  "language_mix": "English, Japanese, and mixed Japanese/English technical sentences.",
+  "language_record_counts": {
+    "en": 4,
+    "ja": 4,
+    "ja-en": 3
+  },
+  "leakage_check": {
+    "method": "exact normalized text sha256 intersection between train and validation splits",
+    "overlap_count": 0,
+    "overlap_sha256": []
+  },
+  "license": "Repo-authored fixture for this project; no third-party text source.",
+  "manifest_path": "docs/phase02a_data_manifest.json",
+  "preprocessing_command": "uv run python -m train.sample_batches --config configs/tokenized_smoke.yaml --max-batches 2",
+  "schema_version": 1,
+  "size": {
+    "duplicate_records_removed": 1,
+    "unique_records": 11,
+    "utf8_bytes_after_preprocessing": 724
+  },
+  "source_name": "phase02a_synthetic_bilingual_smoke_v1",
+  "split_method": "Deterministic sha256 ordering by seed, record id, and normalized text hash with validation_fraction=0.25.",
+  "splits": {
+    "train": {
+      "record_count": 8,
+      "record_ids": [
+        "mix-001",
+        "en-004",
+        "ja-004",
+        "en-002",
+        "ja-001",
+        "mix-002",
+        "ja-002",
+        "en-003"
+      ],
+      "token_count": 268,
+      "token_file": "data/tokenized/phase02a_smoke/train.npy",
+      "token_file_sha256": "9e31684066d3335b0b1347f6b113f6c13314fedf0b242f390f2574b33c06eba8"
+    },
+    "validation": {
+      "record_count": 3,
+      "record_ids": [
+        "mix-003",
+        "ja-003",
+        "en-001"
+      ],
+      "token_count": 99,
+      "token_file": "data/tokenized/phase02a_smoke/validation.npy",
+      "token_file_sha256": "716da7ba4d087c5b898fb41e722d81d8ca6d41c368b70008e29df1974f7910e9"
+    }
+  },
+  "tokenized_metadata_format": "JSON sidecar with token file paths, dtype, sha256, tokenizer id, and split names",
+  "url_or_local_note": "Repo-authored local synthetic English/Japanese smoke corpus embedded in configs/tokenizer_bilingual.yaml."
+}
