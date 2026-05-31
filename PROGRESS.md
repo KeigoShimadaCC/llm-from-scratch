@@ -30,6 +30,8 @@ _(none)_
 - [x] Replaced generic starter phase configuration with the Mac-local LLM project roadmap.
 - [x] Realigned phase IDs to the North Star Phase 0-9 structure with PHASE-00B as the first implementation phase.
 - [x] Added root docs for setup, data conventions, experiment artifacts, and North Star discovery.
+- [x] Tightened phase-plan specs for artifact policy, data/tokenizer provenance, scale gates, evaluation assets, MLX inference, and final evidence mapping.
+- [x] Clarified generated evidence versus forbidden paths, phase-specific validation expectations, and final North Star fallback positioning.
 
 ## Phase Checklist
 
@@ -50,6 +52,14 @@ _(none)_
 - 2026-05-31: `pnpm --dir agentic-phase-runner-package run typecheck` passed.
 - 2026-05-31: `pnpm --dir agentic-phase-runner-package run test` passed: 14 files, 62 tests.
 - 2026-05-31: `git diff --check` passed.
+- 2026-05-31: `./bin/agentic doctor --repo-root .` passed after North Star phase-plan gap tightening.
+- 2026-05-31: `./bin/agentic status --repo-root .` still reports PHASE-00B as next runnable.
+- 2026-05-31: `./bin/agentic run --repo-root . --phase PHASE-00B --mode manual --dry-run` completed after phase-plan gap tightening.
+- 2026-05-31: `git diff --check` passed after phase-plan gap tightening.
+- 2026-05-31: `./bin/agentic doctor --repo-root .` passed after final phase-plan tightening tweaks.
+- 2026-05-31: `./bin/agentic status --repo-root .` still reports PHASE-00B as current and next runnable.
+- 2026-05-31: `./bin/agentic run --repo-root . --phase PHASE-00B --mode manual --dry-run` completed after final phase-plan tightening tweaks.
+- 2026-05-31: `git diff --check` passed after final phase-plan tightening tweaks.
 
 ## Phase Archive
 
