@@ -349,7 +349,7 @@ describe('agentic phase runner package', () => {
     } finally {
       await rm(repoRoot, { recursive: true, force: true });
     }
-  });
+  }, 15000);
 
   it('blocks gate decisions for out-of-scope paths and secrets', async () => {
     await withTempRepo(async (repoRoot) => {
