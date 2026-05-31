@@ -8,15 +8,15 @@ Living coordination file for phase-based agent work.
 | --- | --- |
 | Phase | PHASE-01A |
 | Goal | MicroGPT character language model |
-| Branch | main |
-| Worktree | /Users/keigoshimada/Documents/llm-from-scratch |
-| Status | queued |
+| Branch | phase/phase-01a-microgpt-character-lm |
+| Worktree | /Users/keigoshimada/Documents/llm-from-scratch-phase-01a-microgpt-character-lm-wt |
+| Status | complete |
 
 ## Task Queue
 
 ### Open
 
-- [ ] Start PHASE-01A from `phase-plans/PHASE-01A-MICROGPT-CHARACTER-LM.md`.
+_(none)_
 
 ### In Progress
 
@@ -36,8 +36,26 @@ _(none)_
 - [x] Added GitHub repository metadata from the North Star: description and project topics.
 - [x] Added Python project metadata, config schema, deterministic seeding, checkpoint helpers, dummy training, placeholder CLIs, and foundation tests.
 - [x] Completed PHASE-00B validation and recorded ignored run evidence.
+- [x] Implemented PHASE-01A character tokenizer, context MLP training loop, deterministic generation, tests, prompt asset, mini report, and ignored overfit evidence.
 
 ## Phase Checklist
+
+### PHASE-01A - MicroGPT Character LM
+
+- [x] Accepted plan read before implementation.
+- [x] North Star Phase 1 direction read before implementation.
+- [x] Active phase plan read before implementation.
+- [x] Character tokenizer utilities and roundtrip tests added.
+- [x] Repo-authored synthetic fixture corpus documented.
+- [x] Micro character model, config, and overfit training CLI added.
+- [x] Seeded greedy and sampling generation CLI added.
+- [x] Determinism and overfit tests added.
+- [x] Fixed prompt asset or documented prompt list added.
+- [x] Mini report added under `docs/`.
+- [x] Required validation commands run.
+- [x] Ignored run evidence recorded.
+
+### PHASE-00B - Repository And Lab Foundation
 
 - [x] Acceptance criteria mapped to tasks for PHASE-00B.
 - [x] Accepted plan read before implementation.
@@ -53,6 +71,8 @@ _(none)_
 ## Future Backlog
 
 - Train or select an English/Japanese tokenizer only after the micro character model proves the training loop.
+- Expand the fixed prompt set in tokenizer and Transformer phases.
+- Add richer generation metrics in PHASE-07A.
 - Keep practical open-weight model experiments out of the scratch-core path unless a later phase explicitly creates a comparison branch.
 
 ## Validation Log
@@ -94,8 +114,25 @@ _(none)_
 - 2026-05-31: `uv run python -m kgpt.env_check --optional-mps` passed with Python 3.12.11, Torch 2.12.0, CPU available, and MPS available.
 - 2026-05-31: `./bin/agentic doctor --repo-root .` passed after PHASE-00B implementation.
 - 2026-05-31: `./bin/agentic status --repo-root .` reported PHASE-01A as the next runnable phase after phase state was advanced.
+- 2026-06-01: `uv run pytest tests/test_char_tokenizer.py tests/test_micro_char_training.py` passed for PHASE-01A focused tokenizer, overfit, and deterministic generation checks: 3 tests.
+- 2026-06-01: `uv run pytest` passed for PHASE-01A: 8 tests.
+- 2026-06-01: `uv run ruff check .` passed after fixing initial style findings.
+- 2026-06-01: `git diff --check` passed.
+- 2026-06-01: `uv run python -m train.micro_char --config configs/micro_char.yaml --max-steps 200 --run-name phase01a_overfit_smoke` passed and generated ignored evidence under `experiments/runs/phase01a_overfit_smoke/`; train loss went from 2.714604377746582 to 0.00000252200834438554.
+- 2026-06-01: `uv run python -m inference.generate_char --checkpoint experiments/runs/phase01a_overfit_smoke/checkpoint_last.pt --prompt hello --seed 123 --max-new-tokens 32` passed and generated `hello microgpt.\nhello microgpt.\nhello`.
 
 ## Phase Archive
+
+### PHASE-01A - MicroGPT Character LM
+
+Status: complete
+Completed: 2026-06-01
+Evidence:
+- Accepted automation plan: `runs/phase-runner/PHASE-01A/2026-05-31T16:09:24Z/accepted-plan/accepted-plan.json`
+- Ignored overfit run: `experiments/runs/phase01a_overfit_smoke/`
+- Mini report: `docs/phase01a_micro_char_report.md`
+- Fixed prompt file: `eval/char_prompts.json`
+- Validation commands: `uv run pytest`, `uv run ruff check .`, `git diff --check`, `uv run python -m train.micro_char --config configs/micro_char.yaml --max-steps 200 --run-name phase01a_overfit_smoke`, `uv run python -m inference.generate_char --checkpoint experiments/runs/phase01a_overfit_smoke/checkpoint_last.pt --prompt hello --seed 123 --max-new-tokens 32`
 
 ### PHASE-00B - Repository And Lab Foundation
 

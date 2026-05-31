@@ -1,0 +1,22 @@
+{
+  "schema_version": 1,
+  "phase": "PHASE-01A",
+  "description": "Fixed character-generation prompts to reuse when comparing later tokenizer and model phases.",
+  "prompts": [
+    {
+      "id": "hello",
+      "prompt": "hello",
+      "purpose": "Required smoke prompt and direct continuation of the synthetic corpus."
+    },
+    {
+      "id": "hello_micro",
+      "prompt": "hello micro",
+      "purpose": "Checks whether the model completes the learned microgpt pattern."
+    },
+    {
+      "id": "line_boundary",
+      "prompt": "hello microgpt.\nhello",
+      "purpose": "Checks behavior across the repeated line boundary."
+    }
+  ]
+}
