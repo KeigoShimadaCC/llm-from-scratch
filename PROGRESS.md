@@ -6,17 +6,17 @@ Living coordination file for phase-based agent work.
 
 | Field | Value |
 | --- | --- |
-| Phase | PHASE-06A |
-| Goal | Instruction tuning |
-| Branch | phase/phase-06a-instruction-tuning |
-| Worktree | /Users/keigoshimada/Documents/llm-from-scratch-phase-06a-instruction-tuning-wt |
-| Status | validation passed; PR pending |
+| Phase | PHASE-07A |
+| Goal | Evaluation and failure analysis |
+| Branch | main |
+| Worktree | /Users/keigoshimada/Documents/llm-from-scratch |
+| Status | queued |
 
 ## Task Queue
 
 ### Open
 
-_(none)_
+- [ ] Start PHASE-07A from `phase-plans/PHASE-07A-EVALUATION-FAILURE-ANALYSIS.md`.
 
 ### In Progress
 
@@ -24,6 +24,7 @@ _(none)_
 
 ### Done
 
+- [x] Merged PHASE-06A via PR #6 at merge commit `4f3fd572e2f8ba0457445742ba08e083d658c97c`.
 - [x] Implemented PHASE-06A SFT config, prompt template, dataset manifest, response-only masking, trainer, and comparison report.
 - [x] Validated PHASE-06A locally with SFT smoke and base-vs-SFT fixed probes.
 - [x] Merged PHASE-05A via PR #5 at merge commit `535ebf9b982cec4e6cb6aa8bc86a663408983316`.
@@ -243,8 +244,26 @@ _(none)_
 - 2026-06-01: `git diff --check` passed.
 - 2026-06-01: `uv run python -m train.sft --config configs/sft_smoke.yaml --max-steps 50 --run-name phase06a_sft_smoke` passed and generated ignored SFT evidence under `experiments/runs/phase06a_sft_smoke/`; held-out validation loss regressed from 32.469276428222656 to 63.17095756530762.
 - 2026-06-01: `uv run python -m eval.sft_compare --config configs/sft_eval.yaml --output docs/phase06a_sft_eval.md` passed; fixed-probe response loss improved from 35.40309000015259 to 0.0000020305075345561363.
+- 2026-06-01: PHASE-06A PR #6 passed GitHub CI and merged to `main` at `4f3fd572e2f8ba0457445742ba08e083d658c97c`.
 
 ## Phase Archive
+
+### PHASE-06A - Instruction Tuning
+
+Status: complete
+Completed: 2026-06-01
+Evidence:
+- PR: #6
+- Merge commit: `4f3fd572e2f8ba0457445742ba08e083d658c97c`
+- SFT config: `configs/sft_smoke.yaml`
+- SFT eval config: `configs/sft_eval.yaml`
+- Data manifest: `docs/phase06a_instruction_data_manifest.json`
+- SFT eval report: `docs/phase06a_sft_eval.md`
+- SFT implementation: `kgpt/sft.py`, `train/sft.py`
+- Comparison implementation: `eval/sft_compare.py`
+- Ignored SFT run: `experiments/runs/phase06a_sft_smoke/`
+- Validation commands: `uv run pytest`, `uv run ruff check .`, `git diff --check`, `uv run python -m train.sft --config configs/sft_smoke.yaml --max-steps 50 --run-name phase06a_sft_smoke`, `uv run python -m eval.sft_compare --config configs/sft_eval.yaml --output docs/phase06a_sft_eval.md`
+- Result note: fixed-probe response loss improved after SFT while held-out validation regressed; claims are limited to the narrow fixed command probes documented in `docs/phase06a_sft_eval.md`.
 
 ### PHASE-05A - Small Practical Model
 

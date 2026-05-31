@@ -1,5 +1,5 @@
 {
-  "currentPhase": "PHASE-06A",
+  "currentPhase": "PHASE-07A",
   "lastUpdated": "2026-06-01",
   "phases": {
     "PHASE-00B": {
@@ -42,7 +42,10 @@
       "status": "complete"
     },
     "PHASE-06A": {
-      "status": "queued"
+      "branch": "phase/phase-06a-instruction-tuning",
+      "mergeCommit": "4f3fd572e2f8ba0457445742ba08e083d658c97c",
+      "pr": 6,
+      "status": "complete"
     },
     "PHASE-07A": {
       "status": "queued"
