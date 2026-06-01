@@ -1,5 +1,5 @@
 {
-  "currentPhase": "PHASE-09A",
+  "currentPhase": "PHASE-10A",
   "lastUpdated": "2026-06-01",
   "phases": {
     "PHASE-00B": {
@@ -64,6 +64,26 @@
       "mergeCommit": "d8dc7da9fd18fc75d678653755ef71b2773ef246",
       "pr": 9,
       "status": "complete"
+    },
+    "PHASE-10A": {
+      "branch": "phase/phase-10a-corpus-source-registry",
+      "status": "queued"
+    },
+    "PHASE-10B": {
+      "branch": "phase/phase-10b-corpus-download-cleaning",
+      "status": "queued"
+    },
+    "PHASE-10C": {
+      "branch": "phase/phase-10c-split-leakage-dataset-manifest",
+      "status": "queued"
+    },
+    "PHASE-10D": {
+      "branch": "phase/phase-10d-tokenizer-tokenized-dataset",
+      "status": "queued"
+    },
+    "PHASE-11A": {
+      "branch": "phase/phase-11a-meaningful-30m-training",
+      "status": "queued"
     }
   },
   "schemaVersion": 1,

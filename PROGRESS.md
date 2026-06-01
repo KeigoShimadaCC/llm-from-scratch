@@ -6,9 +6,9 @@ Living coordination file for phase-based agent work.
 
 | Field | Value |
 | --- | --- |
-| Phase | CROSS-PHASE-GAP-FIX |
-| Goal | Repair phase-plan implementation gaps in reproducible evidence, audits, docs, and inference CLI consistency |
-| Branch | main |
+| Phase | PHASE-10A-ROADMAP-WIRING |
+| Goal | Add automation-ready corpus and meaningful 30M training phase plans after PHASE-09A |
+| Branch | codex/add-corpus-training-phase-plans |
 | Worktree | /Users/keigoshimada/Documents/llm-from-scratch |
 | Status | complete |
 
@@ -24,6 +24,13 @@ Living coordination file for phase-based agent work.
 
 ### Done
 
+- [x] Added PHASE-10A through PHASE-11A plan specs for source registry, corpus download/cleaning, split/leakage manifest, tokenizer/tokenized dataset, and meaningful 30M real-corpus training.
+- [x] Wired `automation/phase-graph.json` in a linear PHASE-09A -> PHASE-10A -> PHASE-10B -> PHASE-10C -> PHASE-10D -> PHASE-11A chain with phase-specific validation commands.
+- [x] Updated `automation/phase-state.json` so `currentPhase` is `PHASE-10A` and all new phases are queued.
+- [x] Updated unattended policy to allow only English Wikipedia, Japanese Wikipedia, Project Gutenberg, and Aozora Bunko when provenance/license/attribution are documented; unverifiable sources must be excluded or blocked.
+- [x] Runner validation passed: `./bin/agentic doctor --repo-root .`, `./bin/agentic status --repo-root .` showing PHASE-10A as next runnable, and `./bin/agentic run --repo-root . --phase PHASE-10A --mode manual --dry-run`.
+- [x] Local validation passed: `uv run pytest` (41 tests), `uv run ruff check .`, `git diff --check`, and `git ls-files data/raw data/processed data/tokenized experiments/runs '*.pt' '*.safetensors'` returned no tracked generated artifacts.
+- [x] Read `PROGRESS.md`, the North Star data/tokenizer/training sections, `PHASE-TEMPLATE.md`, and PHASE-09A before editing the next-roadmap wiring.
 - [x] Merged cross-phase gap fix via PR #10 at merge commit `26c076ac0f1a05066b11336cb3e9255b2cf2722c`.
 - [x] Full validation passed after final fixes: `uv run pytest` (41 tests), `uv run ruff check .`, `git diff --check`, `uv run python -m eval.audit_claims --doc docs/FINAL_WRITEUP.md --output docs/claim_evidence_audit.md`, and `uv run python -m eval.check_repro_commands --doc docs/COMMAND_INDEX.md`.
 - [x] Artifact policy check passed: `git ls-files experiments/runs data/tokenized '*.pt' '*.safetensors'` returned no tracked artifacts.
@@ -213,6 +220,8 @@ Living coordination file for phase-based agent work.
 
 ## Future Backlog
 
+- PHASE-11B: expand real-corpus evaluation beyond fixed prompts after the PHASE-11A 30M run produces stable checkpoints.
+- PHASE-12A: revisit instruction tuning with a better SFT dataset only after the real-corpus base model exists.
 - Train or select an English/Japanese tokenizer only after the micro character model proves the training loop.
 - Expand the fixed prompt set in tokenizer and Transformer phases.
 - Add richer generation metrics in PHASE-07A.
