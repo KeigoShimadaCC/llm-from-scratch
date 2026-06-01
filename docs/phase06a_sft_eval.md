@@ -6,10 +6,10 @@
 - Dataset source: phase06a_repo_authored_instruction_smoke_v1
 - License: Repo-authored fixture for this project; no third-party instruction data.
 - Response-only loss masking: True
-- Base response loss: 35.4031
-- SFT response loss: 0.0000
+- Base response loss: 13.9152
+- SFT response loss: 0.4848
 - Narrow improvement: yes
-- Held-out SFT validation loss: 32.4693 -> 63.1710
+- Held-out SFT validation loss: 6.2837 -> 34.7090
 
 ## Prompt Format
 
@@ -24,30 +24,30 @@ A:
 
 - Expected: `hi`
 - Base: `Q:say hi
-A:�びびびびびびび�`
+A:alalalalalalalal`
 - SFT: `Q:say hi
 A:hi`
 ### `say ok`
 
 - Expected: `ok`
 - Base: `Q:say ok
-A:�びびびびびびび�`
+A:alalalalalalalal`
 - SFT: `Q:say ok
 A:ok`
 ### `repeat cat`
 
 - Expected: `cat`
 - Base: `Q:repeat cat
-A:NNNNNNNN`
+A:########`
 - SFT: `Q:repeat cat
 A:cat`
 ### `answer blue`
 
 - Expected: `blue`
 - Base: `Q:answer blue
-A:�びびびびびびび�`
+A:mmmmmmmm`
 - SFT: `Q:answer blue
-A:blue`
+A:s`
 
 ## Limitations
 

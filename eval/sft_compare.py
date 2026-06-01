@@ -61,17 +61,19 @@ def compare_sft(*, eval_config_path: Path, output_path: Path) -> dict[str, Any]:
         }
         for probe in probes
     ]
+    report_text = _render_report(
+        title=str(raw.get("title", "PHASE-06A SFT comparison")),
+        sft_config=sft_config,
+        sft_manifest=sft_manifest,
+        base_loss=base_loss,
+        sft_loss=sft_loss,
+        samples=samples,
+    )
     output_path.parent.mkdir(parents=True, exist_ok=True)
-    output_path.write_text(
-        _render_report(
-            title=str(raw.get("title", "PHASE-06A SFT comparison")),
-            sft_config=sft_config,
-            sft_manifest=sft_manifest,
-            base_loss=base_loss,
-            sft_loss=sft_loss,
-            samples=samples,
-        ),
-        encoding="utf8",
+    output_path.write_text(report_text, encoding="utf8")
+    run_eval_report = _write_sft_run_eval_report(
+        checkpoint_path=Path(raw["sft_checkpoint"]),
+        report_text=report_text,
     )
     return {
         "output": str(output_path),
@@ -79,6 +81,7 @@ def compare_sft(*, eval_config_path: Path, output_path: Path) -> dict[str, Any]:
         "sft_loss": sft_loss,
         "loss_improved": sft_loss < base_loss,
         "probe_count": len(samples),
+        "run_eval_report": str(run_eval_report) if run_eval_report else None,
     }
 
 
@@ -110,6 +113,19 @@ def _generate(
         device=device,
     )
     return tokenizer.decode(token_ids)
+
+
+def _write_sft_run_eval_report(*, checkpoint_path: Path, report_text: str) -> Path | None:
+    manifest_path = checkpoint_path.parent / "manifest.json"
+    if not manifest_path.is_file():
+        return None
+    eval_report_path = checkpoint_path.parent / "eval_report.md"
+    eval_report_path.write_text(report_text, encoding="utf8")
+    manifest = json.loads(manifest_path.read_text(encoding="utf8"))
+    output_files = manifest.setdefault("output_files", {})
+    output_files["eval_report"] = str(eval_report_path)
+    manifest_path.write_text(json.dumps(manifest, indent=2, sort_keys=True) + "\n", encoding="utf8")
+    return eval_report_path
 
 
 def _render_report(

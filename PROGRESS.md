@@ -6,11 +6,11 @@ Living coordination file for phase-based agent work.
 
 | Field | Value |
 | --- | --- |
-| Phase | PHASE-09A |
-| Goal | Final write-up and portfolio |
-| Branch | main |
+| Phase | CROSS-PHASE-GAP-FIX |
+| Goal | Repair phase-plan implementation gaps in reproducible evidence, audits, docs, and inference CLI consistency |
+| Branch | codex/fix-phase-plan-gap-evidence |
 | Worktree | /Users/keigoshimada/Documents/llm-from-scratch |
-| Status | complete |
+| Status | in progress |
 
 ## Task Queue
 
@@ -20,10 +20,18 @@ Living coordination file for phase-based agent work.
 
 ### In Progress
 
-- [ ] None.
+- [ ] Publish branch, open PR, watch CI, and merge if green.
 
 ### Done
 
+- [x] Full validation passed after final fixes: `uv run pytest` (41 tests), `uv run ruff check .`, `git diff --check`, `uv run python -m eval.audit_claims --doc docs/FINAL_WRITEUP.md --output docs/claim_evidence_audit.md`, and `uv run python -m eval.check_repro_commands --doc docs/COMMAND_INDEX.md`.
+- [x] Artifact policy check passed: `git ls-files experiments/runs data/tokenized '*.pt' '*.safetensors'` returned no tracked artifacts.
+- [x] Phase-plan completion audit passed for the identified gaps: no stale PHASE-01A command, no fake PHASE-08A run dir, PHASE-04A/06A ignored run manifests include `eval_report.md`, PHASE-05A report includes 30M checkpoint/sample evidence, and PHASE-07A live-evaluates all regenerated checkpoint rows.
+- [x] Regenerated tokenizer artifacts, token batches, PHASE-03A micro checkpoint, PHASE-04A tiny run, PHASE-05A 30M run, PHASE-06A SFT run, PHASE-07A live comparison reports, and PHASE-08A benchmark evidence; generated checkpoints and run dirs remain ignored.
+- [x] Confirmed PHASE-07A comparison now live-evaluates all four listed checkpoints and reports no missing ignored artifacts after local regeneration.
+- [x] Patched command/artifact indexes, final audit scripts, run-dir eval report manifest updates, PHASE-05A 30M checkpoint/sample evidence rendering, and PHASE-08A chat CLI option parity.
+- [x] Focused validation passed: `uv run pytest tests/test_final_audits.py tests/test_inference_runtime.py`, `uv run ruff check ...`, and `uv run python -m eval.check_repro_commands --doc docs/COMMAND_INDEX.md`.
+- [x] Started cross-phase gap-fix branch from clean `main`; read `PROGRESS.md`, North Star direction, PHASE-00A global invariants, and relevant phase plans before edits.
 - [x] Merged PHASE-09A via PR #9 at merge commit `d8dc7da9fd18fc75d678653755ef71b2773ef246`.
 - [x] Implemented PHASE-09A final write-up, README navigation, command index, artifact index, model/data cards, claim audit, and command-index audit.
 - [x] Validated PHASE-09A locally with final audit commands, full tests, lint, and whitespace checks.
@@ -304,8 +312,27 @@ Living coordination file for phase-based agent work.
 - 2026-06-01: PHASE-08A PR #8 passed GitHub CI and merged to `main` at `477ca2850ed889288da1cec9162752cb0ca0fdab`.
 - 2026-06-01: PHASE-09A validation passed: `uv run pytest` (34 tests), `uv run ruff check .`, `git diff --check`, `uv run python -m eval.audit_claims --doc docs/FINAL_WRITEUP.md --output docs/claim_evidence_audit.md` (11 claims, 0 unsupported), and `uv run python -m eval.check_repro_commands --doc docs/COMMAND_INDEX.md` (18 required command snippets, 0 missing).
 - 2026-06-01: PHASE-09A PR #9 passed GitHub CI and merged to `main` at `d8dc7da9fd18fc75d678653755ef71b2773ef246`. The final phase state was updated so all 10 phases are complete.
+- 2026-06-01: Cross-phase gap-fix regenerated ignored evidence with tokenizer/report, sample batch, PHASE-03A smoke, PHASE-04A tiny pretraining, PHASE-05A 30M smoke, PHASE-06A SFT, PHASE-07A live eval/comparison, and PHASE-08A benchmark commands from the remediation plan.
+- 2026-06-01: Cross-phase gap-fix validation passed: `uv run pytest` (41 tests), `uv run ruff check .`, `git diff --check`, `uv run python -m eval.audit_claims --doc docs/FINAL_WRITEUP.md --output docs/claim_evidence_audit.md` (11 claims, 0 unsupported), `uv run python -m eval.check_repro_commands --doc docs/COMMAND_INDEX.md` (26 exact commands, 0 missing, 0 stale tokens), and `git ls-files experiments/runs data/tokenized '*.pt' '*.safetensors'` returned no tracked artifacts.
 
 ## Phase Archive
+
+### CROSS-PHASE-GAP-FIX - Evidence And Automation Readiness Repair
+
+Status: validation passed, publishing in progress
+Started: 2026-06-01
+Evidence:
+- Branch: `codex/fix-phase-plan-gap-evidence`
+- Corrected command index: `docs/COMMAND_INDEX.md`
+- Corrected artifact index: `docs/ARTIFACT_INDEX.md`
+- Stricter final audits: `eval/check_repro_commands.py`, `eval/audit_claims.py`, `tests/test_final_audits.py`
+- Run-local eval report manifest support: `eval/report.py`, `eval/sft_compare.py`
+- 30M checkpoint/sample evidence renderer: `eval/compare_runs.py`, `docs/phase05a_scaling_report.md`
+- PHASE-08A chat CLI parity: `inference/chat.py`, `docs/phase08a_inference_guide.md`
+- Live regenerated reports: `docs/phase04a_tiny_report.md`, `docs/phase06a_sft_eval.md`, `docs/phase07a_eval_report.md`, `docs/phase07a_checkpoint_comparison.md`, `docs/phase08a_benchmark.md`
+- Ignored regenerated evidence: `data/tokenized/`, `experiments/runs/phase03a_transformer_micro/`, `experiments/runs/phase04a_tiny_smoke/`, `experiments/runs/phase05a_kgpt30m_smoke/`, `experiments/runs/phase06a_sft_smoke/`
+- Validation commands: `uv run pytest`, `uv run ruff check .`, `git diff --check`, phase-specific regeneration commands from `docs/COMMAND_INDEX.md`, final claim audit, command-index audit, and tracked-artifact check.
+- Result note: This fixes the audited implementation gaps without changing the final project positioning; MLX remains formally deferred and the North Star remains partially achieved with documented fallback.
 
 ### PHASE-09A - Final Write-Up And Portfolio Layer
 

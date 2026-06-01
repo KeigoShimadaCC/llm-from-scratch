@@ -6,6 +6,15 @@ import re
 from pathlib import Path
 from typing import Any
 
+IGNORED_ARTIFACT_PREFIXES = (
+    "experiments/runs/",
+    "data/tokenized/",
+)
+SUPPORTING_INDEXES = (
+    Path("docs/ARTIFACT_INDEX.md"),
+    Path("docs/COMMAND_INDEX.md"),
+)
+
 
 def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(description="Audit final write-up claims against evidence paths.")
@@ -78,9 +87,37 @@ def _looks_like_path(value: str) -> bool:
 
 
 def _evidence_exists(path: str) -> bool:
-    if path.startswith(("experiments/runs/", "data/tokenized/")):
-        return True
+    if _is_ignored_artifact_path(path):
+        return _ignored_artifact_is_supported(path)
     return Path(path).exists()
+
+
+def _is_ignored_artifact_path(path: str) -> bool:
+    return path.startswith(IGNORED_ARTIFACT_PREFIXES)
+
+
+def _ignored_artifact_is_supported(path: str) -> bool:
+    candidates = _path_and_ancestors(path)
+    for index_path in SUPPORTING_INDEXES:
+        if not index_path.is_file():
+            continue
+        text = index_path.read_text(encoding="utf8")
+        if any(candidate in text for candidate in candidates):
+            return True
+    return False
+
+
+def _path_and_ancestors(path: str) -> list[str]:
+    current = Path(path)
+    candidates = [path]
+    for parent in current.parents:
+        normalized = parent.as_posix()
+        if normalized in {"", "."}:
+            continue
+        candidate = normalized.rstrip("/") + "/"
+        if any(candidate.startswith(prefix) for prefix in IGNORED_ARTIFACT_PREFIXES):
+            candidates.append(candidate)
+    return candidates
 
 
 def _render_audit(*, doc_path: Path, rows: list[dict[str, Any]]) -> str:

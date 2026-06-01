@@ -22,15 +22,14 @@ corpora, tokenized arrays, checkpoints, or full run directories.
 
 | Path | Contents | Recreate with |
 |---|---|---|
-| `experiments/runs/phase00b_smoke/` | Dummy foundation run artifacts. | `uv run python -m train.dummy --config configs/dummy.yaml --run-name phase00b_smoke` |
-| `experiments/runs/phase01a_micro_char_overfit/` | Character LM metrics, checkpoint, samples, and manifest. | `uv run python -m train.micro_char --config configs/micro_char.yaml --run-name phase01a_micro_char_overfit` |
+| `experiments/runs/<timestamp>_phase00b_smoke/` | Dummy foundation run artifacts. | `uv run python -m train.dummy --config configs/dummy.yaml --run-name phase00b_smoke` |
+| `experiments/runs/phase01a_overfit_smoke/` | Character LM metrics, checkpoint, samples, and manifest. | `uv run python -m train.micro_char --config configs/micro_char.yaml --max-steps 200 --run-name phase01a_overfit_smoke` |
 | `data/tokenized/phase02a_smoke/` | Tokenized train/validation arrays and sidecars. | `uv run python -m train.sample_batches --config configs/tokenized_smoke.yaml --max-batches 2` |
 | `data/tokenized/tokenizers/phase02a-byte-bpe-bilingual.json` | Generated tokenizer model JSON. | `uv run python -m tokenizer.train_report --config configs/tokenizer_bilingual.yaml --output docs/tokenizer_report.md` |
-| `experiments/runs/phase03a_transformer_micro/` | Micro Transformer metrics, checkpoint, samples, and manifest. | `uv run python -m train.transformer_smoke --config configs/transformer_micro.yaml --max-steps 20` |
-| `experiments/runs/phase04a_tiny_smoke/` | Tiny pretraining checkpoints, metrics, samples, eval report, and manifest. | `uv run python -m train.pretrain --config configs/kgpt_tiny.yaml` |
-| `experiments/runs/phase05a_kgpt30m_smoke/` | 30M scale-gate checkpoints, metrics, samples, and manifest. | `uv run python -m train.pretrain --config configs/kgpt_30m.yaml` |
-| `experiments/runs/phase06a_sft_smoke/` | SFT checkpoints, metrics, prompt-template metadata, and manifest. | `uv run python -m train.sft --config configs/sft_smoke.yaml` |
-| `experiments/runs/phase08a_inference_smoke/` | Locally regenerated inference smoke checkpoint when missing. | `uv run python -m inference.generate --config configs/inference_smoke.yaml --prompt hello --max-new-tokens 16 --seed 123` |
+| `experiments/runs/phase03a_transformer_micro/` | Micro Transformer metrics, checkpoint, samples, manifest, and the default inference-smoke checkpoint. | `uv run python -m train.transformer_smoke --config configs/transformer_micro.yaml --max-steps 20` or bootstrap with `uv run python -m inference.generate --config configs/inference_smoke.yaml --prompt hello --max-new-tokens 16 --seed 123` |
+| `experiments/runs/phase04a_tiny_smoke/` | Tiny pretraining checkpoints, metrics, samples, `eval_report.md`, and manifest. | `uv run python -m train.pretrain --config configs/kgpt_tiny.yaml --max-steps 200 --run-name phase04a_tiny_smoke` then `uv run python -m eval.report --config configs/eval_fixed_prompts.yaml --checkpoint experiments/runs/phase04a_tiny_smoke/checkpoint_last.pt --output docs/phase04a_tiny_report.md` |
+| `experiments/runs/phase05a_kgpt30m_smoke/` | 30M scale-gate checkpoints, metrics, fixed-prompt samples, checkpoint metadata, and manifest. | `uv run python -m train.pretrain --config configs/kgpt_30m.yaml --max-steps 40 --run-name phase05a_kgpt30m_smoke` then `uv run python -m eval.compare_runs --manifest docs/phase05a_scaling_manifest.json --output docs/phase05a_scaling_report.md` |
+| `experiments/runs/phase06a_sft_smoke/` | SFT checkpoints, metrics, prompt-template metadata, `eval_report.md`, and manifest. | `uv run python -m train.sft --config configs/sft_smoke.yaml --max-steps 50 --run-name phase06a_sft_smoke` then `uv run python -m eval.sft_compare --config configs/sft_eval.yaml --output docs/phase06a_sft_eval.md` |
 
 ## Policy
 

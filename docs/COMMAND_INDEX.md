@@ -15,8 +15,8 @@ git diff --check
 ## PHASE-01A Micro Character Loop
 
 ```bash
-uv run python -m train.micro_char --config configs/micro_char.yaml --run-name phase01a_micro_char_overfit
-uv run python -m inference.generate_char --config configs/micro_char.yaml --prompt hello --max-new-chars 16 --seed 123
+uv run python -m train.micro_char --config configs/micro_char.yaml --max-steps 200 --run-name phase01a_overfit_smoke
+uv run python -m inference.generate_char --checkpoint experiments/runs/phase01a_overfit_smoke/checkpoint_last.pt --prompt hello --seed 123 --max-new-tokens 32
 ```
 
 ## PHASE-02A Tokenizer And Data Pipeline
@@ -36,9 +36,8 @@ uv run python -m inference.generate --config configs/transformer_micro.yaml --pr
 ## PHASE-04A Tiny Pretraining
 
 ```bash
-uv run python -m train.pretrain --config configs/kgpt_tiny.yaml
-uv run python -m train.pretrain --config configs/kgpt_tiny.yaml --resume
-uv run python -m eval.report --config configs/eval_fixed_prompts.yaml --output docs/phase07a_eval_report.md
+uv run python -m train.pretrain --config configs/kgpt_tiny.yaml --max-steps 200 --run-name phase04a_tiny_smoke
+uv run python -m eval.report --config configs/eval_fixed_prompts.yaml --checkpoint experiments/runs/phase04a_tiny_smoke/checkpoint_last.pt --output docs/phase04a_tiny_report.md
 ```
 
 ## PHASE-05A 30M Scale Gate
@@ -46,15 +45,16 @@ uv run python -m eval.report --config configs/eval_fixed_prompts.yaml --output d
 The 30M command is a local scale-gate run. It should be reviewed for machine budget before increasing steps or data.
 
 ```bash
-uv run python -m train.pretrain --config configs/kgpt_30m.yaml
+uv run python -m train.pretrain --config configs/kgpt_30m.yaml --max-steps 40 --run-name phase05a_kgpt30m_smoke
 uv run python -m train.pretrain --config configs/kgpt_50m.yaml --dry-run
 uv run python -m train.pretrain --config configs/kgpt_100m.yaml --dry-run
+uv run python -m eval.compare_runs --manifest docs/phase05a_scaling_manifest.json --output docs/phase05a_scaling_report.md
 ```
 
 ## PHASE-06A Instruction Tuning
 
 ```bash
-uv run python -m train.sft --config configs/sft_smoke.yaml
+uv run python -m train.sft --config configs/sft_smoke.yaml --max-steps 50 --run-name phase06a_sft_smoke
 uv run python -m eval.sft_compare --config configs/sft_eval.yaml --output docs/phase06a_sft_eval.md
 ```
 

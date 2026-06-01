@@ -45,6 +45,8 @@ uv run python -m inference.chat \
 ```
 
 The PHASE-08A chat path is a compact instruction formatter, not a full multi-turn chat system.
+Completion and chat share the same generation controls: checkpoint, tokenizer, seed, max-new-tokens, temperature,
+top-k, top-p, repetition penalty, device, dtype, stop strings, stop token ids, cache selection, and JSON output.
 
 ## KV-Cache Parity
 

@@ -15,6 +15,26 @@
 | phase04a_tiny_smoke | trained | 5,633,536 | 164.5951 | 4.0593 | 97.53% | 12800 |
 | phase05a_kgpt30m_smoke | trained | 31,734,272 | 316.7530 | 11.4647 | 96.38% | 1280 |
 
+## 30M Checkpoint Evidence
+
+- Run: `phase05a_kgpt30m_smoke`
+- Checkpoint: `experiments/runs/phase05a_kgpt30m_smoke/checkpoint_last.pt`
+- Model name: `kgpt-30m`
+- Parameters: 31,734,272
+- Step: 40
+- Tokens seen: 1280
+- Current validation loss: 11.4647
+- Best validation loss: 11.4647 at step 40
+- Config hash: `a4bbcc037d81ed83fb6a25a66006b1043d615f56743710108b7d8726669b7e1b`
+- Git commit recorded in checkpoint: `b5cedb1f2f94d3e7075cd5cd119248e0c7cb811c`
+
+Fixed-prompt sample snapshots:
+- step 40, prompt `hello`: `hellooooooooooooooooooooooooooooooooo`
+- step 40, prompt `The model learns`: `The model learnsssssssssssssssssssssssssssssssss`
+- step 40, prompt `training loop`: `training looppppppppppppppppppppppppppppppppp`
+- step 40, prompt `小さなモデル`: `小さなモデル��������������������������������`
+- step 40, prompt `検証データ`: `検証データ��������������������������������`
+
 ## Tokenizer Decision
 
 Use the repo-owned byte-level BPE tokenizer because it has completed provenance, byte fallback, English/Japanese roundtrip behavior, and successful PHASE-04A tiny-pretraining evidence.

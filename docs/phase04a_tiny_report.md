@@ -51,17 +51,17 @@
 
 ## Validation Curve
 
-- step 0: validation_loss=164.5951, perplexity=485165195.41
-- step 20: validation_loss=10.9378, perplexity=56263.79
-- step 40: validation_loss=7.4966, perplexity=1801.98
-- step 60: validation_loss=6.0518, perplexity=424.88
-- step 80: validation_loss=5.6432, perplexity=282.37
-- step 100: validation_loss=5.4892, perplexity=242.07
-- step 120: validation_loss=4.8376, perplexity=126.16
-- step 140: validation_loss=4.4629, perplexity=86.74
-- step 160: validation_loss=4.2334, perplexity=68.95
-- step 180: validation_loss=4.1696, perplexity=64.69
-- step 200: validation_loss=4.0593, perplexity=57.94
+- step 0: validation_loss=164.5951, perplexity=485165195.4098
+- step 20: validation_loss=10.9378, perplexity=56263.7856
+- step 40: validation_loss=7.4966, perplexity=1801.9756
+- step 60: validation_loss=6.0518, perplexity=424.8798
+- step 80: validation_loss=5.6432, perplexity=282.3713
+- step 100: validation_loss=5.4892, perplexity=242.0669
+- step 120: validation_loss=4.8376, perplexity=126.1645
+- step 140: validation_loss=4.4629, perplexity=86.7399
+- step 160: validation_loss=4.2334, perplexity=68.9481
+- step 180: validation_loss=4.1696, perplexity=64.6908
+- step 200: validation_loss=4.0593, perplexity=57.9355
 
 ## Sample Progression
 
@@ -90,49 +90,26 @@
 - step 0: `検証データ��������������������������������`
 - step 200: `検証データななイ���なンンンンル�����������`
 
-## Fixed Prompt Samples From Final Checkpoint
+## Fixed Prompt Eval Addendum
 
-### Prompt: `hello`
-
-```text
-hellored los.
-```
-### Prompt: `The model learns`
-
-```text
-The model learns.
-```
-### Prompt: `training loop`
-
-```text
-training loopred lost lost los.
-```
-### Prompt: `小さなモデル`
-
-```text
-小さなモデル�������������������������������
-```
-### Prompt: `検証データ`
-
-```text
-検証データななイ���なンンンンル�����������
-```
+- Eval status: live_evaluated
+- Eval validation loss: 4.8643
+- Eval perplexity: 129.5822
+- Toy exact match: 0.00%
+- Failure classes: bad_token_boundaries, instruction_ignored, language_mixing, repetition_loop, syntax_without_semantics
+- Run-local eval report: `experiments/runs/phase04a_tiny_smoke/eval_report.md`
 
 ## Resume Behavior
 
-`checkpoint_last.pt` stores model state, optimizer state, current step, initial validation loss, best validation
-loss, best step, and the full pretraining config. `python -m train.pretrain --resume` reloads that state from the
-configured run directory and continues to the configured target step.
+- `checkpoint_last.pt` and `checkpoint_best.pt` are both produced.
+- The pretraining path supports resume through `checkpoint_last.pt`; the phase smoke run was generated from config.
 
 ## Failure Modes
 
-- The corpus is intentionally tiny and repo-authored, so sample quality is evidence of wiring and memorization
-  behavior, not general language ability.
-- Validation examples share the corpus style but are exact-hash separated from training records; remaining risk is
-  distribution similarity, not duplicate leakage.
-- Generated text may repeat because PHASE-04A does not add repetition penalties, nucleus sampling, or instruction
-  tuning.
+- The fixture corpus is intentionally tiny and can encourage memorization.
+- Japanese generation still shows byte-level token boundary artifacts.
+- The model is useful as training-loop evidence, not as a general language model.
 
 ## Next Scale Recommendation
 
-Move to PHASE-05A only if validation loss improves by the predeclared threshold and checkpoint_best.pt exists.
+Proceed to PHASE-05A only as a scale-gate experiment with the same artifact policy and explicit quality limitations.

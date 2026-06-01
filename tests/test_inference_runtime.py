@@ -1,5 +1,8 @@
 from __future__ import annotations
 
+from types import SimpleNamespace
+
+from inference import chat
 from inference.runtime import load_inference_config, truncate_at_stop_string
 
 
@@ -21,3 +24,54 @@ def test_stop_string_truncates_decoded_completion() -> None:
 
     assert text == "hello world"
     assert reason == "stop_string:<stop>"
+
+
+def test_chat_cli_exposes_completion_generation_controls(monkeypatch) -> None:
+    captured = {}
+    config = SimpleNamespace(
+        generation={
+            "max_new_tokens": 8,
+            "temperature": 0.0,
+            "top_k": None,
+            "top_p": None,
+            "repetition_penalty": 1.0,
+            "use_cache": True,
+            "stop_strings": ["<eos>"],
+            "stop_token_ids": [2],
+        },
+        chat_template="Q:{instruction}\nA:",
+        dtype="float32",
+    )
+
+    monkeypatch.setattr(chat, "load_inference_config", lambda path: config)
+    monkeypatch.setattr(chat, "load_model_for_inference", lambda **kwargs: object())
+
+    def fake_generate_completion(**kwargs):
+        captured.update(kwargs)
+        return {"generated_text": "ok"}
+
+    monkeypatch.setattr(chat, "generate_completion", fake_generate_completion)
+    monkeypatch.setattr(chat, "write_json_or_print", lambda payload, output_path: captured.update(payload=payload))
+
+    chat.main(
+        [
+            "--config",
+            "configs/inference_smoke.yaml",
+            "--instruction",
+            "say hi",
+            "--repetition-penalty",
+            "1.2",
+            "--stop-string",
+            "<stop>",
+            "--stop-token-id",
+            "9",
+            "--no-cache",
+        ]
+    )
+
+    assert captured["prompt"] == "Q:say hi\nA:"
+    assert captured["repetition_penalty"] == 1.2
+    assert captured["stop_strings"] == ["<eos>", "<stop>"]
+    assert captured["stop_token_ids"] == {2, 9}
+    assert captured["use_cache"] is False
+    assert captured["payload"]["dtype"] == "float32"
