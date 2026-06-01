@@ -6,9 +6,9 @@ Living coordination file for phase-based agent work.
 
 | Field | Value |
 | --- | --- |
-| Phase | PHASE-10C - Split, Leakage, And Dataset Manifest |
-| Goal | Add deterministic corpus_v01 document splits, exact dedup, leakage checks, and committed manifest summary |
-| Branch | phase/phase-10c-split-leakage-dataset-manifest |
+| Phase | PHASE-10D - Tokenizer And Tokenized Dataset |
+| Goal | Train corpus_v01 byte-BPE candidates and build ignored tokenized arrays for batch sampling |
+| Branch | phase/phase-10d-tokenizer-tokenized-dataset |
 | Worktree | /Users/keigoshimada/Documents/llm-from-scratch |
 | Status | complete |
 
@@ -24,6 +24,13 @@ Living coordination file for phase-based agent work.
 
 ### Done
 
+- [x] Added `configs/tokenizer_corpus_v01.yaml`, `configs/corpus_v01_tokenized.yaml`, processed-corpus tokenizer/report support, tokenized split-manifest support, tests, tokenizer report, and tokenized manifest evidence.
+- [x] Selected `kgpt-corpus-v01-byte-bpe-4k`; smoke data caps actual vocabulary at 312 tokens, which is documented in `docs/tokenizer_corpus_v01_report.md`.
+- [x] Generated ignored tokenizer model and train/validation/test token arrays under `data/tokenized/**`; generated artifacts remain untracked.
+- [x] PHASE-10D validation passed: `uv run pytest` (63 tests), `uv run ruff check .`, `git diff --check`, `uv run python -m tokenizer.train_report --config configs/tokenizer_corpus_v01.yaml --output docs/tokenizer_corpus_v01_report.md`, and `uv run python -m train.sample_batches --config configs/corpus_v01_tokenized.yaml --max-batches 2`.
+- [x] Artifact policy check passed: `git ls-files data/raw data/processed data/tokenized experiments/runs '*.pt' '*.safetensors'` returned no tracked generated artifacts.
+- [x] Started PHASE-10D after PHASE-10C merged via PR #14 at merge commit `69e3fb68479f131c651124f8cc81d78cefd9c05c`.
+- [x] Read `PROGRESS.md`, North Star tokenizer/data direction, and `phase-plans/PHASE-10D-TOKENIZER-TOKENIZED-DATASET.md` before implementation.
 - [x] Implemented `corpus.split_manifest`, deterministic document-level split assignment, exact normalized-text dedup, leakage probes, dataset manifest generation, tests, and split documentation.
 - [x] Generated `docs/corpus_v01_dataset_manifest.json` from ignored PHASE-10B smoke records without full document text.
 - [x] PHASE-10C validation passed: `uv run pytest` (61 tests), `uv run ruff check .`, `git diff --check`, and `uv run python -m corpus.split_manifest --config configs/corpus_v01.yaml --processed data/processed/corpus_v01_smoke --output docs/corpus_v01_dataset_manifest.json`.
@@ -101,6 +108,21 @@ Living coordination file for phase-based agent work.
 - [x] Implemented PHASE-01A character tokenizer, context MLP training loop, deterministic generation, tests, prompt asset, mini report, and ignored overfit evidence.
 
 ## Phase Checklist
+
+### PHASE-10D - Tokenizer And Tokenized Dataset
+
+- [x] PHASE-10C prerequisites verified.
+- [x] Active phase plan read before implementation.
+- [x] `configs/tokenizer_corpus_v01.yaml` added with `2k`, `4k`, `8k`, and `16k` byte-BPE candidates.
+- [x] `configs/corpus_v01_tokenized.yaml` added for train/validation/test tokenized data.
+- [x] Tokenizer/report code consumes processed JSONL records from `corpus_v01`.
+- [x] Tokenized dataset builder follows the PHASE-10C split manifest.
+- [x] Tokenizer report records final tokenizer choice, English/Japanese stats, fallback behavior, compression, bad examples, and model-size tradeoff.
+- [x] Ignored tokenizer model artifacts and token arrays generated under `data/tokenized/**`.
+- [x] Batch sampling against `configs/corpus_v01_tokenized.yaml` succeeds.
+- [x] Tests cover tokenizer report, processed-corpus reading, tokenized sidecar metadata, and sampler compatibility.
+- [x] Required validation commands run.
+- [x] No token arrays, tokenizer model artifacts, checkpoints, OpenAI embeddings, or pretrained weights are committed.
 
 ### PHASE-10C - Split, Leakage, And Dataset Manifest
 
