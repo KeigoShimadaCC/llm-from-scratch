@@ -11,6 +11,7 @@ from eval.checkpoint_eval import (
     load_eval_config,
     render_comparison_report,
 )
+from eval.report import _write_run_eval_report
 
 
 def main(argv: list[str] | None = None) -> int:
@@ -41,15 +42,14 @@ def compare_checkpoints(
     eval_config = load_eval_config(eval_config_path)
     checkpoint_manifest = load_checkpoint_manifest(manifest_path)
     results = evaluate_checkpoint_manifest(eval_config=eval_config, checkpoint_manifest=checkpoint_manifest)
-    output_path.parent.mkdir(parents=True, exist_ok=True)
-    output_path.write_text(
-        render_comparison_report(
-            checkpoint_manifest=checkpoint_manifest,
-            eval_config=eval_config,
-            results=results,
-        ),
-        encoding="utf8",
+    report_text = render_comparison_report(
+        checkpoint_manifest=checkpoint_manifest,
+        eval_config=eval_config,
+        results=results,
     )
+    output_path.parent.mkdir(parents=True, exist_ok=True)
+    output_path.write_text(report_text, encoding="utf8")
+    run_eval_reports = _write_live_run_eval_reports(results=results, report_text=report_text)
     return {
         "output": str(output_path),
         "manifest": str(manifest_path),
@@ -57,7 +57,19 @@ def compare_checkpoints(
         "checkpoint_count": len(results),
         "live_evaluated_count": sum(1 for result in results if result["status"] == "live_evaluated"),
         "summary_only_count": sum(1 for result in results if result["status"] != "live_evaluated"),
+        "run_eval_reports": run_eval_reports,
     }
+
+
+def _write_live_run_eval_reports(*, results: list[dict[str, Any]], report_text: str) -> list[str]:
+    report_paths = []
+    for result in results:
+        if result["status"] != "live_evaluated":
+            continue
+        report_path = _write_run_eval_report(checkpoint_path=Path(result["checkpoint"]), report_text=report_text)
+        if report_path is not None:
+            report_paths.append(str(report_path))
+    return report_paths
 
 
 if __name__ == "__main__":

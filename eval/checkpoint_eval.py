@@ -151,6 +151,7 @@ def render_comparison_report(
     eval_config: dict[str, Any],
     results: list[dict[str, Any]],
 ) -> str:
+    title = str(checkpoint_manifest.get("title", "PHASE-07A Checkpoint Comparison"))
     rows = "\n".join(
         "| {label} | {phase} | {status} | {params} | {loss} | {ppl} | {toksec} | {exact} | {failures} |".format(
             label=result["label"],
@@ -173,11 +174,16 @@ def render_comparison_report(
     )
     if not missing:
         missing = "- None; all listed checkpoints were live evaluated."
+    sample_sections = "\n\n".join(
+        f"### {result['label']}\n\n{_render_samples(result['samples'])}" for result in results
+    )
+    if not sample_sections:
+        sample_sections = "No checkpoint rows were available for sample rendering."
     header = (
         "| Checkpoint | Phase | Status | Parameters | Validation loss | Perplexity | Tokens/sec | "
         "Toy exact match | Failure classes |"
     )
-    return f"""# PHASE-07A Checkpoint Comparison
+    return f"""# {title}
 
 ## Scope
 
@@ -190,6 +196,10 @@ def render_comparison_report(
 {header}
 |---|---:|---:|---:|---:|---:|---:|---:|---|
 {rows}
+
+## Live Sample Snapshots
+
+{sample_sections}
 
 ## Failure Analysis
 
@@ -558,7 +568,11 @@ def _summary_leakage(entry: dict[str, Any]) -> dict[str, Any]:
         if not path.is_file():
             leakage_rows.append({"manifest": str(path), "status": "missing"})
             continue
-        payload = json.loads(path.read_text(encoding="utf8"))
+        try:
+            payload = json.loads(path.read_text(encoding="utf8"))
+        except json.JSONDecodeError:
+            leakage_rows.append({"manifest": str(path), "status": "not_json"})
+            continue
         leakage_check = payload.get("leakage_check")
         if not isinstance(leakage_check, dict):
             leakage_rows.append(

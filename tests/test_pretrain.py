@@ -30,6 +30,22 @@ def test_kgpt_30m_config_crosses_north_star_gate() -> None:
     assert config.scale.min_parameters <= parameter_count <= config.scale.max_parameters
 
 
+def test_corpus_v01_30m_config_uses_phase10d_artifacts() -> None:
+    config = load_pretrain_config("configs/kgpt_30m_corpus_v01.yaml")
+    model = DecoderOnlyTransformer(config.model)
+    parameter_count = count_parameters(model)
+
+    assert config.model_name == "kgpt-30m-corpus-v01"
+    assert config.model.vocab_size == 312
+    assert config.model.context_length == 16
+    assert config.data.tokenized_config == Path("configs/corpus_v01_tokenized.yaml")
+    assert config.data.metadata_path == Path("data/tokenized/corpus_v01_smoke/metadata.json")
+    assert config.tokenizer.model_path == Path("data/tokenized/corpus_v01_tokenizers/byte_bpe_4k.json")
+    assert any("日本語" in prompt or "小さな" in prompt for prompt in config.sample_prompts)
+    assert parameter_count >= 30_000_000
+    assert config.scale.min_parameters <= parameter_count <= config.scale.max_parameters
+
+
 def test_learning_rate_schedule_warms_up_and_decays() -> None:
     scheduler = SchedulerConfig(warmup_steps=2, min_lr_factor=0.1)
     assert learning_rate_for_step(base_lr=1.0, step=0, total_steps=10, scheduler=scheduler) == 0.0
