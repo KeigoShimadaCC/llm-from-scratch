@@ -10,23 +10,21 @@
 
 | Checkpoint | Phase | Status | Parameters | Validation loss | Perplexity | Tokens/sec | Toy exact match | Failure classes |
 |---|---:|---:|---:|---:|---:|---:|---:|---|
-| PHASE-03A micro Transformer | PHASE-03A | live_evaluated | 29,728 | 1.0930 | 2.9831 | 14762.5734 | 0.00% | bad_token_boundaries, instruction_ignored, pure_gibberish, repetition_loop, syntax_without_semantics |
-| PHASE-04A tiny pretraining | PHASE-04A | summary_only_missing_ignored_checkpoint | 5,633,536 | 4.0593 | 57.9355 | n/a | n/a | repetition_risk, tiny_corpus_memorization_risk |
-| PHASE-05A kgpt-30m | PHASE-05A | summary_only_missing_ignored_checkpoint | 31,734,272 | 11.4647 | 95294.2980 | 254.0450 | n/a | undersampled_30m_run, tiny_corpus_memorization_risk |
-| PHASE-06A instruction tuned | PHASE-06A | summary_only_missing_ignored_checkpoint | 31,734,272 | 63.1710 | 485165195.4098 | n/a | n/a | heldout_validation_regression, narrow_command_memorization |
+| PHASE-03A micro Transformer | PHASE-03A | live_evaluated | 29,728 | 1.0930 | 2.9831 | 18898.2539 | 0.00% | bad_token_boundaries, instruction_ignored, pure_gibberish, repetition_loop, syntax_without_semantics |
+| PHASE-04A tiny pretraining | PHASE-04A | live_evaluated | 5,633,536 | 4.8643 | 129.5822 | 2103.6298 | 0.00% | bad_token_boundaries, instruction_ignored, language_mixing, repetition_loop, syntax_without_semantics |
+| PHASE-05A kgpt-30m | PHASE-05A | live_evaluated | 31,734,272 | 13.8912 | 1078680.0794 | 245.1161 | 0.00% | bad_token_boundaries, instruction_ignored, repetition_loop |
+| PHASE-06A instruction tuned | PHASE-06A | live_evaluated | 31,734,272 | 11.2783 | 79083.2302 | 1971.5915 | 50.00% | instruction_ignored, mode_collapse, pure_gibberish |
 
 ## Failure Analysis
 
 - PHASE-03A micro Transformer: bad_token_boundaries, instruction_ignored, pure_gibberish, repetition_loop, syntax_without_semantics
-- PHASE-04A tiny pretraining: repetition_risk, tiny_corpus_memorization_risk
-- PHASE-05A kgpt-30m: undersampled_30m_run, tiny_corpus_memorization_risk
-- PHASE-06A instruction tuned: heldout_validation_regression, narrow_command_memorization
+- PHASE-04A tiny pretraining: bad_token_boundaries, instruction_ignored, language_mixing, repetition_loop, syntax_without_semantics
+- PHASE-05A kgpt-30m: bad_token_boundaries, instruction_ignored, repetition_loop
+- PHASE-06A instruction tuned: instruction_ignored, mode_collapse, pure_gibberish
 
 ## Missing Ignored Artifacts
 
-- `experiments/runs/phase04a_tiny_smoke/checkpoint_last.pt`: Ignored checkpoint artifact was not present in this checkout.
-- `experiments/runs/phase05a_kgpt30m_smoke/checkpoint_last.pt`: Ignored checkpoint artifact was not present in this checkout.
-- `experiments/runs/phase06a_sft_smoke/checkpoint_last.pt`: Ignored checkpoint artifact was not present in this checkout.
+- None; all listed checkpoints were live evaluated.
 
 ## Comparison Notes
 

@@ -25,8 +25,19 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--temperature", type=float, help="Override generation.temperature.")
     parser.add_argument("--top-k", type=int, help="Override generation.top_k; 0 disables top-k.")
     parser.add_argument("--top-p", type=float, help="Override generation.top_p; 0 disables top-p.")
+    parser.add_argument("--repetition-penalty", type=float, help="Penalty >= 1.0 applied to seen token logits.")
     parser.add_argument("--device", choices=["cpu", "mps"], help="Override configured generation device.")
+    parser.add_argument("--dtype", choices=["float32"], help="Reserved dtype override; float32 is the current path.")
+    parser.add_argument("--stop-string", action="append", default=[], help="Stop after this decoded string appears.")
+    parser.add_argument(
+        "--stop-token-id",
+        action="append",
+        type=int,
+        default=[],
+        help="Stop after this token id appears.",
+    )
     parser.add_argument("--use-cache", action="store_true", help="Use the KV-cache inference path.")
+    parser.add_argument("--no-cache", action="store_true", help="Force uncached inference.")
     parser.add_argument("--output", help="Optional JSON output path.")
     args = parser.parse_args(argv)
 
@@ -40,6 +51,11 @@ def main(argv: list[str] | None = None) -> int:
     top_p = args.top_p
     if top_p == 0:
         top_p = None
+    use_cache = config.generation["use_cache"]
+    if args.use_cache:
+        use_cache = True
+    if args.no_cache:
+        use_cache = False
     prompt = config.chat_template.format(instruction=args.instruction)
     payload = generate_completion(
         loaded=loaded,
@@ -50,15 +66,20 @@ def main(argv: list[str] | None = None) -> int:
         top_k=normalize_top_k(config_generation_value(config=config, name="top_k", override=args.top_k)),
         top_p=config_generation_value(config=config, name="top_p", override=top_p),
         repetition_penalty=float(
-            config_generation_value(config=config, name="repetition_penalty", override=None)
+            config_generation_value(
+                config=config,
+                name="repetition_penalty",
+                override=args.repetition_penalty,
+            )
         ),
-        stop_strings=list(config.generation["stop_strings"]),
-        stop_token_ids=normalize_stop_token_ids(None, config),
-        use_cache=args.use_cache or bool(config.generation["use_cache"]),
+        stop_strings=list(config.generation["stop_strings"]) + list(args.stop_string),
+        stop_token_ids=normalize_stop_token_ids(args.stop_token_id, config),
+        use_cache=use_cache,
     )
     payload["instruction"] = args.instruction
     payload["chat_template"] = config.chat_template
     payload["tokenizer"] = args.tokenizer or "config"
+    payload["dtype"] = args.dtype or config.dtype
     write_json_or_print(payload, Path(args.output) if args.output else None)
     return 0
 

@@ -22,8 +22,8 @@ A:`
 
 | Device | Status | Uncached tok/s | Cached tok/s | Cached latency sec | Memory | Reason |
 |---|---:|---:|---:|---:|---|---|
-| cpu | measured | 2256.9578 | 2498.0152 | 0.0129 | {"device": "cpu"} |  |
-| mps | measured | 612.9689 | 572.3221 | 0.0605 | {"mps_current_allocated_bytes": 121088} |  |
+| cpu | measured | 2513.8204 | 2811.4619 | 0.0114 | {"device": "cpu"} |  |
+| mps | measured | 323.2657 | 313.4925 | 0.1072 | {"mps_current_allocated_bytes": 121088} |  |
 | mlx | deferred | n/a | n/a | n/a | {} | MLX is not installed; see docs/phase08a_mlx_deferral.md. |
 
 ## MLX Status

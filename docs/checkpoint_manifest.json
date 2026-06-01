@@ -110,11 +110,11 @@
       "reproduce_command": "uv run python -m train.sft --config configs/sft_smoke.yaml --max-steps 50 --run-name phase06a_sft_smoke",
       "summary": {
         "parameter_count": 31734272,
-        "initial_validation_loss": 32.469276428222656,
-        "final_validation_loss": 63.17095756530762,
-        "base_fixed_probe_loss": 35.40309000015259,
-        "sft_fixed_probe_loss": 0.0000020305075345561363,
-        "fixed_probe_exact_match_rate": 1.0,
+        "initial_validation_loss": 6.2836644649505615,
+        "final_validation_loss": 34.70899200439453,
+        "base_fixed_probe_loss": 13.91519284248352,
+        "sft_fixed_probe_loss": 0.4847536939209931,
+        "fixed_probe_exact_match_rate": 0.75,
         "exact_match_rate": null,
         "failure_summary": [
           "heldout_validation_regression",
