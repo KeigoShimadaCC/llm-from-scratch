@@ -1,0 +1,534 @@
+from __future__ import annotations
+
+import hashlib
+from dataclasses import dataclass
+from pathlib import Path
+from typing import Any
+
+import yaml
+
+CORPUS_SCHEMA_VERSION = 1
+CORPUS_ID = "corpus_v01"
+APPROVED_SOURCE_IDS = frozenset({"enwiki", "jawiki", "project_gutenberg", "aozora_bunko"})
+APPROVED_LANGUAGES = frozenset({"en", "ja"})
+SOURCE_LANGUAGE = {
+    "enwiki": "en",
+    "jawiki": "ja",
+    "project_gutenberg": "en",
+    "aozora_bunko": "ja",
+}
+REQUIRED_TOP_LEVEL_KEYS = (
+    "schema_version",
+    "corpus_id",
+    "allowed_source_ids",
+    "allowed_languages",
+    "download_policy",
+    "local_storage_policy",
+    "sources",
+    "deferred_sources",
+)
+REQUIRED_PROVENANCE_KEYS = ("provider", "access", "requires_auth", "landing_url", "terms_url", "license_url")
+REQUIRED_LICENSE_KEYS = (
+    "verification_status",
+    "terms_verified_on",
+    "license_name",
+    "terms_note",
+    "attribution_required",
+    "attribution",
+)
+REQUIRED_STORAGE_KEYS = ("raw_path", "processed_path", "tokenized_path", "commit_policy")
+REQUIRED_LIMIT_KEYS = ("max_raw_bytes", "phase_10b_sample_limit_bytes", "smoke_limit_records")
+REQUIRED_CHECKSUM_KEYS = ("required", "algorithm", "policy")
+REQUIRED_EXCLUSION_KEYS = ("blocker_note",)
+
+
+class SourceAuditError(ValueError):
+    """Raised when the corpus source registry fails audit validation."""
+
+
+@dataclass(frozen=True)
+class AuditResult:
+    config_path: Path
+    config_hash: str
+    source_ids: tuple[str, ...]
+    deferred_source_ids: tuple[str, ...]
+    manifest: str
+
+
+def load_corpus_config(path: str | Path) -> dict[str, Any]:
+    config_path = Path(path)
+    raw = yaml.safe_load(config_path.read_text(encoding="utf8")) or {}
+    if not isinstance(raw, dict):
+        raise SourceAuditError(f"Config must be a mapping: {config_path}")
+    return raw
+
+
+def audit_config(path: str | Path) -> AuditResult:
+    config_path = Path(path)
+    raw = load_corpus_config(config_path)
+    errors = validate_config(raw)
+    if errors:
+        raise SourceAuditError(_format_errors(errors))
+
+    config_hash = hashlib.sha256(config_path.read_bytes()).hexdigest()
+    sources = sorted(raw["sources"], key=lambda source: source["id"])
+    deferred_sources = sorted(raw.get("deferred_sources", []), key=lambda source: source["id"])
+    manifest = render_manifest(
+        raw,
+        config_path=config_path,
+        config_hash=config_hash,
+        sources=sources,
+        deferred_sources=deferred_sources,
+    )
+    return AuditResult(
+        config_path=config_path,
+        config_hash=config_hash,
+        source_ids=tuple(source["id"] for source in sources),
+        deferred_source_ids=tuple(source["id"] for source in deferred_sources),
+        manifest=manifest,
+    )
+
+
+def validate_config(raw: dict[str, Any]) -> list[str]:
+    errors: list[str] = []
+    _require_keys(raw, REQUIRED_TOP_LEVEL_KEYS, "config", errors)
+
+    if raw.get("schema_version") != CORPUS_SCHEMA_VERSION:
+        errors.append(f"config.schema_version must be {CORPUS_SCHEMA_VERSION}.")
+    if raw.get("corpus_id") != CORPUS_ID:
+        errors.append(f"config.corpus_id must be {CORPUS_ID}.")
+
+    allowed_source_ids = _as_str_list(raw.get("allowed_source_ids"), "allowed_source_ids", errors)
+    if set(allowed_source_ids) != APPROVED_SOURCE_IDS:
+        errors.append(
+            "allowed_source_ids must exactly match "
+            f"{', '.join(sorted(APPROVED_SOURCE_IDS))}; got {', '.join(sorted(allowed_source_ids))}."
+        )
+
+    allowed_languages = _as_str_list(raw.get("allowed_languages"), "allowed_languages", errors)
+    if set(allowed_languages) != APPROVED_LANGUAGES:
+        errors.append(
+            "allowed_languages must exactly match "
+            f"{', '.join(sorted(APPROVED_LANGUAGES))}; got {', '.join(sorted(allowed_languages))}."
+        )
+
+    download_policy = _mapping(raw.get("download_policy"), "download_policy", errors)
+    if download_policy:
+        if download_policy.get("payload_download_allowed") is not False:
+            errors.append("download_policy.payload_download_allowed must be false for PHASE-10A.")
+        if download_policy.get("mode") != "registry_only_no_download":
+            errors.append("download_policy.mode must be registry_only_no_download.")
+
+    storage_policy = _mapping(raw.get("local_storage_policy"), "local_storage_policy", errors)
+    if storage_policy:
+        _validate_storage_policy(storage_policy, errors)
+
+    sources = raw.get("sources")
+    if not isinstance(sources, list) or not sources:
+        errors.append("sources must be a non-empty list.")
+        sources = []
+    _validate_sources(sources, errors)
+    _validate_deferred_sources(raw.get("deferred_sources"), errors)
+    return errors
+
+
+def render_manifest(
+    raw: dict[str, Any],
+    *,
+    config_path: Path,
+    config_hash: str,
+    sources: list[dict[str, Any]],
+    deferred_sources: list[dict[str, Any]],
+) -> str:
+    lines: list[str] = [
+        "# corpus_v01 Source Manifest",
+        "",
+        "Generated by `uv run python -m corpus.audit_sources` from the audited source registry.",
+        "",
+        f"- Config: `{config_path.as_posix()}`",
+        f"- Config SHA-256: `{config_hash}`",
+        "- Audit mode: metadata-only; no corpus payloads downloaded.",
+        "- Corpus payload commit policy: raw, processed, and tokenized artifacts remain under ignored `data/**` paths.",
+        "",
+        "## Local Storage Policy",
+        "",
+    ]
+
+    storage_policy = raw["local_storage_policy"]
+    lines.extend(
+        [
+            f"- Raw root: `{storage_policy['raw_root']}`",
+            f"- Processed root: `{storage_policy['processed_root']}`",
+            f"- Tokenized root: `{storage_policy['tokenized_root']}`",
+            f"- Git policy: {storage_policy['git_policy']}",
+            f"- Raw policy: {storage_policy['raw_policy']}",
+            f"- Processed policy: {storage_policy['processed_policy']}",
+            f"- Tokenized policy: {storage_policy['tokenized_policy']}",
+            "",
+            "## Approved Sources",
+            "",
+            "| Source | Language | Role | Status | PHASE-10B | License/terms | Attribution |",
+            "| --- | --- | --- | --- | --- | --- | --- |",
+        ]
+    )
+
+    for source in sources:
+        license_info = source["license"]
+        attribution = license_info["attribution"]
+        phase_10b = "eligible" if source["eligible_for_phase_10b"] else "blocked"
+        lines.append(
+            "| "
+            + " | ".join(
+                [
+                    source["id"],
+                    source["language"],
+                    source["role"],
+                    source["status"],
+                    phase_10b,
+                    license_info["license_name"],
+                    _one_line(attribution["instructions"]),
+                ]
+            )
+            + " |"
+        )
+
+    lines.append("")
+    for source in sources:
+        lines.extend(_render_source_detail(source))
+
+    lines.extend(["## Deferred Sources", ""])
+    for deferred in deferred_sources:
+        lines.extend(
+            [
+                f"### {deferred['id']}",
+                "",
+                f"- Status: {deferred['status']}",
+                f"- Eligible for corpus_v01: {deferred['eligible_for_corpus_v01']}",
+                f"- Reason: {_one_line(deferred['reason'])}",
+                "",
+            ]
+        )
+
+    lines.extend(
+        [
+            "## Audit Checks",
+            "",
+            f"- Approved source ids are exactly: {', '.join(sorted(APPROVED_SOURCE_IDS))}.",
+            "- Every included source has provenance, license/terms, attribution, storage, limits, "
+            "checksum policy, and exclusion policy metadata.",
+            "- Storage paths are relative ignored `data/raw`, `data/processed`, and `data/tokenized` paths.",
+            "- Tatoeba is deferred and not eligible for `corpus_v01` pretraining.",
+            "- The audit is deterministic and performs no network or filesystem writes except the requested "
+            "manifest output.",
+            "",
+        ]
+    )
+    return "\n".join(lines)
+
+
+def _validate_sources(sources: list[Any], errors: list[str]) -> None:
+    seen_ids: set[str] = set()
+    for index, source in enumerate(sources):
+        context = f"sources[{index}]"
+        if not isinstance(source, dict):
+            errors.append(f"{context} must be a mapping.")
+            continue
+        source_id = source.get("id")
+        if not isinstance(source_id, str) or not source_id:
+            errors.append(f"{context}.id must be a non-empty string.")
+            continue
+        context = f"source {source_id}"
+        if source_id in seen_ids:
+            errors.append(f"Duplicate source id: {source_id}.")
+        seen_ids.add(source_id)
+        if source_id not in APPROVED_SOURCE_IDS:
+            errors.append(f"{context} is not in the PHASE-10A approved allowlist.")
+
+        _require_keys(
+            source,
+            (
+                "id",
+                "display_name",
+                "role",
+                "language",
+                "status",
+                "eligible_for_phase_10b",
+                "provenance",
+                "license",
+                "storage",
+                "limits",
+                "checksum",
+                "exclusion_policy",
+            ),
+            context,
+            errors,
+        )
+        _validate_source_language(source, source_id, context, errors)
+        _validate_source_status(source, context, errors)
+        _validate_provenance(_mapping(source.get("provenance"), f"{context}.provenance", errors), context, errors)
+        _validate_license(_mapping(source.get("license"), f"{context}.license", errors), source, context, errors)
+        _validate_storage(_mapping(source.get("storage"), f"{context}.storage", errors), source_id, context, errors)
+        _validate_limits(_mapping(source.get("limits"), f"{context}.limits", errors), context, errors)
+        _validate_checksum(_mapping(source.get("checksum"), f"{context}.checksum", errors), context, errors)
+        _validate_exclusion_policy(
+            _mapping(source.get("exclusion_policy"), f"{context}.exclusion_policy", errors), context, errors
+        )
+
+    missing_ids = APPROVED_SOURCE_IDS - seen_ids
+    extra_ids = seen_ids - APPROVED_SOURCE_IDS
+    if missing_ids:
+        errors.append(f"sources missing approved ids: {', '.join(sorted(missing_ids))}.")
+    if extra_ids:
+        errors.append(f"sources contains unapproved ids: {', '.join(sorted(extra_ids))}.")
+
+
+def _validate_source_language(source: dict[str, Any], source_id: str, context: str, errors: list[str]) -> None:
+    language = source.get("language")
+    if language not in APPROVED_LANGUAGES:
+        errors.append(f"{context}.language must be one of {', '.join(sorted(APPROVED_LANGUAGES))}.")
+    expected_language = SOURCE_LANGUAGE.get(source_id)
+    if expected_language and language != expected_language:
+        errors.append(f"{context}.language must be {expected_language}.")
+
+
+def _validate_source_status(source: dict[str, Any], context: str, errors: list[str]) -> None:
+    status = source.get("status")
+    eligible = source.get("eligible_for_phase_10b")
+    if status not in {"included", "blocked"}:
+        errors.append(f"{context}.status must be included or blocked.")
+    if not isinstance(eligible, bool):
+        errors.append(f"{context}.eligible_for_phase_10b must be a boolean.")
+    if status == "included" and eligible is not True:
+        errors.append(f"{context} is included but not eligible_for_phase_10b.")
+    if status == "blocked" and eligible is not False:
+        errors.append(f"{context} is blocked but still eligible_for_phase_10b.")
+
+
+def _validate_provenance(provenance: dict[str, Any], context: str, errors: list[str]) -> None:
+    if not provenance:
+        return
+    _require_keys(provenance, REQUIRED_PROVENANCE_KEYS, f"{context}.provenance", errors)
+    if provenance.get("access") != "public_http":
+        errors.append(f"{context}.provenance.access must be public_http.")
+    if provenance.get("requires_auth") is not False:
+        errors.append(f"{context}.provenance.requires_auth must be false.")
+    has_source_locator = (
+        provenance.get("download_url_template")
+        or provenance.get("catalog_url")
+        or provenance.get("item_landing_url_template")
+    )
+    if not has_source_locator:
+        errors.append(
+            f"{context}.provenance must include download_url_template, catalog_url, or item_landing_url_template."
+        )
+    for key in ("landing_url", "terms_url", "license_url"):
+        _validate_url(provenance.get(key), f"{context}.provenance.{key}", errors)
+
+
+def _validate_license(
+    license_info: dict[str, Any],
+    source: dict[str, Any],
+    context: str,
+    errors: list[str],
+) -> None:
+    if not license_info:
+        return
+    _require_keys(license_info, REQUIRED_LICENSE_KEYS, f"{context}.license", errors)
+    status = license_info.get("verification_status")
+    source_status = source.get("status")
+    if source_status == "included" and status != "verified":
+        errors.append(f"{context}.license.verification_status must be verified for included sources.")
+    if source_status == "blocked" and status == "verified":
+        errors.append(f"{context}.license.verification_status must not be verified when the source is blocked.")
+    if license_info.get("attribution_required") is not True:
+        errors.append(f"{context}.license.attribution_required must be true.")
+    attribution = _mapping(license_info.get("attribution"), f"{context}.license.attribution", errors)
+    if attribution:
+        if attribution.get("include_license_link") is not True:
+            errors.append(f"{context}.license.attribution.include_license_link must be true.")
+        if attribution.get("preserve_source_metadata") is not True:
+            errors.append(f"{context}.license.attribution.preserve_source_metadata must be true.")
+        _required_non_empty_str(attribution, "instructions", f"{context}.license.attribution", errors)
+    for key in ("license_name", "terms_note", "terms_verified_on"):
+        _required_non_empty_str(license_info, key, f"{context}.license", errors)
+
+
+def _validate_storage(storage: dict[str, Any], source_id: str, context: str, errors: list[str]) -> None:
+    if not storage:
+        return
+    _require_keys(storage, REQUIRED_STORAGE_KEYS, f"{context}.storage", errors)
+    if storage.get("commit_policy") != "ignored_only":
+        errors.append(f"{context}.storage.commit_policy must be ignored_only.")
+    expected_roots = {
+        "raw_path": Path("data/raw/corpus_v01") / source_id,
+        "processed_path": Path("data/processed/corpus_v01") / source_id,
+        "tokenized_path": Path("data/tokenized/corpus_v01") / source_id,
+    }
+    for key, expected in expected_roots.items():
+        value = storage.get(key)
+        if not isinstance(value, str) or not value:
+            errors.append(f"{context}.storage.{key} must be a non-empty string.")
+            continue
+        path = Path(value)
+        if path.is_absolute() or ".." in path.parts:
+            errors.append(f"{context}.storage.{key} must be a safe relative path.")
+        if path != expected:
+            errors.append(f"{context}.storage.{key} must be {expected.as_posix()}.")
+
+
+def _validate_limits(limits: dict[str, Any], context: str, errors: list[str]) -> None:
+    if not limits:
+        return
+    _require_keys(limits, REQUIRED_LIMIT_KEYS, f"{context}.limits", errors)
+    for key in REQUIRED_LIMIT_KEYS:
+        value = limits.get(key)
+        if not isinstance(value, int) or value <= 0:
+            errors.append(f"{context}.limits.{key} must be a positive integer.")
+
+
+def _validate_checksum(checksum: dict[str, Any], context: str, errors: list[str]) -> None:
+    if not checksum:
+        return
+    _require_keys(checksum, REQUIRED_CHECKSUM_KEYS, f"{context}.checksum", errors)
+    if not isinstance(checksum.get("required"), bool):
+        errors.append(f"{context}.checksum.required must be a boolean.")
+    algorithm = checksum.get("algorithm")
+    if algorithm not in {"sha1", "sha256"}:
+        errors.append(f"{context}.checksum.algorithm must be sha1 or sha256.")
+    if checksum.get("required") is True and not checksum.get("upstream_checksum_url_template"):
+        errors.append(f"{context}.checksum.upstream_checksum_url_template is required when checksum.required is true.")
+    _required_non_empty_str(checksum, "policy", f"{context}.checksum", errors)
+
+
+def _validate_exclusion_policy(exclusion_policy: dict[str, Any], context: str, errors: list[str]) -> None:
+    if not exclusion_policy:
+        return
+    _require_keys(exclusion_policy, REQUIRED_EXCLUSION_KEYS, f"{context}.exclusion_policy", errors)
+    _required_non_empty_str(exclusion_policy, "blocker_note", f"{context}.exclusion_policy", errors)
+    concrete_flags = [key for key, value in exclusion_policy.items() if key != "blocker_note" and value is True]
+    if not concrete_flags:
+        errors.append(f"{context}.exclusion_policy must contain at least one concrete exclusion flag.")
+
+
+def _validate_deferred_sources(value: Any, errors: list[str]) -> None:
+    if not isinstance(value, list):
+        errors.append("deferred_sources must be a list.")
+        return
+    tatoeba = None
+    for item in value:
+        if not isinstance(item, dict):
+            errors.append("deferred_sources entries must be mappings.")
+            continue
+        if item.get("id") == "tatoeba":
+            tatoeba = item
+    if tatoeba is None:
+        errors.append("deferred_sources must include Tatoeba as explicitly deferred.")
+        return
+    if tatoeba.get("status") != "deferred":
+        errors.append("deferred_sources.tatoeba.status must be deferred.")
+    if tatoeba.get("eligible_for_corpus_v01") is not False:
+        errors.append("deferred_sources.tatoeba.eligible_for_corpus_v01 must be false.")
+    _required_non_empty_str(tatoeba, "reason", "deferred_sources.tatoeba", errors)
+
+
+def _validate_storage_policy(storage_policy: dict[str, Any], errors: list[str]) -> None:
+    required = (
+        "raw_root",
+        "processed_root",
+        "tokenized_root",
+        "git_policy",
+        "raw_policy",
+        "processed_policy",
+        "tokenized_policy",
+        "prohibited_commits",
+    )
+    _require_keys(storage_policy, required, "local_storage_policy", errors)
+    expected_roots = {
+        "raw_root": "data/raw/corpus_v01",
+        "processed_root": "data/processed/corpus_v01",
+        "tokenized_root": "data/tokenized/corpus_v01",
+    }
+    for key, expected in expected_roots.items():
+        if storage_policy.get(key) != expected:
+            errors.append(f"local_storage_policy.{key} must be {expected}.")
+    if storage_policy.get("git_policy") != "ignored_artifacts_only":
+        errors.append("local_storage_policy.git_policy must be ignored_artifacts_only.")
+    if not isinstance(storage_policy.get("prohibited_commits"), list) or not storage_policy["prohibited_commits"]:
+        errors.append("local_storage_policy.prohibited_commits must be a non-empty list.")
+
+
+def _render_source_detail(source: dict[str, Any]) -> list[str]:
+    provenance = source["provenance"]
+    license_info = source["license"]
+    storage = source["storage"]
+    limits = source["limits"]
+    checksum = source["checksum"]
+    exclusion_policy = source["exclusion_policy"]
+
+    lines = [
+        f"### {source['id']}",
+        "",
+        f"- Display name: {source['display_name']}",
+        f"- Provider: {provenance['provider']}",
+        f"- Landing URL: {provenance['landing_url']}",
+        f"- Terms URL: {provenance['terms_url']}",
+        f"- License URL: {provenance['license_url']}",
+        f"- License verification: {license_info['verification_status']} on {license_info['terms_verified_on']}",
+        f"- Terms note: {_one_line(license_info['terms_note'])}",
+        f"- Attribution: {_one_line(license_info['attribution']['instructions'])}",
+        f"- Raw path: `{storage['raw_path']}`",
+        f"- Processed path: `{storage['processed_path']}`",
+        f"- Tokenized path: `{storage['tokenized_path']}`",
+        f"- Max raw bytes: {limits['max_raw_bytes']}",
+        f"- PHASE-10B sample limit bytes: {limits['phase_10b_sample_limit_bytes']}",
+        f"- Smoke limit records: {limits['smoke_limit_records']}",
+        f"- Checksum policy: {checksum['algorithm']}; required={checksum['required']}; {_one_line(checksum['policy'])}",
+        f"- Blocker policy: {_one_line(exclusion_policy['blocker_note'])}",
+        "",
+    ]
+    if provenance.get("download_url_template"):
+        lines.insert(5, f"- Download URL template: {provenance['download_url_template']}")
+    if provenance.get("catalog_url"):
+        lines.insert(5, f"- Catalog URL: {provenance['catalog_url']}")
+    if provenance.get("item_landing_url_template"):
+        lines.insert(5, f"- Item landing URL template: {provenance['item_landing_url_template']}")
+    return lines
+
+
+def _require_keys(mapping: dict[str, Any], keys: tuple[str, ...], context: str, errors: list[str]) -> None:
+    for key in keys:
+        if key not in mapping:
+            errors.append(f"{context}.{key} is required.")
+
+
+def _required_non_empty_str(mapping: dict[str, Any], key: str, context: str, errors: list[str]) -> None:
+    value = mapping.get(key)
+    if not isinstance(value, str) or not value.strip():
+        errors.append(f"{context}.{key} must be a non-empty string.")
+
+
+def _mapping(value: Any, context: str, errors: list[str]) -> dict[str, Any]:
+    if not isinstance(value, dict):
+        errors.append(f"{context} must be a mapping.")
+        return {}
+    return value
+
+
+def _as_str_list(value: Any, context: str, errors: list[str]) -> list[str]:
+    if not isinstance(value, list) or not all(isinstance(item, str) and item for item in value):
+        errors.append(f"{context} must be a list of non-empty strings.")
+        return []
+    return value
+
+
+def _validate_url(value: Any, context: str, errors: list[str]) -> None:
+    if not isinstance(value, str) or not value.startswith("https://"):
+        errors.append(f"{context} must be an https URL.")
+
+
+def _one_line(value: str) -> str:
+    return " ".join(value.split())
+
+
+def _format_errors(errors: list[str]) -> str:
+    return "Corpus source audit failed:\n" + "\n".join(f"- {error}" for error in errors)

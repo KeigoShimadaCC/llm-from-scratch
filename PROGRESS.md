@@ -6,10 +6,10 @@ Living coordination file for phase-based agent work.
 
 | Field | Value |
 | --- | --- |
-| Phase | PHASE-10A-ROADMAP-WIRING |
-| Goal | Add automation-ready corpus and meaningful 30M training phase plans after PHASE-09A |
-| Branch | codex/add-corpus-training-phase-plans |
-| Worktree | /Users/keigoshimada/Documents/llm-from-scratch |
+| Phase | PHASE-10A - Corpus Source Registry |
+| Goal | Define the audited corpus_v01 source allowlist before download or cleaning work |
+| Branch | phase/phase-10a-corpus-source-registry |
+| Worktree | /Users/keigoshimada/Documents/llm-from-scratch-phase-10a-corpus-source-registry-wt |
 | Status | complete |
 
 ## Task Queue
@@ -24,6 +24,14 @@ Living coordination file for phase-based agent work.
 
 ### Done
 
+- [x] PHASE-10A validation passed: `uv run pytest` (49 tests), `uv run ruff check .`, `git diff --check`, and `uv run python -m corpus.audit_sources --config configs/corpus_v01.yaml --output docs/corpus_v01_source_manifest.md`.
+- [x] Artifact policy check passed for PHASE-10A: no raw corpus payloads, generated checkpoints, pretrained wrappers, or generated run artifacts are committed.
+- [x] Started PHASE-10A from accepted plan `runs/phase-runner/PHASE-10A/2026-06-01T02:20:59Z/accepted-plan/accepted-plan.json`.
+- [x] Read `PROGRESS.md`, `docs/NORTH_STAR_LLM_FROM_SCRATCH_MAC.md` data/tokenizer/training sections, `phase-plans/PHASE-10A-CORPUS-SOURCE-REGISTRY.md`, and the accepted PHASE-10A plan before implementation.
+- [x] Added `configs/corpus_v01.yaml` with the four-source allowlist, storage policy, license/provenance/attribution notes, checksum policies, exclusion rules, and explicit Tatoeba deferral.
+- [x] Added `corpus.audit_sources` and source registry validation for allowlist, language tags, metadata completeness, storage paths, blocked-source eligibility, and no-download manifest generation.
+- [x] Added `tests/test_corpus_sources.py` covering config load, missing metadata failures, unapproved source rejection, blocked-source ineligibility, storage path safety, Tatoeba deferral, and deterministic manifest output.
+- [x] Generated `docs/corpus_v01_source_manifest.md` from the audit CLI.
 - [x] Added PHASE-10A through PHASE-11A plan specs for source registry, corpus download/cleaning, split/leakage manifest, tokenizer/tokenized dataset, and meaningful 30M real-corpus training.
 - [x] Wired `automation/phase-graph.json` in a linear PHASE-09A -> PHASE-10A -> PHASE-10B -> PHASE-10C -> PHASE-10D -> PHASE-11A chain with phase-specific validation commands.
 - [x] Updated `automation/phase-state.json` so `currentPhase` is `PHASE-10A` and all new phases are queued.
@@ -81,6 +89,21 @@ Living coordination file for phase-based agent work.
 - [x] Implemented PHASE-01A character tokenizer, context MLP training loop, deterministic generation, tests, prompt asset, mini report, and ignored overfit evidence.
 
 ## Phase Checklist
+
+### PHASE-10A - Corpus Source Registry
+
+- [x] Accepted plan read before implementation.
+- [x] North Star data/tokenizer/training direction read before implementation.
+- [x] Active phase plan read before implementation.
+- [x] `configs/corpus_v01.yaml` added with only English Wikipedia, Japanese Wikipedia, Project Gutenberg, and Aozora Bunko.
+- [x] Source entries include provenance, license/terms notes, attribution requirements, storage paths, limits, checksum policy, and exclusion/blocker policy.
+- [x] Tatoeba explicitly deferred outside `corpus_v01` pretraining.
+- [x] Local raw/processed/tokenized storage policy documented under ignored `data/**` directories.
+- [x] `corpus.audit_sources` validates source metadata without downloading payloads.
+- [x] Tests cover config loading, missing metadata failures, unapproved source rejection, blocked-source ineligibility, and manifest determinism.
+- [x] `docs/corpus_v01_source_manifest.md` generated from the audit CLI.
+- [x] Required validation commands run.
+- [x] No raw corpus data, checkpoints, model wrappers, or generated run artifacts committed.
 
 ### PHASE-09A - Final Write-Up And Portfolio Layer
 
