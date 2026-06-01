@@ -8,9 +8,9 @@ Living coordination file for phase-based agent work.
 | --- | --- |
 | Phase | CROSS-PHASE-GAP-FIX |
 | Goal | Repair phase-plan implementation gaps in reproducible evidence, audits, docs, and inference CLI consistency |
-| Branch | codex/fix-phase-plan-gap-evidence |
+| Branch | main |
 | Worktree | /Users/keigoshimada/Documents/llm-from-scratch |
-| Status | in progress |
+| Status | complete |
 
 ## Task Queue
 
@@ -20,10 +20,11 @@ Living coordination file for phase-based agent work.
 
 ### In Progress
 
-- [ ] Publish branch, open PR, watch CI, and merge if green.
+- [ ] None.
 
 ### Done
 
+- [x] Merged cross-phase gap fix via PR #10 at merge commit `26c076ac0f1a05066b11336cb3e9255b2cf2722c`.
 - [x] Full validation passed after final fixes: `uv run pytest` (41 tests), `uv run ruff check .`, `git diff --check`, `uv run python -m eval.audit_claims --doc docs/FINAL_WRITEUP.md --output docs/claim_evidence_audit.md`, and `uv run python -m eval.check_repro_commands --doc docs/COMMAND_INDEX.md`.
 - [x] Artifact policy check passed: `git ls-files experiments/runs data/tokenized '*.pt' '*.safetensors'` returned no tracked artifacts.
 - [x] Phase-plan completion audit passed for the identified gaps: no stale PHASE-01A command, no fake PHASE-08A run dir, PHASE-04A/06A ignored run manifests include `eval_report.md`, PHASE-05A report includes 30M checkpoint/sample evidence, and PHASE-07A live-evaluates all regenerated checkpoint rows.
@@ -314,15 +315,17 @@ Living coordination file for phase-based agent work.
 - 2026-06-01: PHASE-09A PR #9 passed GitHub CI and merged to `main` at `d8dc7da9fd18fc75d678653755ef71b2773ef246`. The final phase state was updated so all 10 phases are complete.
 - 2026-06-01: Cross-phase gap-fix regenerated ignored evidence with tokenizer/report, sample batch, PHASE-03A smoke, PHASE-04A tiny pretraining, PHASE-05A 30M smoke, PHASE-06A SFT, PHASE-07A live eval/comparison, and PHASE-08A benchmark commands from the remediation plan.
 - 2026-06-01: Cross-phase gap-fix validation passed: `uv run pytest` (41 tests), `uv run ruff check .`, `git diff --check`, `uv run python -m eval.audit_claims --doc docs/FINAL_WRITEUP.md --output docs/claim_evidence_audit.md` (11 claims, 0 unsupported), `uv run python -m eval.check_repro_commands --doc docs/COMMAND_INDEX.md` (26 exact commands, 0 missing, 0 stale tokens), and `git ls-files experiments/runs data/tokenized '*.pt' '*.safetensors'` returned no tracked artifacts.
+- 2026-06-01: Cross-phase gap-fix PR #10 passed GitHub CI and merged to `main` at `26c076ac0f1a05066b11336cb3e9255b2cf2722c`.
 
 ## Phase Archive
 
 ### CROSS-PHASE-GAP-FIX - Evidence And Automation Readiness Repair
 
-Status: validation passed, publishing in progress
+Status: complete
 Started: 2026-06-01
 Evidence:
-- Branch: `codex/fix-phase-plan-gap-evidence`
+- PR: #10
+- Merge commit: `26c076ac0f1a05066b11336cb3e9255b2cf2722c`
 - Corrected command index: `docs/COMMAND_INDEX.md`
 - Corrected artifact index: `docs/ARTIFACT_INDEX.md`
 - Stricter final audits: `eval/check_repro_commands.py`, `eval/audit_claims.py`, `tests/test_final_audits.py`
