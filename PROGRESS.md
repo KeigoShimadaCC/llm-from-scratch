@@ -8,9 +8,9 @@ Living coordination file for phase-based agent work.
 | --- | --- |
 | Phase | WIKI-01 - GitHub Wiki Courseware |
 | Goal | Publish a hands-on educational wiki layer over the scratch LLM repo |
-| Branch | codex/wiki-courseware |
+| Branch | main (merged PR #17) |
 | Worktree | /Users/keigoshimada/Documents/llm-from-scratch |
-| Status | in progress |
+| Status | complete |
 
 ## Task Queue
 
@@ -20,7 +20,7 @@ Living coordination file for phase-based agent work.
 
 ### In Progress
 
-- [ ] Open and merge PR, then publish managed pages to the GitHub Wiki.
+- [x] None.
 
 ### Done
 
@@ -30,6 +30,8 @@ Living coordination file for phase-based agent work.
 - [x] Added tests for wiki page structure, sidebar coverage, dry-run cleanup, push behavior, unmanaged page preservation, and dirty clone refusal.
 - [x] WIKI-01 local validation passed: `uv run pytest` (73 tests), `uv run ruff check .`, `git diff --check`, `uv run python scripts/publish_wiki.py --dry-run`, and `git ls-files data/raw data/processed data/tokenized experiments/runs '*.pt' '*.safetensors'`.
 - [x] Wiki dry-run listed `Home.md`, `_Sidebar.md`, and the lesson/appendix pages; `/private/tmp/llm-from-scratch-wiki` remained clean afterward.
+- [x] Merged WIKI-01 via PR #17 at merge commit `7530f6e28d50a814a68228e11db40e627bde2662` after GitHub Actions CI passed.
+- [x] Deployed managed pages to the GitHub Wiki with `uv run python scripts/publish_wiki.py --push --message "Add LLM from scratch course wiki"`; wiki `master` now points at `122539e84d6925b0fb77dc864dd11dbec54ede22`.
 - [x] Added `configs/kgpt_30m_corpus_v01.yaml`, `configs/inference_corpus_v01.yaml`, `docs/checkpoint_manifest_corpus_v01.json`, `docs/phase11a_real_corpus_checkpoint_comparison.md`, dry-run data/tokenizer/resume validation, comparison report sample snapshots, tests, inference smoke wiring, and command/artifact index entries.
 - [x] Completed ignored 1000-step PHASE-11A run at `experiments/runs/phase11a_kgpt30m_corpus_v01_smoke/`: 31,692,800 parameters, 16,000 tokens seen, initial validation loss 319.7539, final validation loss 32.7539, best validation loss 17.7304 at step 100, loss improvement 89.76%, and final throughput 344.53 tokens/sec on CPU.
 - [x] Generated run-local ignored evidence including `config.yaml`, `metrics.jsonl`, `samples.txt`, `tokenizer_info.json`, `checkpoint_last.pt`, `checkpoint_best.pt`, `manifest.json`, and `eval_report.md`; generated artifacts remain untracked.
