@@ -8,9 +8,9 @@ Living coordination file for phase-based agent work.
 | --- | --- |
 | Phase | WIKI-02 - Courseware Educational Polish |
 | Goal | Fix wiki-courseware gaps and make lessons more explanatory with concrete file roles and example results |
-| Branch | codex/wiki-courseware-polish |
+| Branch | main (merged PR #18) |
 | Worktree | /Users/keigoshimada/Documents/llm-from-scratch |
-| Status | in progress |
+| Status | complete |
 
 ## Task Queue
 
@@ -20,7 +20,7 @@ Living coordination file for phase-based agent work.
 
 ### In Progress
 
-- [ ] Open/merge PR and deploy managed wiki pages.
+- [x] None.
 
 ### Done
 
@@ -31,6 +31,8 @@ Living coordination file for phase-based agent work.
 - [x] Focused WIKI-02 validation passed: `uv run pytest tests/test_wiki_publish.py` and `uv run ruff check tests/test_wiki_publish.py`.
 - [x] WIKI-02 full local validation passed: `uv run pytest` (74 tests), `uv run ruff check .`, `git diff --check`, `uv run python scripts/publish_wiki.py --dry-run`, and `git ls-files data/raw data/processed data/tokenized experiments/runs '*.pt' '*.safetensors'`.
 - [x] Wiki dry-run listed the managed page set and left `/private/tmp/llm-from-scratch-wiki` clean.
+- [x] Merged WIKI-02 via PR #18 at merge commit `4d1833341588ae4e370c5c95385f75fc16c82fb6` after GitHub Actions CI passed.
+- [x] Deployed managed pages to the GitHub Wiki with `uv run python scripts/publish_wiki.py --push --message "Polish LLM from scratch course wiki"`; wiki `master` now points at `48e42bc46e1a7081b6d0fe3fd43b2eab05d42c0c`.
 - [x] Started WIKI-01 from clean `main`; read `PROGRESS.md`, North Star project identity, wiki plan, existing command/artifact indexes, and verified the GitHub Wiki remote has only the placeholder `Home.md`.
 - [x] Added managed courseware source under `docs/wiki/`, including the Home page, sidebar, eleven lessons, command appendix, glossary, and source/deploy README.
 - [x] Added `scripts/publish_wiki.py` with dry-run and explicit-push modes, dirty-worktree refusal, managed-page copying, unmanaged-page preservation, and README exclusion.
