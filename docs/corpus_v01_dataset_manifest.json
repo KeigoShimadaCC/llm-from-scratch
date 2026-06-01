@@ -1,0 +1,126 @@
+{
+  "config_path": "configs/corpus_v01.yaml",
+  "config_sha256": "76f78867682305df9dfc62b9a07c8d0e363dcc80873913e1bf69d6a47e8ca31e",
+  "corpus_id": "corpus_v01",
+  "deduplicated_document_count": 4,
+  "document_counts": {
+    "test": 1,
+    "train": 2,
+    "validation": 1
+  },
+  "documents_path": "data/processed/corpus_v01_smoke/documents.jsonl",
+  "duplicate_document_count": 0,
+  "duplicates_removed": [],
+  "excluded_count": 0,
+  "generated_at_utc": "2026-06-01T02:45:41+00:00",
+  "input_document_count": 4,
+  "language_counts": {
+    "en": 2,
+    "ja": 2
+  },
+  "leakage_checks": {
+    "checks": [
+      "normalized_text_sha256_unique_across_splits",
+      "source_record_id_unique_across_splits"
+    ],
+    "errors": [],
+    "passed": true
+  },
+  "limitations": [
+    "PHASE-10C performs exact normalized-text deduplication only.",
+    "Smoke corpus mixture is not representative of the full local corpus.",
+    "Committed manifest stores metadata and hashes, not full document text."
+  ],
+  "processed_path": "data/processed/corpus_v01_smoke",
+  "records": {
+    "test": [
+      {
+        "byte_count": 60,
+        "char_count": 20,
+        "doc_id": "073b9b509493ec6b2309eb17",
+        "lang": "ja",
+        "normalized_text_sha256": "571946bdf031cecf8bb317b8922ffe5a5631c5a0b183958fb7bd52d076106303",
+        "source_id": "jawiki",
+        "source_record_id": "smoke-jawiki-001",
+        "text_sha256": "571946bdf031cecf8bb317b8922ffe5a5631c5a0b183958fb7bd52d076106303",
+        "title": "スモーク日本語記事"
+      }
+    ],
+    "train": [
+      {
+        "byte_count": 74,
+        "char_count": 74,
+        "doc_id": "4f2501bc618f8bb7b4ce4580",
+        "lang": "en",
+        "normalized_text_sha256": "224d12ed3fd50c9fc5b53b3b11c655a34e9d45e0082364395f9ace5cef038e2a",
+        "source_id": "enwiki",
+        "source_record_id": "smoke-enwiki-001",
+        "text_sha256": "224d12ed3fd50c9fc5b53b3b11c655a34e9d45e0082364395f9ace5cef038e2a",
+        "title": "Smoke English Wikipedia Article"
+      },
+      {
+        "byte_count": 147,
+        "char_count": 51,
+        "doc_id": "190b9638764f8634fc200909",
+        "lang": "ja",
+        "normalized_text_sha256": "32278ea723fcf9455a606d518ea0f7a34efa712454bab80b3e0580ed4e2998cc",
+        "source_id": "aozora_bunko",
+        "source_record_id": "smoke-aozora-001",
+        "text_sha256": "32278ea723fcf9455a606d518ea0f7a34efa712454bab80b3e0580ed4e2998cc",
+        "title": "リポジトリ作成青空スモーク"
+      }
+    ],
+    "validation": [
+      {
+        "byte_count": 127,
+        "char_count": 127,
+        "doc_id": "f3f426af1ecf228383703b85",
+        "lang": "en",
+        "normalized_text_sha256": "794cef3c7e3bf1f2bba9a4444f9d8d7b8169fa78fa18948565e283abe816b4ff",
+        "source_id": "project_gutenberg",
+        "source_record_id": "smoke-gutenberg-001",
+        "text_sha256": "794cef3c7e3bf1f2bba9a4444f9d8d7b8169fa78fa18948565e283abe816b4ff",
+        "title": "Repo Authored Gutenberg Smoke"
+      }
+    ]
+  },
+  "schema_version": 1,
+  "source_counts": {
+    "aozora_bunko": 1,
+    "enwiki": 1,
+    "jawiki": 1,
+    "project_gutenberg": 1
+  },
+  "split_language_counts": {
+    "test": {
+      "ja": 1
+    },
+    "train": {
+      "en": 1,
+      "ja": 1
+    },
+    "validation": {
+      "en": 1
+    }
+  },
+  "split_ratios": {
+    "test": 0.1,
+    "train": 0.8,
+    "validation": 0.1
+  },
+  "split_seed": 1729,
+  "split_source_counts": {
+    "test": {
+      "jawiki": 1
+    },
+    "train": {
+      "aozora_bunko": 1,
+      "enwiki": 1
+    },
+    "validation": {
+      "project_gutenberg": 1
+    }
+  },
+  "total_bytes": 408,
+  "total_characters": 272
+}
