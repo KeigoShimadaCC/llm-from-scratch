@@ -1,0 +1,255 @@
+schema_version: 1
+corpus_id: corpus_v01
+description: Audited public source registry for the first real English/Japanese pretraining corpus track.
+allowed_source_ids:
+  - enwiki
+  - jawiki
+  - project_gutenberg
+  - aozora_bunko
+allowed_languages:
+  - en
+  - ja
+download_policy:
+  phase: PHASE-10A
+  mode: registry_only_no_download
+  payload_download_allowed: false
+  unattended_download_requires_audit_pass: true
+  human_decision_note: >
+    PHASE-10A approves only these public source categories. PHASE-10B must still capture concrete
+    dump dates, item selections, checksums, and downloader behavior before fetching payloads.
+local_storage_policy:
+  raw_root: data/raw/corpus_v01
+  processed_root: data/processed/corpus_v01
+  tokenized_root: data/tokenized/corpus_v01
+  git_policy: ignored_artifacts_only
+  raw_policy: Store downloaded upstream payloads and source checksums only under data/raw/corpus_v01.
+  processed_policy: Store extracted, filtered, normalized, deduplicated, and split text only under data/processed/corpus_v01.
+  tokenized_policy: Store tokenizer outputs and shard metadata only under data/tokenized/corpus_v01.
+  prohibited_commits:
+    - raw corpus payloads
+    - processed corpus text
+    - tokenized arrays
+    - tokenizer model artifacts
+    - checkpoints
+sources:
+  - id: enwiki
+    display_name: English Wikipedia pages-articles dump
+    role: primary_english_corpus
+    language: en
+    status: included
+    eligible_for_phase_10b: true
+    provenance:
+      provider: Wikimedia Foundation
+      access: public_http
+      requires_auth: false
+      landing_url: https://dumps.wikimedia.org/enwiki/latest/
+      download_url_template: https://dumps.wikimedia.org/enwiki/{dump_date}/enwiki-{dump_date}-pages-articles-multistream.xml.bz2
+      checksum_url_template: https://dumps.wikimedia.org/enwiki/{dump_date}/enwiki-{dump_date}-sha1sums.txt
+      terms_url: https://dumps.wikimedia.org/legal.html
+      license_url: https://dumps.wikimedia.org/legal.html
+      notes: Use a concrete dump_date in PHASE-10B; latest links are not reproducibility evidence.
+    license:
+      verification_status: verified
+      terms_verified_on: "2026-06-01"
+      license_name: CC BY-SA 4.0 and GFDL for original textual content, with documented Wikimedia exceptions.
+      terms_note: >
+        Wikimedia dump legal guidance identifies original textual content as CC BY-SA 4.0 and GFDL,
+        while warning that dumps can contain fair-use material or unnoticed infringements. PHASE-10B
+        must use article text only, record the dump date, and preserve attribution/license metadata.
+      attribution_required: true
+      attribution:
+        instructions: >
+          Record Wikimedia, English Wikipedia, dump date, source URL, license URL, and note that text
+          is reused under CC BY-SA 4.0/GFDL subject to per-page exceptions.
+        include_license_link: true
+        preserve_source_metadata: true
+    storage:
+      raw_path: data/raw/corpus_v01/enwiki
+      processed_path: data/processed/corpus_v01/enwiki
+      tokenized_path: data/tokenized/corpus_v01/enwiki
+      commit_policy: ignored_only
+    limits:
+      max_raw_bytes: 80000000000
+      phase_10b_sample_limit_bytes: 500000000
+      smoke_limit_records: 1000
+    checksum:
+      required: true
+      algorithm: sha1
+      upstream_checksum_url_template: https://dumps.wikimedia.org/enwiki/{dump_date}/enwiki-{dump_date}-sha1sums.txt
+      expected_value: null
+      policy: PHASE-10B must verify the selected pages-articles file against the upstream sha1sums entry.
+    exclusion_policy:
+      exclude_media: true
+      exclude_non_main_namespace: true
+      exclude_redirects: true
+      exclude_templates: true
+      exclude_unverified_license: true
+      blocker_note: Any dump without a recorded date, checksum, and license note is not eligible for PHASE-10B.
+
+  - id: jawiki
+    display_name: Japanese Wikipedia pages-articles dump
+    role: primary_japanese_corpus
+    language: ja
+    status: included
+    eligible_for_phase_10b: true
+    provenance:
+      provider: Wikimedia Foundation
+      access: public_http
+      requires_auth: false
+      landing_url: https://dumps.wikimedia.org/jawiki/latest/
+      download_url_template: https://dumps.wikimedia.org/jawiki/{dump_date}/jawiki-{dump_date}-pages-articles-multistream.xml.bz2
+      checksum_url_template: https://dumps.wikimedia.org/jawiki/{dump_date}/jawiki-{dump_date}-sha1sums.txt
+      terms_url: https://dumps.wikimedia.org/legal.html
+      license_url: https://dumps.wikimedia.org/legal.html
+      notes: Use a concrete dump_date in PHASE-10B; latest links are not reproducibility evidence.
+    license:
+      verification_status: verified
+      terms_verified_on: "2026-06-01"
+      license_name: CC BY-SA 4.0 and GFDL for original textual content, with documented Wikimedia exceptions.
+      terms_note: >
+        Wikimedia dump legal guidance identifies original textual content as CC BY-SA 4.0 and GFDL,
+        while warning that dumps can contain fair-use material or unnoticed infringements. PHASE-10B
+        must use article text only, record the dump date, and preserve attribution/license metadata.
+      attribution_required: true
+      attribution:
+        instructions: >
+          Record Wikimedia, Japanese Wikipedia, dump date, source URL, license URL, and note that text
+          is reused under CC BY-SA 4.0/GFDL subject to per-page exceptions.
+        include_license_link: true
+        preserve_source_metadata: true
+    storage:
+      raw_path: data/raw/corpus_v01/jawiki
+      processed_path: data/processed/corpus_v01/jawiki
+      tokenized_path: data/tokenized/corpus_v01/jawiki
+      commit_policy: ignored_only
+    limits:
+      max_raw_bytes: 20000000000
+      phase_10b_sample_limit_bytes: 500000000
+      smoke_limit_records: 1000
+    checksum:
+      required: true
+      algorithm: sha1
+      upstream_checksum_url_template: https://dumps.wikimedia.org/jawiki/{dump_date}/jawiki-{dump_date}-sha1sums.txt
+      expected_value: null
+      policy: PHASE-10B must verify the selected pages-articles file against the upstream sha1sums entry.
+    exclusion_policy:
+      exclude_media: true
+      exclude_non_main_namespace: true
+      exclude_redirects: true
+      exclude_templates: true
+      exclude_unverified_license: true
+      blocker_note: Any dump without a recorded date, checksum, and license note is not eligible for PHASE-10B.
+
+  - id: project_gutenberg
+    display_name: Project Gutenberg public-domain English prose
+    role: english_public_domain_supplement
+    language: en
+    status: included
+    eligible_for_phase_10b: true
+    provenance:
+      provider: Project Gutenberg Literary Archive Foundation
+      access: public_http
+      requires_auth: false
+      landing_url: https://www.gutenberg.org/
+      catalog_url: https://www.gutenberg.org/cache/epub/feeds/rdf-files.tar.bz2
+      item_landing_url_template: https://www.gutenberg.org/ebooks/{ebook_id}
+      terms_url: https://www.gutenberg.org/policy/terms_of_use.html
+      license_url: https://www.gutenberg.org/policy/license.html
+      notes: Bulk downloaders must use approved mirrors or catalog/feed guidance instead of scraping the main site.
+    license:
+      verification_status: verified
+      terms_verified_on: "2026-06-01"
+      license_name: Project Gutenberg License for Project Gutenberg-tm works; source text eligibility depends on per-item copyright status.
+      terms_note: >
+        Include only English prose items whose item license states the text is not restricted by U.S.
+        copyright law. Exclude items posted with copyright-holder permission, unclear country-specific
+        restrictions, non-prose, and non-text payloads unless a later phase records a separate approval.
+      attribution_required: true
+      attribution:
+        instructions: >
+          Record Project Gutenberg, ebook id, title, author, item landing URL, license URL, and whether
+          Project Gutenberg trademark/license text was retained or stripped in processed text.
+        include_license_link: true
+        preserve_source_metadata: true
+    storage:
+      raw_path: data/raw/corpus_v01/project_gutenberg
+      processed_path: data/processed/corpus_v01/project_gutenberg
+      tokenized_path: data/tokenized/corpus_v01/project_gutenberg
+      commit_policy: ignored_only
+    limits:
+      max_raw_bytes: 2000000000
+      phase_10b_sample_limit_bytes: 250000000
+      smoke_limit_records: 100
+    checksum:
+      required: false
+      algorithm: sha256
+      upstream_checksum_url_template: null
+      expected_value: null
+      policy: PHASE-10B must compute and store per-item SHA-256 values because not every selected item has a single upstream checksum.
+    exclusion_policy:
+      exclude_copyrighted_or_permission_only_items: true
+      exclude_non_english: true
+      exclude_non_text_formats: true
+      exclude_items_with_unclear_terms: true
+      blocker_note: Any item without per-item copyright/license evidence is blocked from PHASE-10B.
+
+  - id: aozora_bunko
+    display_name: Aozora Bunko copyright-expired Japanese prose
+    role: japanese_public_domain_supplement
+    language: ja
+    status: included
+    eligible_for_phase_10b: true
+    provenance:
+      provider: Aozora Bunko
+      access: public_http
+      requires_auth: false
+      landing_url: https://www.aozora.gr.jp/
+      catalog_url: https://www.aozora.gr.jp/index_pages/list_person_all_extended_utf8.zip
+      item_landing_url_template: https://www.aozora.gr.jp/cards/{person_id}/card{work_id}.html
+      terms_url: https://www.aozora.gr.jp/guide/kijyunn.html
+      license_url: https://www.aozora.gr.jp/guide/kijyunn.html
+      notes: PHASE-10B must select only copyright-expired works and record per-work card metadata.
+    license:
+      verification_status: verified
+      terms_verified_on: "2026-06-01"
+      license_name: Aozora Bunko handling rules for included files; copyright-expired works are reusable under the documented rules.
+      terms_note: >
+        Include only works marked copyright-expired. Exclude non-expired works, permission-only works
+        without explicit compatible terms, and translations where translator copyright status is not clear.
+        Preserve file metadata expected by Aozora Bunko where practical.
+      attribution_required: true
+      attribution:
+        instructions: >
+          Record Aozora Bunko, work card URL, title, author, translator when present, base text notes,
+          inputter/proofreader metadata, file creation or revision dates, and handling-rules URL.
+        include_license_link: true
+        preserve_source_metadata: true
+    storage:
+      raw_path: data/raw/corpus_v01/aozora_bunko
+      processed_path: data/processed/corpus_v01/aozora_bunko
+      tokenized_path: data/tokenized/corpus_v01/aozora_bunko
+      commit_policy: ignored_only
+    limits:
+      max_raw_bytes: 1000000000
+      phase_10b_sample_limit_bytes: 250000000
+      smoke_limit_records: 100
+    checksum:
+      required: false
+      algorithm: sha256
+      upstream_checksum_url_template: null
+      expected_value: null
+      policy: PHASE-10B must compute and store per-file SHA-256 values because selected text files do not have one phase-wide upstream checksum.
+    exclusion_policy:
+      exclude_non_expired_copyright: true
+      exclude_permission_only_without_compatible_terms: true
+      exclude_unclear_translation_rights: true
+      exclude_non_text_formats: true
+      blocker_note: Any work without clear copyright-expired or compatible permission evidence is blocked from PHASE-10B.
+deferred_sources:
+  - id: tatoeba
+    display_name: Tatoeba
+    status: deferred
+    eligible_for_corpus_v01: false
+    reason: >
+      Deferred for future evaluation or SFT helper data. It is not part of corpus_v01 pretraining
+      because PHASE-10A is limited to the four approved public source categories.
