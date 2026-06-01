@@ -1,5 +1,5 @@
 {
-  "currentPhase": "PHASE-10D",
+  "currentPhase": "PHASE-11A",
   "lastUpdated": "2026-06-01",
   "phases": {
     "PHASE-00B": {
@@ -86,7 +86,9 @@
     },
     "PHASE-10D": {
       "branch": "phase/phase-10d-tokenizer-tokenized-dataset",
-      "status": "queued"
+      "mergeCommit": "a3dce425fd26f41d5e55dee96e5322e3698f4202",
+      "pr": 15,
+      "status": "complete"
     },
     "PHASE-11A": {
       "branch": "phase/phase-11a-meaningful-30m-training",
