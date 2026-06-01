@@ -1,4 +1,4 @@
-"""Corpus source registry and audit utilities."""
+"""Corpus source registry, download planning, and cleaning utilities."""
 
 from corpus.source_registry import AuditResult, SourceAuditError, audit_config, load_corpus_config
 
