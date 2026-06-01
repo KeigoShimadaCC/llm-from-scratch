@@ -92,7 +92,9 @@
     },
     "PHASE-11A": {
       "branch": "phase/phase-11a-meaningful-30m-training",
-      "status": "queued"
+      "mergeCommit": "6e57fcbe566b30a8ac6fbf95b13992f60e40cbef",
+      "pr": 16,
+      "status": "complete"
     }
   },
   "schemaVersion": 1,
