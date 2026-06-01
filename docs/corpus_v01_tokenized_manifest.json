@@ -1,0 +1,62 @@
+{
+  "checksum": {
+    "algorithm": "sha256 over sorted unique normalized text hashes",
+    "value": "6462610ff344ea9103c128ccab0242119d9d42705f0e6348dcd1a3de014d6278"
+  },
+  "contamination_leakage_notes": "Exact hash leakage checks pass across train, validation, and test splits.",
+  "dedup_strategy": "Exact normalized text SHA-256 dedup before split.",
+  "duplicate_record_ids_removed": [],
+  "language_mix": "2 English smoke documents and 2 Japanese smoke documents.",
+  "language_record_counts": {
+    "en": 2,
+    "ja": 2
+  },
+  "leakage_check": {
+    "method": "exact normalized text sha256 intersection between train and held-out splits",
+    "overlap_count": 0,
+    "overlap_sha256": []
+  },
+  "license": "Source registry metadata is preserved per processed record; smoke text is repo-authored.",
+  "manifest_path": "docs/corpus_v01_tokenized_manifest.json",
+  "preprocessing_command": "uv run python -m corpus.clean --config configs/corpus_v01.yaml --smoke --output data/processed/corpus_v01_smoke",
+  "schema_version": 1,
+  "size": {
+    "duplicate_records_removed": 0,
+    "unique_records": 4,
+    "utf8_bytes_after_preprocessing": 408
+  },
+  "source_name": "corpus_v01 smoke tokenized dataset",
+  "split_method": "PHASE-10C document-level train/validation/test split from docs/corpus_v01_dataset_manifest.json.",
+  "splits": {
+    "test": {
+      "record_count": 1,
+      "record_ids": [
+        "073b9b509493ec6b2309eb17"
+      ],
+      "token_count": 30,
+      "token_file": "data/tokenized/corpus_v01_smoke/test.npy",
+      "token_file_sha256": "f1b26d149789447ffc125161d71b4a5a8bcefbd7d6e46743d9b5dcc8d86e0731"
+    },
+    "train": {
+      "record_count": 2,
+      "record_ids": [
+        "4f2501bc618f8bb7b4ce4580",
+        "190b9638764f8634fc200909"
+      ],
+      "token_count": 136,
+      "token_file": "data/tokenized/corpus_v01_smoke/train.npy",
+      "token_file_sha256": "363c6c850a4ac4e74470f65c5c3e136261ee6d568c7e5ed608d84372cd3ba27a"
+    },
+    "validation": {
+      "record_count": 1,
+      "record_ids": [
+        "f3f426af1ecf228383703b85"
+      ],
+      "token_count": 83,
+      "token_file": "data/tokenized/corpus_v01_smoke/validation.npy",
+      "token_file_sha256": "d60a69095259207447335263bf3dbd00b84100de51cc4531c2b67f4cff38bdc7"
+    }
+  },
+  "tokenized_metadata_format": "JSON sidecar with token file paths, dtype, sha256, tokenizer id, and split names",
+  "url_or_local_note": "Ignored PHASE-10B smoke corpus generated locally by corpus.clean."
+}

@@ -1,0 +1,27 @@
+tokenizer:
+  model_path: data/tokenized/corpus_v01_tokenizers/byte_bpe_4k.json
+  fallback_training_config: configs/tokenizer_corpus_v01.yaml
+
+dataset:
+  source_name: corpus_v01 smoke tokenized dataset
+  source_config: configs/tokenizer_corpus_v01.yaml
+  processed_path: data/processed/corpus_v01_smoke
+  split_manifest_path: docs/corpus_v01_dataset_manifest.json
+  output_dir: data/tokenized/corpus_v01_smoke
+  metadata_path: data/tokenized/corpus_v01_smoke/metadata.json
+  manifest_path: docs/corpus_v01_tokenized_manifest.json
+  url_or_local_note: Ignored PHASE-10B smoke corpus generated locally by corpus.clean.
+  license: Source registry metadata is preserved per processed record; smoke text is repo-authored.
+  language_mix: 2 English smoke documents and 2 Japanese smoke documents.
+  preprocessing_command: uv run python -m corpus.clean --config configs/corpus_v01.yaml --smoke --output data/processed/corpus_v01_smoke
+  split_method: PHASE-10C document-level train/validation/test split from docs/corpus_v01_dataset_manifest.json.
+  dedup_strategy: Exact normalized text SHA-256 dedup before split.
+  contamination_leakage_notes: Exact hash leakage checks pass across train, validation, and test splits.
+
+batch:
+  split: train
+  batch_size: 2
+  context_length: 16
+  seed: 123
+  small_model:
+    embedding_dim: 16

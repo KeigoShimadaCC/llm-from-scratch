@@ -112,3 +112,21 @@ source record id appears across splits.
 
 The committed manifest stores aggregate counts, hashes, split membership, byte/character totals, source
 counts, language counts, dedup counts, and leakage results. It must not contain full document text.
+
+## PHASE-10D tokenizer and tokenized corpus_v01 data
+
+PHASE-10D trains byte-BPE candidates from the ignored `corpus_v01` smoke processed corpus:
+
+```sh
+uv run python -m tokenizer.train_report --config configs/tokenizer_corpus_v01.yaml --output docs/tokenizer_corpus_v01_report.md
+uv run python -m train.sample_batches --config configs/corpus_v01_tokenized.yaml --max-batches 2
+```
+
+The tokenizer report compares `2k`, `4k`, `8k`, and `16k` byte-BPE candidates and selects the conservative
+`4k` candidate for the first real-corpus smoke path. Tokenizer models and token arrays are written under
+ignored `data/tokenized/**`.
+
+The tokenized dataset command follows the PHASE-10C split manifest and writes ignored train, validation,
+and test `.npy` token streams plus a metadata sidecar. The committed
+`docs/corpus_v01_tokenized_manifest.json` records only aggregate counts, token file paths, hashes, and split
+membership metadata.

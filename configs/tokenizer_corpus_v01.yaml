@@ -1,0 +1,63 @@
+tokenizer:
+  tokenizer_id: kgpt-corpus-v01-byte-bpe-4k
+  model_path: data/tokenized/corpus_v01_tokenizers/byte_bpe_4k.json
+  target_vocab_sizes:
+    - 2000
+    - 4000
+    - 8000
+    - 16000
+  selected_target_vocab_size: 4000
+  min_pair_frequency: 2
+  candidates:
+    - id: byte_bpe_2k
+      status: compared
+      rationale: Smallest embedding budget; useful if 30M parameter budget is tight.
+    - id: byte_bpe_4k
+      status: selected-for-corpus-v01-smoke
+      rationale: Best conservative tradeoff for the smoke corpus and 30M model budget.
+    - id: byte_bpe_8k
+      status: compared
+      rationale: Candidate for better multilingual compression when the full corpus has enough repetition.
+    - id: byte_bpe_16k
+      status: compared
+      rationale: Upper PHASE-10D candidate; likely too large for smoke evidence but useful as a gate.
+
+dataset:
+  source_name: corpus_v01 smoke processed corpus
+  processed_path: data/processed/corpus_v01_smoke
+  source_manifest_path: docs/corpus_v01_source_manifest.md
+  dataset_manifest_path: docs/corpus_v01_dataset_manifest.json
+  url_or_local_note: Ignored PHASE-10B smoke corpus generated from repo-authored examples.
+  license: Repo-authored smoke text plus source-specific license metadata copied from corpus_v01 registry.
+  language_mix: English Wikipedia smoke, Japanese Wikipedia smoke, Project Gutenberg smoke, Aozora Bunko smoke.
+  preprocessing_command: uv run python -m corpus.clean --config configs/corpus_v01.yaml --smoke --output data/processed/corpus_v01_smoke
+  split_method: PHASE-10C deterministic document-level train/validation/test split.
+  dedup_strategy: Exact normalized text SHA-256 before split.
+  contamination_leakage_notes: Smoke data is repo-authored; no benchmark data is intentionally included.
+
+report:
+  title: PHASE-10D corpus_v01 Tokenizer Report
+  phase_note: >
+    PHASE-10D selects a conservative byte-BPE tokenizer for corpus_v01 smoke evidence. The chosen tokenizer
+    is sufficient to unblock tokenized data and PHASE-11A smoke training, but full-corpus tokenization should
+    be revisited when real local downloads are available.
+  sentences:
+    english:
+      - The history of artificial intelligence began with symbolic reasoning.
+      - A local language model learns from clean, documented data.
+    japanese:
+      - 人工知能の歴史は研究と実験の積み重ねです。
+      - 小さなモデルでもデータの品質は重要です。
+    mixed:
+      - English and 日本語 can share one byte-level tokenizer.
+      - KeigoGPT は local Mac で学習する educational model です。
+  byte_fallback_probes:
+    - rare emoji 🧪🧠
+    - 未知語とEnglishMix
+  bad_segmentation_examples:
+    - 超電導量子ビットとattention
+    - Project Gutenberg boilerplate should be removed before tokenization.
+  context_lengths:
+    - 128
+    - 256
+    - 512

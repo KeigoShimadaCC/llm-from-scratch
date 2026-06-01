@@ -62,6 +62,10 @@ def records_from_config(raw: dict[str, Any]) -> list[TextRecord]:
         source_raw = load_yaml_config(str(source_config))
         return records_from_config(source_raw)
 
+    processed_path = dataset.get("processed_path")
+    if processed_path:
+        return records_from_processed_path(str(processed_path))
+
     records_raw = dataset.get("records")
     if not isinstance(records_raw, list) or not records_raw:
         raise ValueError("dataset.records must be a non-empty list.")
@@ -78,6 +82,26 @@ def records_from_config(raw: dict[str, Any]) -> list[TextRecord]:
             raise ValueError(f"Duplicate dataset record id: {record_id}")
         seen_ids.add(record_id)
         records.append(TextRecord(record_id=record_id, language=language, text=text))
+    return records
+
+
+def records_from_processed_path(processed_path: str | Path) -> list[TextRecord]:
+    documents_path = _documents_path(processed_path)
+    records: list[TextRecord] = []
+    with documents_path.open("r", encoding="utf8") as handle:
+        for line_number, line in enumerate(handle, start=1):
+            if not line.strip():
+                continue
+            item = json.loads(line)
+            try:
+                record_id = _required_str(item, "doc_id")
+                language = _required_str(item, "lang")
+                text = _required_str(item, "text")
+            except ValueError as exc:
+                raise ValueError(f"Invalid processed record at line {line_number}: {exc}") from exc
+            records.append(TextRecord(record_id=record_id, language=language, text=text))
+    if not records:
+        raise ValueError(f"No processed records found: {documents_path}")
     return records
 
 
@@ -141,12 +165,16 @@ def build_tokenized_dataset_from_config(config_path: str | Path) -> dict[str, An
     config_path = Path(config_path)
     raw = load_yaml_config(config_path)
     tokenizer = _load_or_train_tokenizer(raw)
-    records = records_from_config(raw)
     dataset = _required_mapping(raw, "dataset")
-    dedup = preprocess_and_deduplicate(records)
-    split_seed = _required_int(dataset, "split_seed")
-    validation_fraction = _required_float(dataset, "validation_fraction")
-    splits = split_records(dedup.records, validation_fraction=validation_fraction, seed=split_seed)
+    split_manifest_path = dataset.get("split_manifest_path")
+    if split_manifest_path:
+        splits, dedup = splits_from_manifest_config(dataset)
+    else:
+        records = records_from_config(raw)
+        dedup = preprocess_and_deduplicate(records)
+        split_seed = _required_int(dataset, "split_seed")
+        validation_fraction = _required_float(dataset, "validation_fraction")
+        splits = split_records(dedup.records, validation_fraction=validation_fraction, seed=split_seed)
 
     output_dir = Path(_required_str(dataset, "output_dir"))
     metadata_path = Path(dataset.get("metadata_path", output_dir / "metadata.json"))
@@ -162,6 +190,52 @@ def build_tokenized_dataset_from_config(config_path: str | Path) -> dict[str, An
         dedup=dedup,
     )
     return metadata
+
+
+def splits_from_manifest_config(
+    dataset: dict[str, Any],
+) -> tuple[dict[str, tuple[PreprocessedRecord, ...]], DedupResult]:
+    split_manifest_path = Path(_required_str(dataset, "split_manifest_path"))
+    processed_path = _required_str(dataset, "processed_path")
+    manifest = json.loads(split_manifest_path.read_text(encoding="utf8"))
+    processed_records = {
+        record.record_id: record
+        for record in preprocess_and_deduplicate(records_from_processed_path(processed_path)).records
+    }
+    splits_payload = manifest.get("records")
+    if not isinstance(splits_payload, dict) or not splits_payload:
+        raise ValueError("split manifest records must be a non-empty mapping.")
+
+    splits: dict[str, tuple[PreprocessedRecord, ...]] = {}
+    seen_record_ids: set[str] = set()
+    for split_name, records_raw in splits_payload.items():
+        if not isinstance(split_name, str) or not isinstance(records_raw, list):
+            raise ValueError("split manifest records entries must be split-name lists.")
+        split_records: list[PreprocessedRecord] = []
+        for item in records_raw:
+            if not isinstance(item, dict):
+                raise ValueError("split manifest record entries must be mappings.")
+            doc_id = _required_str(item, "doc_id")
+            record = processed_records.get(doc_id)
+            if record is None:
+                raise ValueError(f"split manifest references unknown doc_id: {doc_id}")
+            expected_hash = _required_str(item, "normalized_text_sha256")
+            if record.text_sha256 != expected_hash:
+                raise ValueError(f"split manifest hash mismatch for doc_id: {doc_id}")
+            if doc_id in seen_record_ids:
+                raise ValueError(f"split manifest repeats doc_id: {doc_id}")
+            seen_record_ids.add(doc_id)
+            split_records.append(record)
+        splits[split_name] = tuple(split_records)
+    if "train" not in splits or "validation" not in splits:
+        raise ValueError("split manifest must include train and validation splits.")
+    all_records = tuple(record for split_records in splits.values() for record in split_records)
+    duplicate_ids = tuple(
+        item.get("doc_id", "")
+        for item in manifest.get("duplicates_removed", [])
+        if item.get("doc_id")
+    )
+    return splits, DedupResult(records=all_records, duplicate_record_ids=duplicate_ids)
 
 
 def write_tokenized_splits(
@@ -200,9 +274,7 @@ def write_tokenized_splits(
             "text_sha256": [record.text_sha256 for record in split_records_value],
         }
 
-    train_hashes = set(split_metadata["train"]["text_sha256"])
-    validation_hashes = set(split_metadata["validation"]["text_sha256"])
-    leakage_overlap = sorted(train_hashes & validation_hashes)
+    leakage_overlap = _train_heldout_overlap(split_metadata)
     dataset = _required_mapping(dataset_config, "dataset")
     manifest = _source_manifest(
         dataset_config=dataset_config,
@@ -232,7 +304,7 @@ def write_tokenized_splits(
         "split_method": _required_str(dataset, "split_method"),
         "dedup_strategy": _required_str(dataset, "dedup_strategy"),
         "leakage_check": {
-            "method": "exact normalized text sha256 intersection between train and validation splits",
+            "method": "exact normalized text sha256 intersection between train and held-out splits",
             "overlap_count": len(leakage_overlap),
             "overlap_sha256": leakage_overlap,
         },
@@ -309,9 +381,7 @@ def _source_manifest(
     language_counts: dict[str, int] = {}
     for record in dedup.records:
         language_counts[record.language] = language_counts.get(record.language, 0) + 1
-    train_hashes = set(split_metadata["train"]["text_sha256"])
-    validation_hashes = set(split_metadata["validation"]["text_sha256"])
-    leakage_overlap = sorted(train_hashes & validation_hashes)
+    leakage_overlap = _train_heldout_overlap(split_metadata)
     return {
         "schema_version": TOKEN_DATA_SCHEMA_VERSION,
         "manifest_path": str(manifest_path),
@@ -334,7 +404,7 @@ def _source_manifest(
         "dedup_strategy": _required_str(dataset, "dedup_strategy"),
         "contamination_leakage_notes": _required_str(dataset, "contamination_leakage_notes"),
         "leakage_check": {
-            "method": "exact normalized text sha256 intersection between train and validation splits",
+            "method": "exact normalized text sha256 intersection between train and held-out splits",
             "overlap_count": len(leakage_overlap),
             "overlap_sha256": leakage_overlap,
         },
@@ -372,6 +442,20 @@ def _load_or_train_tokenizer(raw: dict[str, Any]) -> ByteBPETokenizer:
     tokenizer_path.parent.mkdir(parents=True, exist_ok=True)
     tokenizer.save(tokenizer_path)
     return tokenizer
+
+
+def _documents_path(processed_path: str | Path) -> Path:
+    path = Path(processed_path)
+    return path if path.suffix == ".jsonl" else path / "documents.jsonl"
+
+
+def _train_heldout_overlap(split_metadata: dict[str, Any]) -> list[str]:
+    train_hashes = set(split_metadata.get("train", {}).get("text_sha256", []))
+    heldout_hashes: set[str] = set()
+    for split_name, payload in split_metadata.items():
+        if split_name != "train":
+            heldout_hashes.update(payload["text_sha256"])
+    return sorted(train_hashes & heldout_hashes)
 
 
 def _tokenizer_model_path(raw: dict[str, Any]) -> Path:

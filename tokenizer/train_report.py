@@ -108,6 +108,15 @@ def generate_tokenizer_report(*, config_path: Path, output_path: Path) -> dict[s
     markdown = _render_markdown(
         config_path=config_path,
         output_path=output_path,
+        report_title=str(report_config.get("title", "PHASE-02A Tokenizer Report")),
+        phase_note=str(
+            report_config.get(
+                "phase_note",
+                "The final tokenizer choice for larger training is deferred. This phase only proves the "
+                "token-level pipeline on a repo-authored bilingual smoke corpus; larger approved data is "
+                "required before PHASE-04A/PHASE-05A should treat this tokenizer as final.",
+            )
+        ),
         model_path=model_path,
         selected=selected,
         sweeps=sweeps,
@@ -134,6 +143,8 @@ def _render_markdown(
     *,
     config_path: Path,
     output_path: Path,
+    report_title: str,
+    phase_note: str,
     model_path: Path,
     selected: ByteBPETokenizer,
     sweeps: dict[str, list[dict[str, Any]]],
@@ -147,7 +158,7 @@ def _render_markdown(
     min_pair_frequency: int,
 ) -> str:
     lines: list[str] = [
-        "# PHASE-02A Tokenizer Report",
+        f"# {report_title}",
         "",
         "## Summary",
         "",
@@ -160,9 +171,7 @@ def _render_markdown(
         f"- Ignored tokenizer model artifact: `{model_path}`.",
         f"- Tokenizer model sha256: `{file_sha256(model_path)}`.",
         "",
-        "The final tokenizer choice for larger training is deferred. This phase only proves the token-level "
-        "pipeline on a repo-authored bilingual smoke corpus; larger approved data is required before "
-        "PHASE-04A/PHASE-05A should treat this tokenizer as final.",
+        phase_note,
         "",
         "## Candidate Status",
         "",
@@ -177,8 +186,8 @@ def _render_markdown(
             "",
             "## Vocabulary Sweep",
             "",
-            f"Minimum pair frequency: {min_pair_frequency}. The North Star sizes 8k, 16k, and 32k are requested,",
-            "but this smoke corpus is intentionally small, so byte-level BPE stops when no more eligible pairs remain.",
+            f"Minimum pair frequency: {min_pair_frequency}. Requested vocabulary sizes come from the phase config,",
+            "but smoke corpora are intentionally small, so byte-level BPE stops when no more eligible pairs remain.",
             "",
             "| Corpus | Requested vocab | Actual vocab | Learned merges | Status |",
             "| --- | ---: | ---: | ---: | --- |",
