@@ -1,5 +1,5 @@
 {
-  "currentPhase": "PHASE-10A",
+  "currentPhase": "PHASE-10B",
   "lastUpdated": "2026-06-01",
   "phases": {
     "PHASE-00B": {
@@ -67,7 +67,10 @@
     },
     "PHASE-10A": {
       "branch": "phase/phase-10a-corpus-source-registry",
-      "status": "queued"
+      "evidenceDir": "runs/phase-runner/PHASE-10A/2026-06-01T02:20:59Z",
+      "mergeCommit": "fd3ddb097efc96e6340efeaae41fe77421fdcb34",
+      "pr": 12,
+      "status": "complete"
     },
     "PHASE-10B": {
       "branch": "phase/phase-10b-corpus-download-cleaning",
