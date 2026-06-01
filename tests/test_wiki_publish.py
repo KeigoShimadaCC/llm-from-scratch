@@ -62,10 +62,14 @@ def test_managed_pages_excludes_source_readme() -> None:
 def test_wiki_source_pages_have_course_structure() -> None:
     pages = managed_pages(WIKI_SOURCE)
     sidebar = (WIKI_SOURCE / "_Sidebar.md").read_text(encoding="utf8")
+    home = (WIKI_SOURCE / "Home.md").read_text(encoding="utf8")
 
     for page in pages:
         if page.name != "_Sidebar.md":
             assert page.stem in sidebar
+
+        if page.name not in {"_Sidebar.md", "Home.md"}:
+            assert page.stem in home
 
         text = page.read_text(encoding="utf8")
         assert text.startswith("# ")
@@ -75,8 +79,20 @@ def test_wiki_source_pages_have_course_structure() -> None:
 
         if page.name not in {"_Sidebar.md", "Home.md", "Appendix-Command-Index.md"}:
             assert "## Goal" in text
+            assert "## What This Part Does" in text
             assert "## Run It" in text
             assert "## Further Reading" in text
+
+
+def test_wiki_gap_fixes_are_documented() -> None:
+    tokenizer_page = (WIKI_SOURCE / "01-Text-To-Tokens.md").read_text(encoding="utf8")
+    labs_page = (WIKI_SOURCE / "10-Hands-On-Labs.md").read_text(encoding="utf8")
+
+    assert "English sentence" in tokenizer_page
+    assert "Japanese sentence" in tokenizer_page
+    assert "0 unknown tokens" in tokenizer_page
+    assert "Lab 6: Inspect Checkpoint Comparison" in labs_page
+    assert "docs/checkpoint_manifest_corpus_v01.json" in labs_page
 
 
 def test_publish_wiki_dry_run_preserves_remote_and_cleans_workdir(tmp_path: Path) -> None:
