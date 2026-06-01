@@ -1,5 +1,5 @@
 {
-  "currentPhase": "PHASE-10B",
+  "currentPhase": "PHASE-10C",
   "lastUpdated": "2026-06-01",
   "phases": {
     "PHASE-00B": {
@@ -74,7 +74,9 @@
     },
     "PHASE-10B": {
       "branch": "phase/phase-10b-corpus-download-cleaning",
-      "status": "queued"
+      "mergeCommit": "2361e690e8c4aece283beba0331caefdbafbbc98",
+      "pr": 13,
+      "status": "complete"
     },
     "PHASE-10C": {
       "branch": "phase/phase-10c-split-leakage-dataset-manifest",
