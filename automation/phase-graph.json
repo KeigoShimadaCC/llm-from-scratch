@@ -410,6 +410,186 @@
           ]
         }
       ]
+    },
+    {
+      "id": "PHASE-10A",
+      "plan": "phase-plans/PHASE-10A-CORPUS-SOURCE-REGISTRY.md",
+      "dependsOn": [
+        "PHASE-09A"
+      ],
+      "allowedPaths": [
+        "configs/**",
+        "corpus/**",
+        "docs/**",
+        "tests/**",
+        "PROGRESS.md"
+      ],
+      "parallelGroup": "corpus",
+      "automerge": true,
+      "validationCommands": [
+        {
+          "id": "phase-10a-source-audit",
+          "command": "uv run python -m corpus.audit_sources --config configs/corpus_v01.yaml --output docs/corpus_v01_source_manifest.md",
+          "timeoutMs": 300000,
+          "requiredFor": [
+            "phase",
+            "merge"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "PHASE-10B",
+      "plan": "phase-plans/PHASE-10B-CORPUS-DOWNLOAD-CLEANING.md",
+      "dependsOn": [
+        "PHASE-10A"
+      ],
+      "allowedPaths": [
+        "configs/**",
+        "corpus/**",
+        "data/README.md",
+        "docs/**",
+        "tests/**",
+        "PROGRESS.md"
+      ],
+      "parallelGroup": "corpus",
+      "automerge": true,
+      "validationCommands": [
+        {
+          "id": "phase-10b-download-dry-run",
+          "command": "uv run python -m corpus.download --config configs/corpus_v01.yaml --dry-run",
+          "timeoutMs": 300000,
+          "requiredFor": [
+            "phase",
+            "merge"
+          ]
+        },
+        {
+          "id": "phase-10b-clean-smoke",
+          "command": "uv run python -m corpus.clean --config configs/corpus_v01.yaml --smoke --output data/processed/corpus_v01_smoke",
+          "timeoutMs": 600000,
+          "requiredFor": [
+            "phase",
+            "merge"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "PHASE-10C",
+      "plan": "phase-plans/PHASE-10C-SPLIT-LEAKAGE-DATASET-MANIFEST.md",
+      "dependsOn": [
+        "PHASE-10B"
+      ],
+      "allowedPaths": [
+        "configs/**",
+        "corpus/**",
+        "data/README.md",
+        "docs/**",
+        "tests/**",
+        "PROGRESS.md"
+      ],
+      "parallelGroup": "corpus",
+      "automerge": true,
+      "validationCommands": [
+        {
+          "id": "phase-10c-split-manifest",
+          "command": "uv run python -m corpus.split_manifest --config configs/corpus_v01.yaml --processed data/processed/corpus_v01_smoke --output docs/corpus_v01_dataset_manifest.json",
+          "timeoutMs": 300000,
+          "requiredFor": [
+            "phase",
+            "merge"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "PHASE-10D",
+      "plan": "phase-plans/PHASE-10D-TOKENIZER-TOKENIZED-DATASET.md",
+      "dependsOn": [
+        "PHASE-10C"
+      ],
+      "allowedPaths": [
+        "configs/**",
+        "corpus/**",
+        "data/README.md",
+        "docs/**",
+        "kgpt/**",
+        "tokenizer/**",
+        "train/**",
+        "tests/**",
+        "PROGRESS.md"
+      ],
+      "parallelGroup": "tokenizer",
+      "automerge": true,
+      "validationCommands": [
+        {
+          "id": "phase-10d-tokenizer-report",
+          "command": "uv run python -m tokenizer.train_report --config configs/tokenizer_corpus_v01.yaml --output docs/tokenizer_corpus_v01_report.md",
+          "timeoutMs": 900000,
+          "requiredFor": [
+            "phase",
+            "merge"
+          ]
+        },
+        {
+          "id": "phase-10d-tokenized-batch-smoke",
+          "command": "uv run python -m train.sample_batches --config configs/corpus_v01_tokenized.yaml --max-batches 2",
+          "timeoutMs": 300000,
+          "requiredFor": [
+            "phase",
+            "merge"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "PHASE-11A",
+      "plan": "phase-plans/PHASE-11A-MEANINGFUL-30M-TRAINING.md",
+      "dependsOn": [
+        "PHASE-10D"
+      ],
+      "allowedPaths": [
+        "configs/**",
+        "docs/**",
+        "kgpt/**",
+        "train/**",
+        "eval/**",
+        "inference/**",
+        "tests/**",
+        "PROGRESS.md"
+      ],
+      "parallelGroup": "training",
+      "automerge": true,
+      "validationCommands": [
+        {
+          "id": "phase-11a-30m-corpus-dry-run-resume",
+          "command": "uv run python -m train.pretrain --config configs/kgpt_30m_corpus_v01.yaml --dry-run --validate-resume",
+          "timeoutMs": 300000,
+          "requiredFor": [
+            "phase",
+            "merge"
+          ]
+        },
+        {
+          "id": "phase-11a-30m-corpus-smoke-train",
+          "command": "uv run python -m train.pretrain --config configs/kgpt_30m_corpus_v01.yaml --max-steps 1000 --run-name phase11a_kgpt30m_corpus_v01_smoke",
+          "timeoutMs": 7200000,
+          "requiredFor": [
+            "phase",
+            "merge"
+          ]
+        },
+        {
+          "id": "phase-11a-checkpoint-comparison",
+          "command": "uv run python -m eval.compare_checkpoints --manifest docs/checkpoint_manifest_corpus_v01.json --output docs/phase11a_real_corpus_checkpoint_comparison.md",
+          "timeoutMs": 600000,
+          "requiredFor": [
+            "phase",
+            "merge"
+          ]
+        }
+      ]
     }
   ]
 }

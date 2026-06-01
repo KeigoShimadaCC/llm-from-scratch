@@ -6,6 +6,8 @@
     "agentMayChoose": [
       "repo-authored synthetic fixtures for tests and smoke runs",
       "public or permissively licensed datasets documented with source, license, checksum when available, split, dedup, and leakage notes",
+      "the corpus_v01 source allowlist when provenance, license or terms notes, and attribution requirements are documented: English Wikipedia, Japanese Wikipedia, Project Gutenberg, and Aozora Bunko",
+      "CI-safe dry-run or smoke-sized corpus validation artifacts, while keeping full raw, processed, tokenized, tokenizer model, checkpoint, and run artifacts ignored",
       "tokenizer candidate that wins the committed tokenizer report against the phase metrics",
       "architecture defaults already established in the phase plan",
       "documented fallback only when required evidence proves compute, dependency, or hardware infeasibility",
@@ -14,6 +16,9 @@
     "agentMustNotChoose": [
       "private corpora or credentials",
       "undocumented dataset licenses",
+      "corpus sources outside the corpus_v01 allowlist without an explicit phase-plan and policy update",
+      "sources whose license, terms, provenance, or attribution requirements cannot be verified",
+      "OpenAI embeddings, third-party pretrained embedding artifacts, or pretrained language model weights in the scratch-core training path",
       "pretrained model wrappers in the scratch-core path",
       "unsupported final claims",
       "committing generated checkpoints, raw corpora, tokenized datasets, or ignored run directories"
@@ -21,8 +26,15 @@
   },
   "defaults": {
     "fixtureCorpus": "repo-authored synthetic text unless a public-domain source is documented",
+    "corpusV01Sources": [
+      "enwiki",
+      "jawiki",
+      "project_gutenberg",
+      "aozora_bunko"
+    ],
     "tokenizerSelection": "choose the candidate with the best documented English/Japanese tradeoff and no roundtrip failures",
-    "datasetPolicy": "permissive/public sources only, with manifest evidence before training claims",
+    "datasetPolicy": "corpus_v01 is limited to English Wikipedia, Japanese Wikipedia, Project Gutenberg, and Aozora Bunko; exclude or mark blocked any item whose terms cannot be verified",
+    "generatedDataPolicy": "raw, processed, tokenized, tokenizer model, checkpoint, and run artifacts are generated locally only and must remain ignored",
     "scalePolicy": "train kgpt-30m unless infeasible; fallback requires evidence, smaller run, and final write-up downgrade",
     "mlxPolicy": "implement MLX comparison unless infeasible; deferral requires blocker evidence and final write-up downgrade",
     "finalClaimPolicy": "do not call the original North Star fully achieved if 30M+ training or MLX comparison is deferred"
