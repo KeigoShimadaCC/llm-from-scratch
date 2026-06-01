@@ -97,3 +97,18 @@ download would use later.
 The smoke corpus exercises Wikipedia, Gutenberg, and Aozora cleaning behavior without committing upstream
 corpus text. Full raw downloads, full processed corpora, tokenized arrays, tokenizer artifacts, and
 checkpoints remain ignored local artifacts.
+
+## PHASE-10C split and leakage manifest
+
+PHASE-10C consumes the ignored PHASE-10B smoke processed corpus and writes a committed manifest summary:
+
+```sh
+uv run python -m corpus.split_manifest --config configs/corpus_v01.yaml --processed data/processed/corpus_v01_smoke --output docs/corpus_v01_dataset_manifest.json
+```
+
+The split is document-level and deterministic. Records are exact-deduplicated by normalized text hash
+before assignment to `train`, `validation`, and `test`. Leakage checks fail if a normalized text hash or
+source record id appears across splits.
+
+The committed manifest stores aggregate counts, hashes, split membership, byte/character totals, source
+counts, language counts, dedup counts, and leakage results. It must not contain full document text.

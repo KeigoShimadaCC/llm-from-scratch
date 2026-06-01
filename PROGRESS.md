@@ -6,9 +6,9 @@ Living coordination file for phase-based agent work.
 
 | Field | Value |
 | --- | --- |
-| Phase | PHASE-10B - Corpus Download And Cleaning |
-| Goal | Add CI-safe corpus download dry-run and deterministic smoke cleaning for corpus_v01 |
-| Branch | phase/phase-10b-corpus-download-cleaning |
+| Phase | PHASE-10C - Split, Leakage, And Dataset Manifest |
+| Goal | Add deterministic corpus_v01 document splits, exact dedup, leakage checks, and committed manifest summary |
+| Branch | phase/phase-10c-split-leakage-dataset-manifest |
 | Worktree | /Users/keigoshimada/Documents/llm-from-scratch |
 | Status | complete |
 
@@ -24,6 +24,12 @@ Living coordination file for phase-based agent work.
 
 ### Done
 
+- [x] Implemented `corpus.split_manifest`, deterministic document-level split assignment, exact normalized-text dedup, leakage probes, dataset manifest generation, tests, and split documentation.
+- [x] Generated `docs/corpus_v01_dataset_manifest.json` from ignored PHASE-10B smoke records without full document text.
+- [x] PHASE-10C validation passed: `uv run pytest` (61 tests), `uv run ruff check .`, `git diff --check`, and `uv run python -m corpus.split_manifest --config configs/corpus_v01.yaml --processed data/processed/corpus_v01_smoke --output docs/corpus_v01_dataset_manifest.json`.
+- [x] Artifact policy check passed: `git ls-files data/raw data/processed data/tokenized experiments/runs '*.pt' '*.safetensors'` returned no tracked generated artifacts.
+- [x] Started PHASE-10C after PHASE-10B merged via PR #13 at merge commit `2361e690e8c4aece283beba0331caefdbafbbc98`.
+- [x] Read `PROGRESS.md`, North Star data/tokenizer/training direction, and `phase-plans/PHASE-10C-SPLIT-LEAKAGE-DATASET-MANIFEST.md` before implementation.
 - [x] Implemented `corpus.download --dry-run`, `corpus.clean --smoke`, processed JSONL schema helpers, repo-authored smoke fixtures, tests, and PHASE-10B data documentation.
 - [x] Generated ignored smoke processed corpus at `data/processed/corpus_v01_smoke/` with `documents.jsonl` and `manifest.json`; artifacts remain untracked.
 - [x] PHASE-10B validation passed: `uv run pytest` (55 tests), `uv run ruff check .`, `git diff --check`, `uv run python -m corpus.download --config configs/corpus_v01.yaml --dry-run`, and `uv run python -m corpus.clean --config configs/corpus_v01.yaml --smoke --output data/processed/corpus_v01_smoke`.
@@ -95,6 +101,20 @@ Living coordination file for phase-based agent work.
 - [x] Implemented PHASE-01A character tokenizer, context MLP training loop, deterministic generation, tests, prompt asset, mini report, and ignored overfit evidence.
 
 ## Phase Checklist
+
+### PHASE-10C - Split, Leakage, And Dataset Manifest
+
+- [x] PHASE-10B prerequisites verified.
+- [x] Active phase plan read before implementation.
+- [x] `corpus.split_manifest` added.
+- [x] Deterministic document-level train/validation/test split implemented.
+- [x] Exact normalized-text deduplication runs before split.
+- [x] Leakage checks cover normalized text hashes and source record ids across splits.
+- [x] `docs/corpus_v01_dataset_manifest.json` generated without full document text.
+- [x] Tests cover split determinism, hash stability, duplicate removal, leakage failure, and manifest schema.
+- [x] `data/README.md` documents split and manifest conventions.
+- [x] Required validation commands run.
+- [x] Raw, processed, and tokenized corpus records remain uncommitted.
 
 ### PHASE-10B - Corpus Download And Cleaning
 
