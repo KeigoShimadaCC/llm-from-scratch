@@ -1,5 +1,5 @@
 {
-  "currentPhase": "PHASE-10C",
+  "currentPhase": "PHASE-10D",
   "lastUpdated": "2026-06-01",
   "phases": {
     "PHASE-00B": {
@@ -80,7 +80,9 @@
     },
     "PHASE-10C": {
       "branch": "phase/phase-10c-split-leakage-dataset-manifest",
-      "status": "queued"
+      "mergeCommit": "69e3fb68479f131c651124f8cc81d78cefd9c05c",
+      "pr": 14,
+      "status": "complete"
     },
     "PHASE-10D": {
       "branch": "phase/phase-10d-tokenizer-tokenized-dataset",
