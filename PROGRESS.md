@@ -6,11 +6,11 @@ Living coordination file for phase-based agent work.
 
 | Field | Value |
 | --- | --- |
-| Phase | WIKI-01 - GitHub Wiki Courseware |
-| Goal | Publish a hands-on educational wiki layer over the scratch LLM repo |
-| Branch | main (merged PR #17) |
+| Phase | WIKI-02 - Courseware Educational Polish |
+| Goal | Fix wiki-courseware gaps and make lessons more explanatory with concrete file roles and example results |
+| Branch | codex/wiki-courseware-polish |
 | Worktree | /Users/keigoshimada/Documents/llm-from-scratch |
-| Status | complete |
+| Status | in progress |
 
 ## Task Queue
 
@@ -20,10 +20,17 @@ Living coordination file for phase-based agent work.
 
 ### In Progress
 
-- [x] None.
+- [ ] Open/merge PR and deploy managed wiki pages.
 
 ### Done
 
+- [x] Started WIKI-02 from clean `main`; read `PROGRESS.md`, North Star project direction, previous completion audit gaps, and current wiki source/publisher files.
+- [x] Expanded wiki lessons with `What This Part Does`, file-role explanations in repo maps, and concrete example result snippets for tokenizer, dataset, architecture, training, evaluation, inference, benchmark, and roadmap pages.
+- [x] Fixed prior gaps: `Home.md` now links every lesson/appendix page, `01-Text-To-Tokens.md` includes English/Japanese byte-BPE examples, and `10-Hands-On-Labs.md` includes checkpoint comparison inspection.
+- [x] Strengthened `tests/test_wiki_publish.py` to enforce Home coverage, educational lesson sections, tokenizer examples, and checkpoint-comparison lab coverage.
+- [x] Focused WIKI-02 validation passed: `uv run pytest tests/test_wiki_publish.py` and `uv run ruff check tests/test_wiki_publish.py`.
+- [x] WIKI-02 full local validation passed: `uv run pytest` (74 tests), `uv run ruff check .`, `git diff --check`, `uv run python scripts/publish_wiki.py --dry-run`, and `git ls-files data/raw data/processed data/tokenized experiments/runs '*.pt' '*.safetensors'`.
+- [x] Wiki dry-run listed the managed page set and left `/private/tmp/llm-from-scratch-wiki` clean.
 - [x] Started WIKI-01 from clean `main`; read `PROGRESS.md`, North Star project identity, wiki plan, existing command/artifact indexes, and verified the GitHub Wiki remote has only the placeholder `Home.md`.
 - [x] Added managed courseware source under `docs/wiki/`, including the Home page, sidebar, eleven lessons, command appendix, glossary, and source/deploy README.
 - [x] Added `scripts/publish_wiki.py` with dry-run and explicit-push modes, dirty-worktree refusal, managed-page copying, unmanaged-page preservation, and README exclusion.

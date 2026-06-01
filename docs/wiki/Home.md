@@ -21,12 +21,37 @@ Expected shape: a JSON payload with `generated_text`, checkpoint path, token cou
 
 ## Learning Path
 
-1. Start with [[00. What From Scratch Means|00-What-From-Scratch-Means]].
-2. Follow the data path through tokenization, source registry, cleaning, splitting, and leakage checks.
-3. Study the Transformer architecture and training loop.
-4. Inspect the 30M corpus smoke run and evaluation reports.
-5. Run local inference and try the labs.
-6. Review the roadmap for full-corpus training, better SFT, and MLX parity.
+Use each lesson in the same order: read the idea, inspect the repo files, run one command, then look at the artifact
+that proves what happened. The goal is to connect a concept to a concrete file and a concrete result.
+
+## Course Map
+
+- [[00. What From Scratch Means|00-What-From-Scratch-Means]]: the project boundary and what this repo owns.
+- [[01. Text To Tokens|01-Text-To-Tokens]]: how text becomes integer token ids.
+- [[02. Data Sourcing And Licenses|02-Data-Sourcing-And-Licenses]]: where the corpus can come from and why provenance
+  matters.
+- [[03. Cleaning, Splitting, And Leakage|03-Cleaning-Splitting-And-Leakage]]: how raw text becomes train/validation/test
+  records.
+- [[04. Transformer Architecture|04-Transformer-Architecture]]: how embeddings, attention, MLPs, and logits fit
+  together.
+- [[05. Training Loop And Checkpoints|05-Training-Loop-And-Checkpoints]]: how next-token prediction updates weights
+  and saves evidence.
+- [[06. The 30M Corpus Run|06-The-30M-Corpus-Run]]: the current main educational model run and its limitations.
+- [[07. Evaluation And Failure Analysis|07-Evaluation-And-Failure-Analysis]]: fixed prompts, metrics, and failure labels.
+- [[08. Inference And Sampling|08-Inference-And-Sampling]]: how a checkpoint turns a prompt into generated text.
+- [[09. Mac Optimization And MLX|09-Mac-Optimization-And-MLX]]: CPU/MPS benchmarking, KV-cache parity, and MLX deferral.
+- [[10. Hands-On Labs|10-Hands-On-Labs]]: short exercises with expected output shapes.
+- [[11. Roadmap And Next Steps|11-Roadmap-And-Next-Steps]]: what would make the model meaningfully better.
+- [[Appendix. Command Index|Appendix-Command-Index]]: grouped commands.
+- [[Appendix. Glossary|Appendix-Glossary]]: short definitions.
+
+## How To Read A Lesson
+
+- **Concept:** what the phase does in an LLM pipeline.
+- **Repo files:** which files implement or document that part.
+- **Command:** one small command that exercises the concept.
+- **Evidence:** the report, JSON, checkpoint metadata, or sample output to inspect.
+- **Experiment:** one change to try locally without committing generated artifacts.
 
 ## Repo Map
 

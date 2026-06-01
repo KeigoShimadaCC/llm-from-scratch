@@ -9,11 +9,19 @@ Define common terms used across the wiki.
 LLM projects mix data, architecture, training, and systems terms. Shared definitions make the lessons easier to
 follow.
 
+## What This Part Does
+
+Use this page when a lesson uses a term before it feels natural. Each definition is intentionally short. The better
+learning move is to pair the definition with one source file or report where the term appears in practice.
+
 ## Repo Map
 
-- [North Star](https://github.com/KeigoShimadaCC/llm-from-scratch/blob/main/docs/NORTH_STAR_LLM_FROM_SCRATCH_MAC.md)
-- [Model Card](https://github.com/KeigoShimadaCC/llm-from-scratch/blob/main/docs/MODEL_CARD.md)
-- [Data Card](https://github.com/KeigoShimadaCC/llm-from-scratch/blob/main/docs/DATA_CARD.md)
+- [North Star](https://github.com/KeigoShimadaCC/llm-from-scratch/blob/main/docs/NORTH_STAR_LLM_FROM_SCRATCH_MAC.md):
+  project vocabulary and scope.
+- [Model Card](https://github.com/KeigoShimadaCC/llm-from-scratch/blob/main/docs/MODEL_CARD.md): model behavior and
+  limitation terms.
+- [Data Card](https://github.com/KeigoShimadaCC/llm-from-scratch/blob/main/docs/DATA_CARD.md): corpus and provenance
+  terms.
 
 ## Terms
 

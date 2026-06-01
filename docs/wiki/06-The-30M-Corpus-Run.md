@@ -10,12 +10,22 @@ The 30M run proves the repo can scale beyond toy models while still using scratc
 artifacts, training loop, evaluation, and inference. It is evidence of the lab pipeline, not a claim of useful chatbot
 quality.
 
+## What This Part Does
+
+This is the current "main model" evidence row. It combines the corpus registry, cleaned smoke corpus, selected
+byte-BPE tokenizer, 30M Transformer config, training loop, checkpoint format, fixed-prompt evaluation, and inference
+CLI. The run is short enough to be educational and reproducible, but too small to produce strong language ability.
+
 ## Repo Map
 
-- [30M corpus config](https://github.com/KeigoShimadaCC/llm-from-scratch/blob/main/configs/kgpt_30m_corpus_v01.yaml)
-- [Checkpoint manifest](https://github.com/KeigoShimadaCC/llm-from-scratch/blob/main/docs/checkpoint_manifest_corpus_v01.json)
-- [PHASE-11A comparison report](https://github.com/KeigoShimadaCC/llm-from-scratch/blob/main/docs/phase11a_real_corpus_checkpoint_comparison.md)
-- [Inference config](https://github.com/KeigoShimadaCC/llm-from-scratch/blob/main/configs/inference_corpus_v01.yaml)
+- [30M corpus config](https://github.com/KeigoShimadaCC/llm-from-scratch/blob/main/configs/kgpt_30m_corpus_v01.yaml):
+  model size, optimizer settings, tokenized data paths, and run defaults.
+- [Checkpoint manifest](https://github.com/KeigoShimadaCC/llm-from-scratch/blob/main/docs/checkpoint_manifest_corpus_v01.json):
+  tells evaluation which checkpoints to compare.
+- [PHASE-11A comparison report](https://github.com/KeigoShimadaCC/llm-from-scratch/blob/main/docs/phase11a_real_corpus_checkpoint_comparison.md):
+  committed metrics, samples, and failure labels.
+- [Inference config](https://github.com/KeigoShimadaCC/llm-from-scratch/blob/main/configs/inference_corpus_v01.yaml):
+  points generation at the PHASE-11A checkpoint and tokenizer.
 
 ## Run It
 
@@ -42,6 +52,9 @@ Example completions include:
 - `The model learns` -> `The model learns.`
 - `A local language model` -> `A local language models use attention to predict text. They`
 - `小さなモデル` -> `小さなモデルめの短い文章です。`
+
+Read these as pipeline evidence, not product quality. The validation loss improved sharply, but the fixed-prompt
+report still labels failures such as `instruction_ignored`, `mode_collapse`, and `pure_gibberish`.
 
 ## Try Changing
 

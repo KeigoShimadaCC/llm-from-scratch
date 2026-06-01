@@ -10,12 +10,22 @@ Apple Silicon changes practical engineering decisions. CPU and PyTorch MPS can r
 parity is tested for inference behavior. MLX is the likely future Mac-native optimization path, but tensor-loading
 parity is not implemented yet.
 
+## What This Part Does
+
+This lesson separates correctness from speed. First, the repo checks that cached inference produces the same behavior
+as uncached inference. Then the benchmark compares CPU and MPS throughput. MLX is documented as deferred until there
+is a scratch-model loading path and logits parity test, so the wiki should not imply MLX is already complete.
+
 ## Repo Map
 
-- [Inference benchmark report](https://github.com/KeigoShimadaCC/llm-from-scratch/blob/main/docs/phase08a_benchmark.md)
-- [KV-cache parity output](https://github.com/KeigoShimadaCC/llm-from-scratch/blob/main/docs/phase08a_kv_cache_parity.json)
-- [MLX deferral](https://github.com/KeigoShimadaCC/llm-from-scratch/blob/main/docs/phase08a_mlx_deferral.md)
-- [Inference benchmark CLI](https://github.com/KeigoShimadaCC/llm-from-scratch/blob/main/inference/benchmark.py)
+- [Inference benchmark report](https://github.com/KeigoShimadaCC/llm-from-scratch/blob/main/docs/phase08a_benchmark.md):
+  CPU/MPS throughput and MLX status.
+- [KV-cache parity output](https://github.com/KeigoShimadaCC/llm-from-scratch/blob/main/docs/phase08a_kv_cache_parity.json):
+  cached-vs-uncached behavior evidence.
+- [MLX deferral](https://github.com/KeigoShimadaCC/llm-from-scratch/blob/main/docs/phase08a_mlx_deferral.md): blocker
+  record for future MLX work.
+- [Inference benchmark CLI](https://github.com/KeigoShimadaCC/llm-from-scratch/blob/main/inference/benchmark.py):
+  benchmark implementation.
 
 ## Run It
 
@@ -28,6 +38,17 @@ uv run python -m inference.benchmark --config configs/inference_benchmark.yaml -
 
 If MLX is marked deferred in the benchmark report, that is expected. The repo should not claim PyTorch-vs-MLX parity
 until an MLX model-loading path and logits parity tests exist.
+
+Example benchmark row:
+
+```text
+cpu measured: cached tok/s 2811.4619
+mps measured: cached tok/s 313.4925
+mlx deferred: MLX is not installed
+```
+
+Those numbers came from a micro benchmark, not a universal performance claim. Rerun locally on your Mac before making
+device decisions.
 
 ## Try Changing
 

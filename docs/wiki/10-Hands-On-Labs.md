@@ -8,11 +8,19 @@ Use short exercises to connect concepts to actual commands.
 
 This project is best learned by running it. The point is to inspect the artifacts, not only read explanations.
 
+## What This Part Does
+
+The labs are short loops: run one command, inspect one artifact, make one small change, and explain what changed.
+They are intentionally smoke-sized so a student can focus on the mechanics before attempting larger training.
+
 ## Repo Map
 
-- [Command Index](https://github.com/KeigoShimadaCC/llm-from-scratch/blob/main/docs/COMMAND_INDEX.md)
-- [Artifact Index](https://github.com/KeigoShimadaCC/llm-from-scratch/blob/main/docs/ARTIFACT_INDEX.md)
-- [PHASE-11A report](https://github.com/KeigoShimadaCC/llm-from-scratch/blob/main/docs/phase11a_real_corpus_checkpoint_comparison.md)
+- [Command Index](https://github.com/KeigoShimadaCC/llm-from-scratch/blob/main/docs/COMMAND_INDEX.md): canonical
+  command list.
+- [Artifact Index](https://github.com/KeigoShimadaCC/llm-from-scratch/blob/main/docs/ARTIFACT_INDEX.md): where evidence
+  lives and how to recreate it.
+- [PHASE-11A report](https://github.com/KeigoShimadaCC/llm-from-scratch/blob/main/docs/phase11a_real_corpus_checkpoint_comparison.md):
+  current 30M smoke-run metrics, samples, and failure labels.
 
 ## Run It
 
@@ -56,9 +64,26 @@ uv run python -m train.pretrain --config configs/kgpt_30m_corpus_v01.yaml --dry-
 
 Expected shape: JSON with parameter count, tokenizer compatibility, split checks, and resume checkpoint metadata.
 
+### Lab 6: Inspect Checkpoint Comparison
+
+```bash
+uv run python -m eval.compare_checkpoints --manifest docs/checkpoint_manifest_corpus_v01.json --output docs/phase11a_real_corpus_checkpoint_comparison.md
+```
+
+Expected shape: Markdown table with checkpoint status, parameter count, validation loss, perplexity, tokens/sec, toy
+exact-match rate, sample snapshots, and failure classes. If ignored checkpoint artifacts are absent in a fresh clone,
+the report may use committed summary data instead of live evaluation.
+
 ## Inspect It
 
 After each lab, open the referenced report or JSON payload and ask: what artifact proves the command worked?
+
+Example evidence to notice:
+
+- Inference: `generated_text`, generated token count, and stop reason.
+- Tokenizer report: selected tokenizer, actual vocabulary size, English/Japanese token counts.
+- 30M dry-run: `31,692,800` parameters and resume validation.
+- Checkpoint comparison: failure labels such as `instruction_ignored` and `mode_collapse`.
 
 ## Try Changing
 
