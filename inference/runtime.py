@@ -11,6 +11,7 @@ import yaml
 
 from kgpt.byte_bpe import ByteBPETokenizer
 from kgpt.checkpoint import load_checkpoint
+from kgpt.pretrain import PretrainConfig, load_pretrain_config
 from kgpt.seed import seed_everything
 from kgpt.transformer import (
     DecoderOnlyTransformer,
@@ -46,7 +47,7 @@ class LoadedInferenceModel:
     tokenizer: Any
     checkpoint_path: Path
     metadata: dict[str, Any]
-    experiment_config: TransformerExperimentConfig
+    experiment_config: TransformerExperimentConfig | PretrainConfig
     device: torch.device
 
 
@@ -122,6 +123,30 @@ def load_model_for_inference(
     device_override: str | None = None,
     tokenizer_override: Path | None = None,
 ) -> LoadedInferenceModel:
+    if config.model_kind == "pretrain":
+        experiment_config = load_pretrain_config(config.model_config)
+        checkpoint_path = checkpoint_override or config.checkpoint
+        if not checkpoint_path.is_file():
+            raise FileNotFoundError(f"Checkpoint not found: {checkpoint_path}")
+        tokenizer = (
+            ByteBPETokenizer.load(tokenizer_override)
+            if tokenizer_override
+            else load_tokenizer_for_config(experiment_config)
+        )
+        model = DecoderOnlyTransformer(experiment_config.model)
+        payload = load_checkpoint(checkpoint_path, model=model, map_location="cpu")
+        device = resolve_device(device_override or config.device)
+        model.to(device)
+        model.eval()
+        return LoadedInferenceModel(
+            model=model,
+            tokenizer=tokenizer,
+            checkpoint_path=checkpoint_path,
+            metadata=payload["metadata"],
+            experiment_config=experiment_config,
+            device=device,
+        )
+
     if config.model_kind != "transformer_smoke":
         raise ValueError(f"Unsupported inference model kind: {config.model_kind}")
     experiment_config = load_transformer_experiment_config(config.model_config)

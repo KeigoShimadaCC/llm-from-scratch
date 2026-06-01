@@ -19,7 +19,7 @@ corpora, tokenized arrays, checkpoints, or full run directories.
 | Final portfolio | `docs/FINAL_WRITEUP.md`, `docs/COMMAND_INDEX.md`, `docs/ARTIFACT_INDEX.md`, `docs/MODEL_CARD.md`, `docs/DATA_CARD.md`, `docs/claim_evidence_audit.md` |
 | Corpus source registry | `docs/corpus_v01_source_manifest.md` |
 | Corpus split and tokenization | `docs/corpus_v01_dataset_manifest.json`, `docs/tokenizer_corpus_v01_report.md`, `docs/corpus_v01_tokenized_manifest.json` |
-| Real-corpus 30M training | `docs/checkpoint_manifest_corpus_v01.json`, `docs/phase11a_real_corpus_checkpoint_comparison.md` |
+| Real-corpus 30M training | `configs/inference_corpus_v01.yaml`, `docs/checkpoint_manifest_corpus_v01.json`, `docs/phase11a_real_corpus_checkpoint_comparison.md` |
 
 ## Ignored Local Artifact Locations
 

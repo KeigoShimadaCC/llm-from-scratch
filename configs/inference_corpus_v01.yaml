@@ -1,0 +1,32 @@
+schema_version: 1
+run_name: phase11a_kgpt30m_corpus_v01_inference
+device: cpu
+dtype: float32
+model:
+  kind: pretrain
+  config: configs/kgpt_30m_corpus_v01.yaml
+  checkpoint: experiments/runs/phase11a_kgpt30m_corpus_v01_smoke/checkpoint_last.pt
+bootstrap:
+  if_missing: false
+generation:
+  max_new_tokens: 16
+  temperature: 0.0
+  top_k: 0
+  top_p: null
+  repetition_penalty: 1.0
+  use_cache: false
+  stop_strings: []
+  stop_token_ids: []
+chat:
+  template: "Q:{instruction}\nA:"
+benchmark:
+  devices:
+    - cpu
+  warmup_runs: 1
+  measured_runs: 1
+  prompts:
+    - The model learns
+    - 小さなモデル
+mlx:
+  status: deferred
+  reason: PHASE-08A formally defers MLX; PHASE-11A keeps PyTorch CPU inference smoke only.

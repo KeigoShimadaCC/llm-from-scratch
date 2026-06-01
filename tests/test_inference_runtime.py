@@ -15,6 +15,16 @@ def test_inference_config_loads_smoke_defaults() -> None:
     assert config.chat_template == "Q:{instruction}\nA:"
 
 
+def test_inference_config_loads_phase11a_pretrain_checkpoint() -> None:
+    config = load_inference_config("configs/inference_corpus_v01.yaml")
+
+    assert config.model_kind == "pretrain"
+    assert config.model_config.name == "kgpt_30m_corpus_v01.yaml"
+    assert config.checkpoint.name == "checkpoint_last.pt"
+    assert not config.bootstrap_if_missing
+    assert config.generation["max_new_tokens"] == 16
+
+
 def test_stop_string_truncates_decoded_completion() -> None:
     text, reason = truncate_at_stop_string(
         generated_text="hello world<stop>tail",

@@ -24,11 +24,11 @@ Living coordination file for phase-based agent work.
 
 ### Done
 
-- [x] Added `configs/kgpt_30m_corpus_v01.yaml`, `docs/checkpoint_manifest_corpus_v01.json`, `docs/phase11a_real_corpus_checkpoint_comparison.md`, dry-run data/tokenizer/resume validation, comparison report sample snapshots, tests, and command/artifact index entries.
+- [x] Added `configs/kgpt_30m_corpus_v01.yaml`, `configs/inference_corpus_v01.yaml`, `docs/checkpoint_manifest_corpus_v01.json`, `docs/phase11a_real_corpus_checkpoint_comparison.md`, dry-run data/tokenizer/resume validation, comparison report sample snapshots, tests, inference smoke wiring, and command/artifact index entries.
 - [x] Completed ignored 1000-step PHASE-11A run at `experiments/runs/phase11a_kgpt30m_corpus_v01_smoke/`: 31,692,800 parameters, 16,000 tokens seen, initial validation loss 319.7539, final validation loss 32.7539, best validation loss 17.7304 at step 100, loss improvement 89.76%, and final throughput 344.53 tokens/sec on CPU.
 - [x] Generated run-local ignored evidence including `config.yaml`, `metrics.jsonl`, `samples.txt`, `tokenizer_info.json`, `checkpoint_last.pt`, `checkpoint_best.pt`, `manifest.json`, and `eval_report.md`; generated artifacts remain untracked.
 - [x] PHASE-11A comparison report live-evaluated the checkpoint with zero summary-only rows and includes English/Japanese fixed-prompt sample snapshots plus limitations.
-- [x] PHASE-11A validation passed: `uv run pytest` (67 tests), `uv run ruff check .`, `git diff --check`, `uv run python -m train.pretrain --config configs/kgpt_30m_corpus_v01.yaml --dry-run --validate-resume`, `uv run python -m train.pretrain --config configs/kgpt_30m_corpus_v01.yaml --max-steps 1000 --run-name phase11a_kgpt30m_corpus_v01_smoke`, and `uv run python -m eval.compare_checkpoints --manifest docs/checkpoint_manifest_corpus_v01.json --output docs/phase11a_real_corpus_checkpoint_comparison.md`.
+- [x] PHASE-11A validation passed: `uv run pytest` (68 tests), `uv run ruff check .`, `git diff --check`, `uv run python -m train.pretrain --config configs/kgpt_30m_corpus_v01.yaml --dry-run --validate-resume`, `uv run python -m train.pretrain --config configs/kgpt_30m_corpus_v01.yaml --max-steps 1000 --run-name phase11a_kgpt30m_corpus_v01_smoke`, `uv run python -m eval.compare_checkpoints --manifest docs/checkpoint_manifest_corpus_v01.json --output docs/phase11a_real_corpus_checkpoint_comparison.md`, and `uv run python -m inference.generate --config configs/inference_corpus_v01.yaml --prompt "The model learns" --max-new-tokens 16 --seed 123`.
 - [x] Artifact policy check passed: `git ls-files data/raw data/processed data/tokenized experiments/runs '*.pt' '*.safetensors'` returned no tracked generated artifacts.
 - [x] Started PHASE-11A after PHASE-10D merged via PR #15 at merge commit `a3dce425fd26f41d5e55dee96e5322e3698f4202`.
 - [x] Runner setup attempted for PHASE-11A at `runs/phase-runner/PHASE-11A/2026-06-01T03:01:22Z`; it blocked on local Git ref locking before planning, so implementation is proceeding on the phase branch with the same required validation contract.
@@ -127,6 +127,7 @@ Living coordination file for phase-based agent work.
 - [x] `phase11a_kgpt30m_corpus_v01_smoke` training run completed for 1000 steps.
 - [x] `docs/checkpoint_manifest_corpus_v01.json` added.
 - [x] `docs/phase11a_real_corpus_checkpoint_comparison.md` generated from the manifest.
+- [x] `configs/inference_corpus_v01.yaml` added and smoke-tested through `inference.generate`.
 - [x] Fixed-prompt samples include English and Japanese educational probes.
 - [x] Tests cover new config/report behavior where practical.
 - [x] Required validation commands run.
