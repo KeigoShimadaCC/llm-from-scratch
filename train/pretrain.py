@@ -11,7 +11,7 @@ from typing import Any
 
 import torch
 
-from kgpt.checkpoint import save_checkpoint
+from kgpt.checkpoint import load_checkpoint, save_checkpoint
 from kgpt.git import current_git_commit
 from kgpt.pretrain import (
     PretrainConfig,
@@ -321,6 +321,21 @@ def run_pretraining(*, config: PretrainConfig, run_dir: Path, resume: bool = Fal
 
 def run_pretrain_dry_run(*, config: PretrainConfig, validate_resume: bool) -> dict[str, Any]:
     seed_everything(config.seed)
+    data_validation = _validate_pretrain_data(config)
+    tokenizer = load_tokenizer_for_config(config)
+    tokenizer_validation = {
+        "model_path": str(config.tokenizer.model_path),
+        "fallback_training_config": str(config.tokenizer.fallback_training_config)
+        if config.tokenizer.fallback_training_config
+        else None,
+        "tokenizer_id": tokenizer.tokenizer_id,
+        "vocab_size": tokenizer.vocab_size,
+        "matches_model_vocab": tokenizer.vocab_size == config.model.vocab_size,
+    }
+    if tokenizer.vocab_size != config.model.vocab_size:
+        raise ValueError(
+            f"Config vocab_size={config.model.vocab_size} does not match tokenizer vocab_size={tokenizer.vocab_size}."
+        )
     device = resolve_device(config.device)
     model = DecoderOnlyTransformer(config.model).to(device)
     optimizer = torch.optim.AdamW(model.parameters(), lr=config.optimizer.learning_rate)
@@ -335,23 +350,37 @@ def run_pretrain_dry_run(*, config: PretrainConfig, validate_resume: bool) -> di
     if validate_resume:
         with tempfile.TemporaryDirectory(prefix="kgpt-resume-") as tmpdir:
             run_dir = Path(tmpdir)
+            metadata = checkpoint_metadata(
+                config=config,
+                run_dir=run_dir,
+                step=0,
+                parameter_count=parameter_count,
+                initial_validation_loss=1.0,
+                current_validation_loss=1.0,
+                best_validation_loss=1.0,
+                best_step=0,
+                tokens_seen=0,
+                git_commit=current_git_commit(),
+                created_at=datetime.now(UTC).isoformat(),
+            )
             save_checkpoint(
                 run_dir / "checkpoint_last.pt",
                 model=model,
                 optimizer=optimizer,
-                metadata={
-                    "step": 0,
-                    "best_validation_loss": 1.0,
-                    "best_step": 0,
-                    "initial_validation_loss": 1.0,
-                },
+                metadata=metadata,
             )
             state = load_resume_state(run_dir=run_dir, model=model, optimizer=optimizer)
+            checkpoint_payload = load_checkpoint(run_dir / "checkpoint_last.pt", map_location="cpu")
+            checkpoint_keys = sorted(str(key) for key in checkpoint_payload["metadata"])
             resume_validation = {
                 "start_step": state.start_step,
                 "best_validation_loss": state.best_validation_loss,
                 "best_step": state.best_step,
                 "initial_validation_loss": state.initial_validation_loss,
+                "checkpoint_metadata_keys": checkpoint_keys,
+                "checkpoint_parameter_count": checkpoint_payload["metadata"].get("parameter_count"),
+                "checkpoint_config_hash": checkpoint_payload["metadata"].get("config_hash"),
+                "resume_supported": checkpoint_payload["metadata"].get("resume_supported"),
             }
     return {
         "config": str(config.source_path),
@@ -366,8 +395,62 @@ def run_pretrain_dry_run(*, config: PretrainConfig, validate_resume: bool) -> di
         "dtype": config.dtype,
         "target_steps": config.run_budget.target_steps,
         "target_tokens": config.run_budget.target_tokens,
+        "data_validation": data_validation,
+        "tokenizer_validation": tokenizer_validation,
         "resume_validation": resume_validation,
         "dry_run": True,
+    }
+
+
+def _validate_pretrain_data(config: PretrainConfig) -> dict[str, Any]:
+    if not config.data.tokenized_config.is_file():
+        raise FileNotFoundError(f"Missing tokenized dataset config: {config.data.tokenized_config}")
+    if not config.data.metadata_path.is_file():
+        build_tokenized_dataset_from_config(config.data.tokenized_config)
+    if not config.data.metadata_path.is_file():
+        raise FileNotFoundError(f"Missing tokenized metadata: {config.data.metadata_path}")
+
+    metadata = json.loads(config.data.metadata_path.read_text(encoding="utf8"))
+    tokenizer_payload = metadata.get("tokenizer")
+    if not isinstance(tokenizer_payload, dict):
+        raise ValueError(f"Tokenized metadata is missing tokenizer info: {config.data.metadata_path}")
+    if int(tokenizer_payload.get("vocab_size", -1)) != config.model.vocab_size:
+        raise ValueError(
+            "Tokenized metadata vocab_size does not match model config: "
+            f"{tokenizer_payload.get('vocab_size')} != {config.model.vocab_size}."
+        )
+
+    split_checks: dict[str, dict[str, Any]] = {}
+    splits = metadata.get("splits")
+    if not isinstance(splits, dict):
+        raise ValueError(f"Tokenized metadata is missing splits: {config.data.metadata_path}")
+    for split in (config.data.split, config.data.validation_split):
+        split_payload = splits.get(split)
+        if not isinstance(split_payload, dict):
+            raise ValueError(f"Tokenized metadata is missing required split {split!r}: {config.data.metadata_path}")
+        token_path = Path(str(split_payload.get("path", "")))
+        token_count = int(split_payload.get("token_count", 0))
+        if not token_path.is_file():
+            raise FileNotFoundError(f"Missing token array for split {split!r}: {token_path}")
+        if token_count <= config.model.context_length:
+            raise ValueError(
+                f"Tokenized split {split!r} has {token_count} tokens, "
+                f"which is too short for context_length={config.model.context_length}."
+            )
+        split_checks[split] = {
+            "path": str(token_path),
+            "token_count": token_count,
+            "record_count": int(split_payload.get("record_count", 0)),
+            "sha256": split_payload.get("sha256"),
+        }
+
+    return {
+        "tokenized_config": str(config.data.tokenized_config),
+        "metadata_path": str(config.data.metadata_path),
+        "metadata_exists": True,
+        "tokenizer_vocab_size": int(tokenizer_payload["vocab_size"]),
+        "splits": split_checks,
+        "leakage_overlap_count": metadata.get("leakage_check", {}).get("overlap_count"),
     }
 
 

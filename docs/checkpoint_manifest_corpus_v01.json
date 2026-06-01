@@ -1,0 +1,47 @@
+{
+  "schema_version": 1,
+  "manifest_path": "docs/checkpoint_manifest_corpus_v01.json",
+  "title": "PHASE-11A Real-Corpus 30M Checkpoint Comparison",
+  "eval_config": "configs/eval_fixed_prompts.yaml",
+  "artifact_policy": "Ignored corpus_v01 checkpoint artifacts are evaluated live when present. Fresh clones and CI use this committed summary and mark the row summary-only.",
+  "comparison_notes": [
+    "PHASE-11A is a smoke-sized real-corpus path over corpus_v01 local artifacts, not a full quality claim.",
+    "The selected tokenizer is kgpt-corpus-v01-byte-bpe-4k from PHASE-10D; the smoke corpus caps the actual vocabulary at 312 tokens.",
+    "English and Japanese fixed prompts are educational probes used to observe training dynamics and failure modes."
+  ],
+  "checkpoints": [
+    {
+      "id": "phase11a_kgpt30m_corpus_v01",
+      "label": "PHASE-11A kgpt-30m corpus_v01 smoke",
+      "phase": "PHASE-11A",
+      "kind": "pretrain",
+      "scale": "30m",
+      "config": "configs/kgpt_30m_corpus_v01.yaml",
+      "checkpoint": "experiments/runs/phase11a_kgpt30m_corpus_v01_smoke/checkpoint_last.pt",
+      "run_dir": "experiments/runs/phase11a_kgpt30m_corpus_v01_smoke",
+      "data_manifests": [
+        "docs/corpus_v01_source_manifest.md",
+        "docs/corpus_v01_dataset_manifest.json",
+        "docs/corpus_v01_tokenized_manifest.json"
+      ],
+      "summary_source": "experiments/runs/phase11a_kgpt30m_corpus_v01_smoke/manifest.json and metrics.jsonl generated during PHASE-11A validation",
+      "reproduce_command": "uv run python -m train.pretrain --config configs/kgpt_30m_corpus_v01.yaml --max-steps 1000 --run-name phase11a_kgpt30m_corpus_v01_smoke",
+      "summary": {
+        "parameter_count": 31692800,
+        "initial_validation_loss": 319.7538757324219,
+        "final_validation_loss": 32.753854751586914,
+        "best_validation_loss": 17.730361938476562,
+        "best_step": 100,
+        "tokens_seen": 16000,
+        "tokens_per_sec": 344.5281907116557,
+        "loss_improvement_fraction": 0.8975654175369678,
+        "failure_summary": [
+          "tiny_smoke_corpus_overfit_risk",
+          "validation_regression_after_best_step",
+          "language_mixing_in_samples",
+          "educational_probe_only"
+        ]
+      }
+    }
+  ]
+}

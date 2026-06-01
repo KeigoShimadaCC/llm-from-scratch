@@ -1,0 +1,60 @@
+schema_version: 1
+run_name: phase11a_kgpt30m_corpus_v01
+seed: 20260611
+device: cpu
+dtype: float32
+model_name: kgpt-30m-corpus-v01
+tokenizer:
+  model_path: data/tokenized/corpus_v01_tokenizers/byte_bpe_4k.json
+  fallback_training_config: configs/tokenizer_corpus_v01.yaml
+data:
+  tokenized_config: configs/corpus_v01_tokenized.yaml
+  metadata_path: data/tokenized/corpus_v01_smoke/metadata.json
+  split: train
+  validation_split: validation
+model:
+  vocab_size: 312
+  context_length: 16
+  embedding_dim: 512
+  num_layers: 10
+  num_heads: 8
+  mlp_hidden_dim: 2048
+  dropout: 0.0
+  tie_embeddings: true
+optimizer:
+  name: adamw
+  learning_rate: 0.0003
+scheduler:
+  warmup_steps: 25
+  min_lr_factor: 0.10
+training:
+  batch_size: 1
+  train_steps: 1000
+  output_dir: experiments/runs
+  checkpoint_every: 250
+  eval_every: 100
+  sample_every: 250
+  gradient_accumulation_steps: 1
+  max_grad_norm: 1.0
+  validation_batches: 2
+  loss_improvement_threshold: 0.001
+scale:
+  min_parameters: 30000000
+  max_parameters: 70000000
+  label: kgpt-30m-corpus-v01
+run_budget:
+  target_steps: 1000
+  target_tokens: 16000
+  target_wall_clock_minutes: 120
+  hardware: Mac local CPU smoke gate over corpus_v01 ignored token arrays; full-corpus training remains a later budget decision.
+generation:
+  max_new_tokens: 32
+  temperature: 0.0
+  top_k: 0
+sample_prompts:
+  - The model learns
+  - A local language model
+  - Wikipedia articles describe
+  - 小さなモデル
+  - 日本語の文章
+  - データの品質

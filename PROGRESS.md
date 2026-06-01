@@ -6,9 +6,9 @@ Living coordination file for phase-based agent work.
 
 | Field | Value |
 | --- | --- |
-| Phase | PHASE-10D - Tokenizer And Tokenized Dataset |
-| Goal | Train corpus_v01 byte-BPE candidates and build ignored tokenized arrays for batch sampling |
-| Branch | phase/phase-10d-tokenizer-tokenized-dataset |
+| Phase | PHASE-11A - Meaningful 30M Training |
+| Goal | Run a smoke-sized real-corpus kgpt-30m training track and produce checkpoint comparison evidence |
+| Branch | phase/phase-11a-meaningful-30m-training |
 | Worktree | /Users/keigoshimada/Documents/llm-from-scratch |
 | Status | complete |
 
@@ -24,6 +24,15 @@ Living coordination file for phase-based agent work.
 
 ### Done
 
+- [x] Added `configs/kgpt_30m_corpus_v01.yaml`, `docs/checkpoint_manifest_corpus_v01.json`, `docs/phase11a_real_corpus_checkpoint_comparison.md`, dry-run data/tokenizer/resume validation, comparison report sample snapshots, tests, and command/artifact index entries.
+- [x] Completed ignored 1000-step PHASE-11A run at `experiments/runs/phase11a_kgpt30m_corpus_v01_smoke/`: 31,692,800 parameters, 16,000 tokens seen, initial validation loss 319.7539, final validation loss 32.7539, best validation loss 17.7304 at step 100, loss improvement 89.76%, and final throughput 344.53 tokens/sec on CPU.
+- [x] Generated run-local ignored evidence including `config.yaml`, `metrics.jsonl`, `samples.txt`, `tokenizer_info.json`, `checkpoint_last.pt`, `checkpoint_best.pt`, `manifest.json`, and `eval_report.md`; generated artifacts remain untracked.
+- [x] PHASE-11A comparison report live-evaluated the checkpoint with zero summary-only rows and includes English/Japanese fixed-prompt sample snapshots plus limitations.
+- [x] PHASE-11A validation passed: `uv run pytest` (67 tests), `uv run ruff check .`, `git diff --check`, `uv run python -m train.pretrain --config configs/kgpt_30m_corpus_v01.yaml --dry-run --validate-resume`, `uv run python -m train.pretrain --config configs/kgpt_30m_corpus_v01.yaml --max-steps 1000 --run-name phase11a_kgpt30m_corpus_v01_smoke`, and `uv run python -m eval.compare_checkpoints --manifest docs/checkpoint_manifest_corpus_v01.json --output docs/phase11a_real_corpus_checkpoint_comparison.md`.
+- [x] Artifact policy check passed: `git ls-files data/raw data/processed data/tokenized experiments/runs '*.pt' '*.safetensors'` returned no tracked generated artifacts.
+- [x] Started PHASE-11A after PHASE-10D merged via PR #15 at merge commit `a3dce425fd26f41d5e55dee96e5322e3698f4202`.
+- [x] Runner setup attempted for PHASE-11A at `runs/phase-runner/PHASE-11A/2026-06-01T03:01:22Z`; it blocked on local Git ref locking before planning, so implementation is proceeding on the phase branch with the same required validation contract.
+- [x] Read `PROGRESS.md`, North Star data/tokenizer/training direction, and `phase-plans/PHASE-11A-MEANINGFUL-30M-TRAINING.md` before implementation.
 - [x] Added `configs/tokenizer_corpus_v01.yaml`, `configs/corpus_v01_tokenized.yaml`, processed-corpus tokenizer/report support, tokenized split-manifest support, tests, tokenizer report, and tokenized manifest evidence.
 - [x] Selected `kgpt-corpus-v01-byte-bpe-4k`; smoke data caps actual vocabulary at 312 tokens, which is documented in `docs/tokenizer_corpus_v01_report.md`.
 - [x] Generated ignored tokenizer model and train/validation/test token arrays under `data/tokenized/**`; generated artifacts remain untracked.
@@ -108,6 +117,20 @@ Living coordination file for phase-based agent work.
 - [x] Implemented PHASE-01A character tokenizer, context MLP training loop, deterministic generation, tests, prompt asset, mini report, and ignored overfit evidence.
 
 ## Phase Checklist
+
+### PHASE-11A - Meaningful 30M Training
+
+- [x] PHASE-10D prerequisites verified.
+- [x] Active phase plan read before implementation.
+- [x] `configs/kgpt_30m_corpus_v01.yaml` added for the selected corpus_v01 tokenizer and tokenized dataset.
+- [x] Dry-run/resume validation checks config compatibility, parameter count, data paths, checkpoint metadata, and resume behavior.
+- [x] `phase11a_kgpt30m_corpus_v01_smoke` training run completed for 1000 steps.
+- [x] `docs/checkpoint_manifest_corpus_v01.json` added.
+- [x] `docs/phase11a_real_corpus_checkpoint_comparison.md` generated from the manifest.
+- [x] Fixed-prompt samples include English and Japanese educational probes.
+- [x] Tests cover new config/report behavior where practical.
+- [x] Required validation commands run.
+- [x] No checkpoints, run directories, token arrays, raw/processed corpora, OpenAI embeddings, or pretrained weights are committed.
 
 ### PHASE-10D - Tokenizer And Tokenized Dataset
 

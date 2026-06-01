@@ -4,7 +4,7 @@ import json
 from pathlib import Path
 
 from eval.checkpoint_eval import DEFAULT_SUMMARY_STATUS, evaluate_checkpoint_manifest, load_eval_config, repetition_rate
-from eval.compare_checkpoints import compare_checkpoints
+from eval.compare_checkpoints import _write_live_run_eval_reports, compare_checkpoints
 
 
 def test_eval_config_consolidates_prompt_sets() -> None:
@@ -42,6 +42,37 @@ def test_summary_fallback_marks_missing_ignored_checkpoint() -> None:
     assert result["status"] == DEFAULT_SUMMARY_STATUS
     assert result["metrics"]["perplexity"] > 1.0
     assert result["failure_summary"] == ["live_samples_missing"]
+
+
+def test_summary_leakage_allows_markdown_provenance_manifest(tmp_path: Path) -> None:
+    provenance = tmp_path / "source_manifest.md"
+    provenance.write_text("# Source Manifest\n", encoding="utf8")
+    config = load_eval_config("configs/eval_fixed_prompts.yaml")
+    manifest = {
+        "schema_version": 1,
+        "checkpoints": [
+            {
+                "id": "missing",
+                "label": "Missing checkpoint",
+                "phase": "TEST",
+                "kind": "pretrain",
+                "config": "configs/kgpt_tiny.yaml",
+                "checkpoint": "experiments/runs/missing/checkpoint_last.pt",
+                "data_manifests": [str(provenance)],
+                "summary": {
+                    "parameter_count": 10,
+                    "final_validation_loss": 2.0,
+                    "exact_match_rate": 0.0,
+                },
+            }
+        ],
+    }
+
+    result = evaluate_checkpoint_manifest(eval_config=config, checkpoint_manifest=manifest)[0]
+
+    assert result["leakage"]["data_manifests"] == [
+        {"manifest": str(provenance), "status": "not_json"}
+    ]
 
 
 def test_repetition_rate_detects_repeated_text() -> None:
@@ -83,3 +114,61 @@ def test_compare_checkpoints_writes_summary_report(tmp_path: Path) -> None:
 
     assert result["summary_only_count"] == 1
     assert "Missing checkpoint" in output_path.read_text(encoding="utf8")
+
+
+def test_compare_checkpoints_uses_manifest_title(tmp_path: Path) -> None:
+    manifest_path = tmp_path / "manifest.json"
+    output_path = tmp_path / "comparison.md"
+    manifest_path.write_text(
+        json.dumps(
+            {
+                "schema_version": 1,
+                "title": "Custom Checkpoint Comparison",
+                "checkpoints": [
+                    {
+                        "id": "missing",
+                        "label": "Missing checkpoint",
+                        "phase": "TEST",
+                        "kind": "pretrain",
+                        "config": "configs/kgpt_tiny.yaml",
+                        "checkpoint": "experiments/runs/missing/checkpoint_last.pt",
+                        "summary": {
+                            "parameter_count": 10,
+                            "final_validation_loss": 2.0,
+                            "failure_summary": ["blocked_live_checkpoint_missing"],
+                        },
+                    }
+                ],
+            }
+        ),
+        encoding="utf8",
+    )
+
+    compare_checkpoints(
+        manifest_path=manifest_path,
+        eval_config_path=Path("configs/eval_fixed_prompts.yaml"),
+        output_path=output_path,
+    )
+
+    assert output_path.read_text(encoding="utf8").startswith("# Custom Checkpoint Comparison")
+
+
+def test_compare_checkpoint_report_records_live_run_eval_report(tmp_path: Path) -> None:
+    run_dir = tmp_path / "phase11a"
+    run_dir.mkdir()
+    manifest_path = run_dir / "manifest.json"
+    manifest_path.write_text('{"output_files": {"checkpoint_last": "checkpoint_last.pt"}}\n', encoding="utf8")
+
+    report_paths = _write_live_run_eval_reports(
+        results=[
+            {
+                "status": "live_evaluated",
+                "checkpoint": str(run_dir / "checkpoint_last.pt"),
+            }
+        ],
+        report_text="# Comparison\n",
+    )
+
+    assert report_paths == [str(run_dir / "eval_report.md")]
+    assert (run_dir / "eval_report.md").read_text(encoding="utf8") == "# Comparison\n"
+    assert "eval_report" in manifest_path.read_text(encoding="utf8")

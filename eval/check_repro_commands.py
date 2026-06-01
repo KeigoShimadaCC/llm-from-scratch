@@ -61,6 +61,36 @@ REQUIRED_COMMANDS = (
     ),
     "uv run python -m eval.audit_claims --doc docs/FINAL_WRITEUP.md --output docs/claim_evidence_audit.md",
     "uv run python -m eval.check_repro_commands --doc docs/COMMAND_INDEX.md",
+    (
+        "uv run python -m corpus.audit_sources --config configs/corpus_v01.yaml "
+        "--output docs/corpus_v01_source_manifest.md"
+    ),
+    "uv run python -m corpus.download --config configs/corpus_v01.yaml --dry-run",
+    (
+        "uv run python -m corpus.clean --config configs/corpus_v01.yaml --smoke "
+        "--output data/processed/corpus_v01_smoke"
+    ),
+    (
+        "uv run python -m corpus.split_manifest --config configs/corpus_v01.yaml "
+        "--processed data/processed/corpus_v01_smoke --output docs/corpus_v01_dataset_manifest.json"
+    ),
+    (
+        "uv run python -m tokenizer.train_report --config configs/tokenizer_corpus_v01.yaml "
+        "--output docs/tokenizer_corpus_v01_report.md"
+    ),
+    "uv run python -m train.sample_batches --config configs/corpus_v01_tokenized.yaml --max-batches 2",
+    (
+        "uv run python -m train.pretrain --config configs/kgpt_30m_corpus_v01.yaml "
+        "--dry-run --validate-resume"
+    ),
+    (
+        "uv run python -m train.pretrain --config configs/kgpt_30m_corpus_v01.yaml --max-steps 1000 "
+        "--run-name phase11a_kgpt30m_corpus_v01_smoke"
+    ),
+    (
+        "uv run python -m eval.compare_checkpoints --manifest docs/checkpoint_manifest_corpus_v01.json "
+        "--output docs/phase11a_real_corpus_checkpoint_comparison.md"
+    ),
 )
 
 FORBIDDEN_TOKENS = (

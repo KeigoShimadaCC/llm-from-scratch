@@ -81,6 +81,43 @@ uv run python -m eval.audit_claims --doc docs/FINAL_WRITEUP.md --output docs/cla
 uv run python -m eval.check_repro_commands --doc docs/COMMAND_INDEX.md
 ```
 
+## PHASE-10A Corpus Source Registry
+
+```bash
+uv run python -m corpus.audit_sources --config configs/corpus_v01.yaml --output docs/corpus_v01_source_manifest.md
+```
+
+## PHASE-10B Corpus Download And Cleaning
+
+```bash
+uv run python -m corpus.download --config configs/corpus_v01.yaml --dry-run
+uv run python -m corpus.clean --config configs/corpus_v01.yaml --smoke --output data/processed/corpus_v01_smoke
+```
+
+## PHASE-10C Split, Leakage, And Dataset Manifest
+
+```bash
+uv run python -m corpus.split_manifest --config configs/corpus_v01.yaml --processed data/processed/corpus_v01_smoke --output docs/corpus_v01_dataset_manifest.json
+```
+
+## PHASE-10D Tokenizer And Tokenized Dataset
+
+```bash
+uv run python -m tokenizer.train_report --config configs/tokenizer_corpus_v01.yaml --output docs/tokenizer_corpus_v01_report.md
+uv run python -m train.sample_batches --config configs/corpus_v01_tokenized.yaml --max-batches 2
+```
+
+## PHASE-11A Real-Corpus 30M Training
+
+The PHASE-11A training command is a local 30M smoke run over ignored `corpus_v01` token arrays. Review local
+runtime and thermals before increasing step count, context length, or corpus size.
+
+```bash
+uv run python -m train.pretrain --config configs/kgpt_30m_corpus_v01.yaml --dry-run --validate-resume
+uv run python -m train.pretrain --config configs/kgpt_30m_corpus_v01.yaml --max-steps 1000 --run-name phase11a_kgpt30m_corpus_v01_smoke
+uv run python -m eval.compare_checkpoints --manifest docs/checkpoint_manifest_corpus_v01.json --output docs/phase11a_real_corpus_checkpoint_comparison.md
+```
+
 ## Current Limitations For Reproduction
 
 - Checkpoints and generated run directories are ignored. A fresh clone can rerun commands to regenerate them locally.
