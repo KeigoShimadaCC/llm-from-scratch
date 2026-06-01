@@ -65,3 +65,35 @@ language-model targets are the same token stream shifted by one token.
 Tokenizer model artifacts are generated under ignored `data/tokenized/tokenizers/`. The committed
 tokenizer report lists the ignored model path and checksum so the artifact can be regenerated without
 committing data-derived files.
+
+## PHASE-10A/10B corpus_v01 policy
+
+`corpus_v01` is limited to four audited public source categories:
+
+- English Wikipedia
+- Japanese Wikipedia
+- Project Gutenberg
+- Aozora Bunko
+
+PHASE-10A commits only source registry metadata and the generated source manifest. PHASE-10B adds
+CI-safe download planning and smoke cleaning:
+
+```sh
+uv run python -m corpus.download --config configs/corpus_v01.yaml --dry-run
+uv run python -m corpus.clean --config configs/corpus_v01.yaml --smoke --output data/processed/corpus_v01_smoke
+```
+
+`corpus.download --dry-run` does not fetch payloads. It validates the audited source registry and prints
+the local raw/processed paths, source locators, checksum policy, and eligibility status that a supervised
+download would use later.
+
+`corpus.clean --smoke` writes a repo-authored smoke corpus under ignored
+`data/processed/corpus_v01_smoke/`:
+
+- `documents.jsonl`: processed records with `doc_id`, `source_id`, `lang`, `title`, `text`, `license`,
+  `attribution`, `source_url`, `source_record_id`, `sha256`, and `cleaning_version`
+- `manifest.json`: aggregate source/language counts and the JSONL checksum
+
+The smoke corpus exercises Wikipedia, Gutenberg, and Aozora cleaning behavior without committing upstream
+corpus text. Full raw downloads, full processed corpora, tokenized arrays, tokenizer artifacts, and
+checkpoints remain ignored local artifacts.

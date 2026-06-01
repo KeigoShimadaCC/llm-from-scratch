@@ -6,10 +6,10 @@ Living coordination file for phase-based agent work.
 
 | Field | Value |
 | --- | --- |
-| Phase | PHASE-10A - Corpus Source Registry |
-| Goal | Define the audited corpus_v01 source allowlist before download or cleaning work |
-| Branch | phase/phase-10a-corpus-source-registry |
-| Worktree | /Users/keigoshimada/Documents/llm-from-scratch-phase-10a-corpus-source-registry-wt |
+| Phase | PHASE-10B - Corpus Download And Cleaning |
+| Goal | Add CI-safe corpus download dry-run and deterministic smoke cleaning for corpus_v01 |
+| Branch | phase/phase-10b-corpus-download-cleaning |
+| Worktree | /Users/keigoshimada/Documents/llm-from-scratch |
 | Status | complete |
 
 ## Task Queue
@@ -24,6 +24,12 @@ Living coordination file for phase-based agent work.
 
 ### Done
 
+- [x] Implemented `corpus.download --dry-run`, `corpus.clean --smoke`, processed JSONL schema helpers, repo-authored smoke fixtures, tests, and PHASE-10B data documentation.
+- [x] Generated ignored smoke processed corpus at `data/processed/corpus_v01_smoke/` with `documents.jsonl` and `manifest.json`; artifacts remain untracked.
+- [x] PHASE-10B validation passed: `uv run pytest` (55 tests), `uv run ruff check .`, `git diff --check`, `uv run python -m corpus.download --config configs/corpus_v01.yaml --dry-run`, and `uv run python -m corpus.clean --config configs/corpus_v01.yaml --smoke --output data/processed/corpus_v01_smoke`.
+- [x] Artifact policy check passed: `git ls-files data/raw data/processed data/tokenized experiments/runs '*.pt' '*.safetensors'` returned no tracked generated artifacts.
+- [x] Started PHASE-10B after PHASE-10A merged via PR #12 at merge commit `fd3ddb097efc96e6340efeaae41fe77421fdcb34`.
+- [x] Read `PROGRESS.md`, North Star data/tokenizer/training direction, and `phase-plans/PHASE-10B-CORPUS-DOWNLOAD-CLEANING.md` before implementation.
 - [x] PHASE-10A validation passed: `uv run pytest` (49 tests), `uv run ruff check .`, `git diff --check`, and `uv run python -m corpus.audit_sources --config configs/corpus_v01.yaml --output docs/corpus_v01_source_manifest.md`.
 - [x] Artifact policy check passed for PHASE-10A: no raw corpus payloads, generated checkpoints, pretrained wrappers, or generated run artifacts are committed.
 - [x] Started PHASE-10A from accepted plan `runs/phase-runner/PHASE-10A/2026-06-01T02:20:59Z/accepted-plan/accepted-plan.json`.
@@ -89,6 +95,20 @@ Living coordination file for phase-based agent work.
 - [x] Implemented PHASE-01A character tokenizer, context MLP training loop, deterministic generation, tests, prompt asset, mini report, and ignored overfit evidence.
 
 ## Phase Checklist
+
+### PHASE-10B - Corpus Download And Cleaning
+
+- [x] PHASE-10A prerequisites verified.
+- [x] Active phase plan read before implementation.
+- [x] `corpus.download --dry-run` validates the audited source registry and prints planned local paths, source locators, checksum policy, and eligibility.
+- [x] Full payload downloads remain guarded and are not performed by CI automation.
+- [x] `corpus.clean --smoke` writes deterministic processed JSONL records under ignored `data/processed/corpus_v01_smoke/`.
+- [x] Processed records include `doc_id`, `source_id`, `lang`, `title`, `text`, `license`, `attribution`, `source_url`, `source_record_id`, `sha256`, and `cleaning_version`.
+- [x] Smoke cleaning covers Wikipedia markup, Gutenberg boilerplate, Aozora ruby/gaiji notes, Unicode normalization, whitespace normalization, language tags, and empty-text rejection.
+- [x] Tests cover dry-run planning, cleaning transforms, JSONL schema, deterministic hashes, and source allowlist rejection.
+- [x] `data/README.md` documents raw/processed local storage and smoke artifact policy.
+- [x] Required validation commands run.
+- [x] No raw or processed corpus payloads are committed.
 
 ### PHASE-10A - Corpus Source Registry
 
